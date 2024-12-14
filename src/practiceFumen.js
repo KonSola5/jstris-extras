@@ -137,12 +137,12 @@ export const initPracticeFumen = () => {
                 return
             }
             let fumen = encoder.encode(this.p.fumenPages)
-            var coderro = "<span class='wFirstLine'><span class='wTitle'>!" + i18n.warning2 + "!</span> <b>" + i18n.repFail + "</b> (<em>" + "Jstris+ Fumen Export" + "</em>)</span>";
-
-            coderro += "<p>" + "Fumen code dumped into the chat." + "</p>"
-            coderro += `<a href="https://harddrop.com/fumen/?${fumen}" target="_blank">Link</a>`
-            coderro += '<textarea readonly cols="30" onclick="this.focus();this.select()">'
-            coderro += fumen + "</textarea>"
+            var coderro = `
+            <span class='wFirstLine'><span class='wTitle'>!${i18n.warning2}!</span><b>${i18n.repFail}"</b>(<em>Jstris+ Fumen Export</em>)</span>
+            <p>Fumen code dumped into the chat.</p>
+            <a href="https://harddrop.com/fumen/?${fumen}" target="_blank">Link</a>
+            <textarea readonly cols="30" onclick="this.focus();this.select()">${fumen}</textarea>
+            `
             this.chatMajorWarning(coderro);
             this.chatInput.value = "";
             return

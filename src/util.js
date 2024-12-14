@@ -63,7 +63,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
     if (counter < numberOfShakes) {
 
       //Reset the element's position at the start of each shake
-      element.style.transform = 'translate(' + startX + 'px, ' + startY + 'px)';
+      element.style.transform = `translate(${startX}px, ${startY}px)`;
 
       //Reduce the magnitude
       magnitude -= magnitudeUnit;
@@ -72,7 +72,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
       var randomX = randomInt(-magnitude, magnitude);
       var randomY = randomInt(-magnitude, magnitude);
 
-      element.style.transform = 'translate(' + randomX + 'px, ' + randomY + 'px)';
+      element.style.transform = `translate(${randomX}px, ${randomY}px)`;
 
       //Add 1 to the counter
       counter += 1;
@@ -83,7 +83,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
     //When the shaking is finished, restore the element to its original
     //position and remove it from the `shakingElements` array
     if (counter >= numberOfShakes) {
-      element.style.transform = 'translate(' + startX + ', ' + startY + ')';
+      element.style.transform = `translate(${startX}, ${startY})`;
       shakingElements.splice(shakingElements.indexOf(element), 1);
     }
   }
@@ -93,7 +93,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
     if (counter < numberOfShakes) {
 
       //Reset the element's rotation
-      element.style.transform = 'rotate(' + startAngle + 'deg)';
+      element.style.transform = `rotate(${startAngle}deg)`;
 
       //Reduce the magnitude
       magnitude -= magnitudeUnit;
@@ -102,7 +102,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
       //by an amount in radians that matches the magnitude
       var angle = Number(magnitude * tiltAngle).toFixed(2);
 
-      element.style.transform = 'rotate(' + angle + 'deg)';
+      element.style.transform = `rotate(${angle}deg)`;
       counter += 1;
 
       //Reverse the tilt angle so that the element is tilted
@@ -115,7 +115,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
     //When the shaking is finished, reset the element's angle and
     //remove it from the `shakingElements` array
     if (counter >= numberOfShakes) {
-      element.style.transform = 'rotate(' + startAngle + 'deg)';
+      element.style.transform = `rotate(${startAngle}deg)`;
       shakingElements.splice(shakingElements.indexOf(element), 1);
     }
   }

@@ -387,7 +387,7 @@ export const initMM = () => {
           let banmsg = "You are banned from matchmaking for:"
           console.log(res.bans)
           for (let ban of res.bans) {
-            banmsg += " " + ban.reason + "; Expires: " + new Date(ban.timeout).toLocaleString();
+            banmsg += ` ${ban.reason}; Expires: ${new Date(ban.timeout).toLocaleString()}`;
           }
           updateUI(banmsg);
         } else if (res.type == "removed") {
