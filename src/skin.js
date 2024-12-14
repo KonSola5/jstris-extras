@@ -589,7 +589,7 @@ export const initConnectedSkins = () => {
         }
       }
       var currPiece = this.queue[count];
-      var currSet = this.blockSet[currPiece.set].previewAs,
+      var currSet = this.blockSets[currPiece.set].previewAs,
         blocks = currSet.blocks[currPiece.id].blocks[0],
         currColor = currSet.blocks[currPiece.id].color,
         currWeird = !currSet.equidist ? currSet.blocks[currPiece.id].yp : [0, 3],
