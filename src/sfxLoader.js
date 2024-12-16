@@ -90,13 +90,13 @@ const changeSFX = () => {
   if (json) {
     try {
       sfx = JSON.parse(json);
-      document.getElementById("custom_sfx_json_err").innerHTML = "Loaded " + (sfx.name || "custom sounds");
+      document.getElementById("custom_sfx_json_err").textContent = "Loaded " + (sfx.name || "custom sounds");
     } catch (e) {
       console.log("SFX json was invalid.");
-      document.getElementById("custom_sfx_json_err").innerHTML = "SFX json is invalid.";
+      document.getElementById("custom_sfx_json_err").textContent = "SFX json is invalid.";
     }
   } else {
-    document.getElementById("custom_sfx_json_err").innerHTML = "";
+    document.getElementById("custom_sfx_json_err").textContent = "";
   }
   if (typeof Game == "function") {
     if (!Config().ENABLE_CUSTOM_SFX || !sfx) {

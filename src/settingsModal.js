@@ -25,7 +25,7 @@ export const createCheckbox = (varName, displayName) => {
   });
   var label = document.createElement("label");
   label.htmlFor = varName;
-  label.innerHTML = displayName;
+  label.textContent = displayName;
 
   var div = document.createElement("div");
   div.className = "settings-inputRow";
@@ -47,7 +47,7 @@ export const createTextInput = (varName, displayName) => {
   });
   var label = document.createElement("label");
   label.htmlFor = varName;
-  label.innerHTML = displayName;
+  label.textContent = displayName;
 
   var div = document.createElement("div");
   div.className = "settings-inputRow";
@@ -94,7 +94,7 @@ export const createTextArea = (varName, displayName) => {
   });
   var label = document.createElement("label");
   label.htmlFor = varName;
-  label.innerHTML = displayName;
+  label.textContent = displayName;
 
   var div = document.createElement("div");
   div.className = "settings-inputRow";
@@ -126,13 +126,13 @@ export const createSliderInput = (varName, displayName, min = 0, max = 1, step =
   valueLabel.className = "settings-sliderValue";
   slider.addEventListener("change", () => {
     Config().set(varName, slider.value);
-    valueLabel.innerHTML = Number.parseFloat(slider.value).toFixed(2);
+    valueLabel.textContent = Number.parseFloat(slider.value).toFixed(2);
   });
-  valueLabel.innerHTML = Number.parseFloat(Config()[varName]).toFixed(2);
+  valueLabel.textContent = Number.parseFloat(Config()[varName]).toFixed(2);
 
   var label = document.createElement("label");
   label.htmlFor = varName;
-  label.innerHTML = displayName;
+  label.textContent = displayName;
 
   var div = document.createElement("div");
   div.className = "settings-inputRow";
@@ -222,13 +222,13 @@ const generateBody = () => {
 
   createTitle("Misc settings");
   createCheckbox("ENABLE_AUTOMATIC_REPLAY_CODES", "Enable automatic replay code saving on reset");
-  createHTML(createKeyInputElement("UNDO_KEYCODE", "keybind to undo moves in practice mode"));
+  createHTML(createKeyInputElement("UNDO_KEY", "keybind to undo moves in practice mode"));
   createCheckbox("ENABLE_CHAT_TIMESTAMPS", "Enable chat timestamps");
   createCheckbox("SHOW_MM_BUTTON", "Show matchmaking button");
   createCheckbox("SHOW_QUEUE_INFO", "Show matchmaking queue info");
-  createHTML(createKeyInputElement("TOGGLE_CHAT_KEYCODE", "Open chat with this button"));
-  createHTML(createKeyInputElement("CLOSE_CHAT_KEYCODE", "Close chat with this button"));
-  createHTML(createKeyInputElement("SCREENSHOT_KEYCODE", "Take a screenshot with this button"));
+  createHTML(createKeyInputElement("TOGGLE_CHAT_KEY", "Open chat with this button"));
+  createHTML(createKeyInputElement("CLOSE_CHAT_KEY", "Close chat with this button"));
+  createHTML(createKeyInputElement("SCREENSHOT_KEY", "Take a screenshot with this button"));
 };
 
 export const initModal = () => {
@@ -261,7 +261,7 @@ export const initModal = () => {
   modalHeader.className = "settings-modal-header";
 
   var header = document.createElement("h2");
-  header.innerHTML = "Jstris+ Settings";
+  header.textContent = "Jstris+ Settings";
 
   modalHeader.appendChild(header);
   modalHeader.appendChild(modalCloseButton);

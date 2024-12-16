@@ -12,7 +12,7 @@ export const fetchPlusSoundPresets = () => {
       for (let i of CUSTOM_PLUS_SOUND_PRESETS) {
         let option = document.createElement("option");
         option.value = JSON.stringify(i);
-        option.innerHTML = i.name;
+        option.textContent = i.name;
         dropdown.appendChild(option);
       }
     });

@@ -229,7 +229,7 @@ export const initMM = () => {
         "keyup",
         (evtobj) => {
           if (0 == liveObj.p.focusState) {
-            if (evtobj.keyCode == Config().SCREENSHOT_KEYCODE) {
+            if (evtobj.code == Config().SCREENSHOT_KEY) {
               liveObj.p.screenshot(APIHOST);
             }
           }

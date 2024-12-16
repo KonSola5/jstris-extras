@@ -72,13 +72,14 @@ export const initKeyboardDisplay = () => {
     let oldUpdateTextBar = Game.prototype.updateTextBar;
     Game.prototype.updateTextBar = function () {
       let val = oldUpdateTextBar.apply(this, arguments);
-      kps.innerHTML = "KPS: " + ((this.getKPP() * this.placedBlocks) / this.clock).toFixed(2);
+      kps.textContent = "KPS: " + ((this.getKPP() * this.placedBlocks) / this.clock).toFixed(2);
       return val;
     };
 
     let press = function (e) {
       if (typeof Game.set2ings == "undefined") return;
 
+      // This usage of keyCode must remain, since Jstris still uses deprecated keyCodes.
       let i = Game.set2ings.indexOf(e.keyCode);
       if (i == -1) return;
 
@@ -120,7 +121,7 @@ export const initKeyboardDisplay = () => {
 
         let oldPlayUntilTime = Replayer.prototype.playUntilTime;
         Replayer.prototype.playUntilTime = function () {
-          kps.innerHTML = "KPS: " + (((this.getKPP() * this.placedBlocks) / this.clock) * 1000).toFixed(2);
+          kps.textContent = "KPS: " + (((this.getKPP() * this.placedBlocks) / this.clock) * 1000).toFixed(2);
 
           if (this.ptr == 0) Replayer.lastPtr = -1;
 

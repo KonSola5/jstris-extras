@@ -10,7 +10,7 @@ export const fetchSkinPresets = () => {
       for (let i of CUSTOM_SKIN_PRESETS) {
         let option = document.createElement("option");
         option.value = JSON.stringify(i);
-        option.innerHTML = i.name;
+        option.textContent = i.name;
         dropdown.appendChild(option);
       }
     });

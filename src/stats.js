@@ -17,7 +17,7 @@ const updateStats = function () {
       }
       stat.row.style.display = "table-row";
       var val = stat.calc(this);
-      stat.row.children[1].innerHTML = val;
+      stat.row.children[1].textContent = val;
     } else {
       stat.row.style.display = "none";
     }

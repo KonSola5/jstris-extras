@@ -29,7 +29,7 @@ class Displayer {
     if (this.spike >= 10) {
       spike_tracker.classList.remove("fade");
       spike_tracker.classList.add("fade", "in");
-      spike_tracker.innerHTML = `${this.spike} SPIKE`;
+      spike_tracker.textContent = `${this.spike} SPIKE`;
       this.lastSpikeAttack = ctime;
       setTimeout(
         (time) => {
@@ -37,7 +37,7 @@ class Displayer {
             spike_tracker.classList.remove("in");
             setTimeout(
               (remove_from) => {
-                remove_from.innerHTML = "";
+                remove_from.textContent = "";
               },
               FADEOUT * 1000,
               spike_tracker
@@ -51,7 +51,7 @@ class Displayer {
     }
     this.lastAttack = ctime;
     let action = document.createElement("p");
-    action.innerHTML = `+${value}<br> ${atk}`;
+    action.innerText = `+${value}\n ${atk}`;
     action.setAttribute("id", `atk_text_${this.index + 1}_${this.id++}`);
     action.setAttribute("class", "action-text fade in");
     action.style.textAlign = "center";
@@ -212,9 +212,8 @@ export const initActionText = () => {
           clearText = lcNames[Math.min(linesCleared, 5)];
 
           let blockName = this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].name;
-          if (this.spinPossible)
-            clearText =
-              blockName + "&#x2011;Spin " + clearText; // &#x2011; is non-breaking hyphen, &nbsp; is non-brekaing space
+          if (this.spinPossible) clearText = blockName + "&#x2011;Spin " + clearText;
+          // &#x2011; is non-breaking hyphen, &nbsp; is non-brekaing space
           else if (this.spinMiniPossible) clearText = blockName + "&#x2011;Spin " + clearText + " Mini";
         } else {
           clearText = "Perfect Clear!";

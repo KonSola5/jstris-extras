@@ -97,10 +97,10 @@ export const initPracticeSurvivalMode = () => {
 
           if (shouldStartCycle) {
             startCycle(this);
-            startStopButton.innerHTML = "Stop APM Cycle";
+            startStopButton.textContent = "Stop APM Cycle";
           } else {
             stopCycle(this);
-            startStopButton.innerHTML = "Start APM Cycle";
+            startStopButton.textContent = "Start APM Cycle";
           }
         });
         startStopButton.disabled = false;
@@ -146,7 +146,7 @@ export const initPracticeSurvivalMode = () => {
 
   var label = document.createElement("label");
   label.htmlFor = "customApmSlider";
-  label.innerHTML = "APM";
+  label.textContent = "APM";
 
   var sliderDiv = document.createElement("div");
   sliderDiv.appendChild(label);
@@ -185,7 +185,7 @@ export const initPracticeSurvivalMode = () => {
 
   var messLabel = document.createElement("label");
   messLabel.htmlFor = "customApmSlider";
-  messLabel.innerHTML = "🧀%";
+  messLabel.textContent = "🧀%";
 
   var messSliderDiv = document.createElement("div");
   messSliderDiv.appendChild(messLabel);
@@ -194,7 +194,7 @@ export const initPracticeSurvivalMode = () => {
 
   var cancelLabel = document.createElement("label");
   cancelLabel.htmlFor = "cancelCheckbox";
-  cancelLabel.innerHTML = "Allow cancel";
+  cancelLabel.textContent = "Allow cancel";
 
   var cancelCheckbox = document.createElement("input");
   cancelCheckbox.type = "checkbox";
@@ -210,7 +210,7 @@ export const initPracticeSurvivalMode = () => {
   cancelDiv.appendChild(cancelCheckbox);
 
   var startStopButton = document.createElement("button");
-  startStopButton.innerHTML = "Start APM Cycle";
+  startStopButton.textContent = "Start APM Cycle";
   startStopButton.disabled = true;
   settingsDiv.innerHTML += "<b>Downstack Practice</b><br/>";
   settingsDiv.appendChild(sliderDiv);
