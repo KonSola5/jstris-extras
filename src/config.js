@@ -56,23 +56,22 @@ export const initConfig = () => {
       config[i] = val;
     }
   }
-}
+};
 
 const set = function (name, val) {
   config[name] = val;
   localStorage.setItem(name, JSON.stringify(val));
   for (var { event, listener } of listeners) {
-    if (event == name)
-      listener(val);
+    if (event == name) listener(val);
   }
-}
+};
 
 const reset = function (name) {
   set(name, defaultConfig[name]);
-}
+};
 
 const onChange = (event, listener) => {
   listeners.push({ event, listener });
-}
+};
 
 export const Config = () => ({ ...config, set, onChange, reset });

@@ -3,15 +3,15 @@ import { Config } from "./config";
 export const createKeyInputElement = (varName, desc) => {
   const TOGGLE_CHAT_KEY_INPUT_ELEMENT = document.createElement("div");
   TOGGLE_CHAT_KEY_INPUT_ELEMENT.className = "settings-inputRow";
-  TOGGLE_CHAT_KEY_INPUT_ELEMENT.innerHTML += `<b>${desc}</b>`
+  TOGGLE_CHAT_KEY_INPUT_ELEMENT.innerHTML += `<b>${desc}</b>`;
 
   const inputDiv = document.createElement("div");
   const input = document.createElement("input");
   input.value = displayKeyCode(Config().TOGGLE_CHAT_KEYCODE);
   input.id = `${varName}_INPUT_ELEMENT`;
 
-  input.addEventListener("keydown", e => {
-    var charCode = (e.which) ? e.which : e.keyCode
+  input.addEventListener("keydown", (e) => {
+    var charCode = e.which ? e.which : e.keyCode;
     Config().set(varName, charCode);
     input.value = displayKeyCode(charCode);
     e.stopPropagation();
@@ -20,10 +20,10 @@ export const createKeyInputElement = (varName, desc) => {
   });
   input.addEventListener("keypress", () => false);
   const clearBtn = document.createElement("button");
-  clearBtn.addEventListener("click", e => {
+  clearBtn.addEventListener("click", (e) => {
     Config().set(varName, null);
     input.value = displayKeyCode(null);
-  })
+  });
   clearBtn.innerHTML = "Clear";
 
   input.style.marginRight = "5px";
@@ -33,13 +33,10 @@ export const createKeyInputElement = (varName, desc) => {
   TOGGLE_CHAT_KEY_INPUT_ELEMENT.appendChild(inputDiv);
 
   return TOGGLE_CHAT_KEY_INPUT_ELEMENT;
-
-}
-
+};
 
 // stolen from https://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
 export function displayKeyCode(charCode) {
-  
   if (charCode == null) {
     return "<enter a key>";
   }
@@ -55,7 +52,7 @@ export function displayKeyCode(charCode) {
   if (charCode == 20) a = "caps lock"; //  caps lock
   if (charCode == 27) a = "escape"; //  escape
   if (charCode == 32) a = "space"; // space
-  if (charCode == 33) a = "page up"; // page up, to avoid displaying alternate character and confusing people	         
+  if (charCode == 33) a = "page up"; // page up, to avoid displaying alternate character and confusing people
   if (charCode == 34) a = "page down"; // page down
   if (charCode == 35) a = "end"; // end
   if (charCode == 36) a = "home"; // home
