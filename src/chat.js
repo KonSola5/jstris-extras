@@ -1,5 +1,5 @@
 import { Config } from "./config";
-import { displayKeyCode } from "./toggleChatKeyInput";
+import { displayKey } from "./toggleChatKeyInput";
 
 let game = null;
 
@@ -25,13 +25,13 @@ export const initChat = () => {
 
   // === toggle chat button code ===
 
-  document.getElementById("TOGGLE_CHAT_KEYCODE_INPUT_ELEMENT").value = displayKeyCode(Config().TOGGLE_CHAT_KEYCODE);
-  document.getElementById("CLOSE_CHAT_KEYCODE_INPUT_ELEMENT").value = displayKeyCode(Config().CLOSE_CHAT_KEYCODE);
+  document.getElementById("TOGGLE_CHAT_KEY_INPUT_ELEMENT").value = displayKey(Config().TOGGLE_CHAT_KEY);
+  document.getElementById("CLOSE_CHAT_KEY_INPUT_ELEMENT").value = displayKey(Config().CLOSE_CHAT_KEY);
 
   // thanks justin https://greasyfork.org/en/scripts/423192-change-chat-key
   document.addEventListener("keydown", (e) => {
-    var charCode = e.which ? e.which : e.keyCode;
-    if (charCode == Config().TOGGLE_CHAT_KEYCODE) {
+    let key = e.code;
+    if (key == Config().TOGGLE_CHAT_KEY) {
       if (game && game.focusState !== 1) {
         // game already focused, unfocus
         game.setFocusState(1);
@@ -40,11 +40,11 @@ export const initChat = () => {
         }, 0); // setTimeout to prevent the key from being typed
 
         // if keys are same, should close chat in this case
-      } else if (Config().CLOSE_CHAT_KEYCODE == Config().TOGGLE_CHAT_KEYCODE) {
+      } else if (Config().CLOSE_CHAT_KEY == Config().TOGGLE_CHAT_KEY) {
         document.getElementsByClassName("layer mainLayer gfxLayer")[0].click();
         document.getElementsByClassName("layer mainLayer gfxLayer")[0].focus();
       }
-    } else if (charCode == Config().CLOSE_CHAT_KEYCODE) {
+    } else if (key == Config().CLOSE_CHAT_KEY) {
       // focus game
       document.getElementsByClassName("layer mainLayer gfxLayer")[0].click();
       document.getElementsByClassName("layer mainLayer gfxLayer")[0].focus();
@@ -115,7 +115,7 @@ export const initChat = () => {
     // Add Timestamps
     var s = document.createElement("span");
     s.className = "chat-timestamp";
-    s.innerHTML = "[" + new Date().toTimeString().slice(0, 8) + "] ";
+    s.textContent = "[" + new Date().toTimeString().slice(0, 8) + "] ";
     var c = document.getElementsByClassName("chl");
     c[c.length - 1].prepend(s);
 
@@ -184,7 +184,7 @@ export const initChat = () => {
         bertile = this.prefixInSearch ? maizah : maiesha,
         cinque = 0,
         dyllan = "function" == typeof this.hints ? this.hints() : this.hints;
-      this.hintsElem.innerHTML = "";
+      this.hintsElem.textContent = "";
       var roey = [],
         tishie = [];
       for (var cedrik in dyllan) {
@@ -222,7 +222,7 @@ export const initChat = () => {
           var wael = document.createElement("div");
           (wael.textContent = shawnteria), vidhu.appendChild(wael);
         } else {
-          vidhu.innerHTML = shawnteria;
+          vidhu.textContent = shawnteria;
         }
         (vidhu.dataset.pos = cahlin), (vidhu.dataset.str = shawnteria);
         var yolandi = this;

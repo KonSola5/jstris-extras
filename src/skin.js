@@ -268,18 +268,8 @@ export const initConnectedSkins = () => {
             scale
           );
         } else {
-          var mono =
-            this.g.monochromeSkin && block_value <= 7
-              ? this.g.monochromeSkin
-              : this.g.colors[block_value];
-          this.drawRectangle(
-            this.ctx,
-            pos_x * this.g.block_size,
-            pos_y * this.g.block_size,
-            scale,
-            scale,
-            mono
-          );
+          var mono = this.g.monochromeSkin && block_value <= 7 ? this.g.monochromeSkin : this.g.colors[block_value];
+          this.drawRectangle(this.ctx, pos_x * this.g.block_size, pos_y * this.g.block_size, scale, scale, mono);
         }
       }
     };
@@ -314,10 +304,7 @@ export const initConnectedSkins = () => {
     Ctx2DView.prototype.ai_drawBlockOnCanvas = function (pos_x, pos_y, block_value, connect_value, render) {
       var renderer = render === this.HOLD ? this.hctx : this.qctx;
       if (this.g.skinId === 0) {
-        var mono =
-          this.g.monochromeSkin && block_value <= 7
-            ? this.g.monochromeSkin
-            : this.g.colors[block_value];
+        var mono = this.g.monochromeSkin && block_value <= 7 ? this.g.monochromeSkin : this.g.colors[block_value];
         this.drawRectangle(
           renderer,
           pos_x * this.g.block_size,
@@ -497,13 +484,7 @@ export const initConnectedSkins = () => {
               this.v.drawBrickOverlayOnCanvas(x - something[0], y - currWeird[0], this.v.HOLD);
             }
             if (solve.overlay > 0 && removeDimple)
-              this.v.ai_drawBlockOnCanvas(
-                x - something[0],
-                y - currWeird[0],
-                currColor,
-                solve.overlay,
-                this.v.HOLD
-              );
+              this.v.ai_drawBlockOnCanvas(x - something[0], y - currWeird[0], currColor, solve.overlay, this.v.HOLD);
           }
         }
       }
@@ -594,9 +575,7 @@ export const initConnectedSkins = () => {
         currColor = currSet.blocks[currPiece.id].color,
         currWeird = !currSet.equidist ? currSet.blocks[currPiece.id].yp : [0, 3],
         blocks_length = blocks.length,
-        something = currSet.blocks[currPiece.id].xp
-          ? currSet.blocks[currPiece.id].xp
-          : [0, blocks_length - 1];
+        something = currSet.blocks[currPiece.id].xp ? currSet.blocks[currPiece.id].xp : [0, blocks_length - 1];
       for (var y = currWeird[0]; y <= currWeird[1]; y++) {
         for (var x = something[0]; x <= something[1]; x++) {
           if (blocks[y][x] > 0) {

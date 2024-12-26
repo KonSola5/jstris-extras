@@ -3,12 +3,19 @@ import { Config } from "./config";
 export const initAutomaticReplayCodes = () => {
   window.copyReplayText = function (number) {
     var copyText = document.getElementById(`replay${number}`);
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById(`replayButton${number}`).innerHTML = "Copied!";
-    setTimeout(() => {
-      document.getElementById(`replayButton${number}`).innerHTML = "Copy";
-    }, 1000);
+    var copyButton = document.getElementById(`replayButton${number}`);
+    navigator.clipboard
+      .writeText(copyText.value)
+      .then(() => {
+        copyButton.textContent = "Copied!";
+        setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1000);
+      })
+      .catch((error) => {
+        console.error(`An error occured while copying text:
+      ${error.message}`);
+      });
   };
 
   const oldStartPractice = Game.prototype.startPractice;
