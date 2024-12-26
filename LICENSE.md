@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2023 JstrisPlus
+Copyright (c) 2023 JstrisPlus (Jstris+)
+Copyright (c) 2024 KonSola5 (Jstris Extras)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
