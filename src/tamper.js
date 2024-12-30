@@ -4,6 +4,8 @@ import { functionExists } from "./util";
   - stringifying the function,
   - finding appropriate patterns and stuff in the function,
   - re-building the function using the Function object constructor.
+
+  All injections can short-circuit in cases where somehow the injected functions aren't initialized properly (like in the case of Live opponent boards).
 */
 export function initTamper() {
   function getArguments(theFunction) {
@@ -186,7 +188,67 @@ export function initTamper() {
     GameCore.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString);
   }
 
-  injectIntoPlaceBlock();
-  injectIntoCheckLineClears();
-  injectIntoAddGarbage();
+  function injectIntoReplayerAddGarbage() {
+    // Same injection points as the GameCore add garbage method - the method is similar but not exactly.
+    // (The GameCore method has 1 parameter, this one has 4)
+    Replayer.prototype.injected_initConnectedGarbage = function (garbageLine) {};
+
+    Replayer.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {};
+
+    let strippedAddGarbageString = stripCurlyBrackets(Replayer.prototype.addGarbage.toString());
+
+    // Matches `garbageLine[i] = 8 === garbageLine[i]` - the beginning of the ternary
+    const invGarbageTernaryRegex = /_0x\w*\[_0x\w*\]=_0x\w*\[[^,\[\]]*\]\([^,\[\]]*,_0x\w*\[_0x\w*\]\)/g;
+    let regexResults1_1 = invGarbageTernaryRegex.exec(strippedAddGarbageString);
+    let nextPartToCheck = strippedAddGarbageString.slice(invGarbageTernaryRegex.lastIndex);
+
+    // Matches the next semicolon - that's the injection point for the first function
+    const nextSemicolonRegex = /;/g;
+    let regexResults1_2 = nextSemicolonRegex.exec(nextPartToCheck);
+    let part1 = strippedAddGarbageString.slice(0, invGarbageTernaryRegex.lastIndex + nextSemicolonRegex.lastIndex);
+    let remainingPart = strippedAddGarbageString.slice(invGarbageTernaryRegex.lastIndex + nextSemicolonRegex.lastIndex);
+
+    // Matches `trueHeight = this.matrix.length - this.solidHeight`
+    const trueHeightRegex = /_0x\w*=_0x\w*\[[^,\[\]]*\]\(this\[[^,\[\]]*\]\[[^,\[\]]*\],this\[[^,\[\]]*\]/g;
+
+    let trueHeightRegexResults = trueHeightRegex.exec(remainingPart);
+    const variableRegex = /_0x\w*/g;
+
+    let trueHeight = variableRegex.exec(trueHeightRegexResults[0])[0];
+
+    // Matches `:garbageLine.slice(0);` - that's the injection point for the second function
+    const garbageLineSliceRegex = /:_0x\w*\[[^,\[\]]*\]\([^,\[\]\(\)]*\);/g;
+    let regexResults2 = garbageLineSliceRegex.exec(remainingPart);
+    let part2 = remainingPart.slice(0, garbageLineSliceRegex.lastIndex);
+    remainingPart = remainingPart.slice(garbageLineSliceRegex.lastIndex);
+
+    // Find the `garbageLine` variable name
+
+    variableRegex.lastIndex = 0;
+    let garbageLine = variableRegex.exec(regexResults2[0])[0];
+
+    // The `amountOfLines` variable is an argument for Replayer.prototype.addGarbage.
+
+    let functionArguments = getArguments(Replayer.prototype.addGarbage);
+
+    let amountOfLines = functionArguments[0];
+
+    let injectedAddGarbageString =
+      part1 +
+      `this.injected_initConnectedGarbage && this.injected_initConnectedGarbage(${garbageLine});` +
+      part2 +
+      `this.injected_bumpUpConnections && this.injected_bumpUpConnections(${trueHeight}, ${amountOfLines});` +
+      remainingPart;
+
+    Replayer.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString);
+  }
+
+  if (functionExists(GameCore)) {
+    injectIntoPlaceBlock();
+    injectIntoCheckLineClears();
+    injectIntoAddGarbage();
+  }
+  if (functionExists(Replayer)) {
+    injectIntoReplayerAddGarbage();
+  }
 }

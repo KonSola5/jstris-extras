@@ -483,6 +483,39 @@ export const initSkins = () => {
     }
   }
 
+  function initConnectedGarbage(garbageLine) {
+    this.garbageConnections = [214, 255, 255, 255, 255, 255, 255, 255, 255, 107];
+    garbageLine.forEach((block, i) => {
+      if (block == 0) {
+        this.garbageConnections[i] = 0; //
+        if (this.garbageConnections[i - 1]) this.garbageConnections[i - 1] &= ~148; // Slice all the "left" connections
+        if (this.garbageConnections[i + 1]) this.garbageConnections[i + 1] &= ~41; // Slice all the "right" connections
+      }
+    });
+  }
+
+  function bumpUpConnections(trueHeight, amountOfLines) {
+    for (let i = 0; i < trueHeight + 1; i++) {
+      let scannedHeight = trueHeight - i;
+      if (scannedHeight < amountOfLines) {
+        let connectionsToAdd = this.garbageConnections.slice();
+        if (scannedHeight === 0) {
+          connectionsToAdd = connectionsToAdd.map((connection) => {
+            return (connection &= ~224); // Slice all the "down" connections
+          });
+        }
+        if (scannedHeight === amountOfLines - 1) {
+          connectionsToAdd = connectionsToAdd.map((connection) => {
+            return (connection &= ~7); // Slice all the "up" connections
+          });
+        }
+        this.connections[i] = connectionsToAdd.slice();
+      } else {
+        this.connections[i] = this.connections[i + amountOfLines].slice();
+      }
+    }
+  }
+
   if (functionExists(GameCore)) {
     GameCore.prototype.injected_placeBlock = function (y, i, x, j) {
       if (usingConnected) {
@@ -538,38 +571,13 @@ export const initSkins = () => {
 
     GameCore.prototype.injected_initConnectedGarbage = function (garbageLine) {
       if (usingConnected) {
-        this.garbageConnections = [214, 255, 255, 255, 255, 255, 255, 255, 255, 107];
-        garbageLine.forEach((block, i) => {
-          if (block == 0) {
-            this.garbageConnections[i] = 0; //
-            if (this.garbageConnections[i - 1]) this.garbageConnections[i - 1] &= ~148; // Slice all the "left" connections
-            if (this.garbageConnections[i + 1]) this.garbageConnections[i + 1] &= ~41; // Slice all the "right" connections
-          }
-        });
+        initConnectedGarbage.apply(this, arguments);
       }
     };
 
     GameCore.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {
       if (usingConnected) {
-        for (let i = 0; i < trueHeight + 1; i++) {
-          let scannedHeight = trueHeight - i;
-          if (scannedHeight < amountOfLines) {
-            let connectionsToAdd = this.garbageConnections.slice();
-            if (scannedHeight === 0) {
-              connectionsToAdd = connectionsToAdd.map((connection) => {
-                return (connection &= ~224); // Slice all the "down" connections
-              });
-            }
-            if (scannedHeight === amountOfLines - 1) {
-              connectionsToAdd = connectionsToAdd.map((connection) => {
-                return (connection &= ~7); // Slice all the "up" connections
-              });
-            }
-            this.connections[i] = connectionsToAdd.slice();
-          } else {
-            this.connections[i] = this.connections[i + amountOfLines].slice();
-          }
-        }
+        bumpUpConnections.apply(this, arguments);
       }
     };
 
@@ -679,6 +687,18 @@ export const initSkins = () => {
       return returnValue;
     };
     Replayer.prototype.redrawMatrixConnected = redrawMatrixConnected;
+
+    Replayer.prototype.injected_initConnectedGarbage = function (garbageLine) {
+      if (usingConnected) {
+        initConnectedGarbage.apply(this, arguments);
+      }
+    };
+
+    Replayer.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {
+      if (usingConnected) {
+        bumpUpConnections.apply(this, arguments);
+      }
+    };
 
     // Connected skins in ???
 

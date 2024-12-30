@@ -47,8 +47,9 @@ if (typeof ReplayController == "function") {
   initReplayerSnapshot();
 }
 
-if (typeof GameCore == "function") {
   initTamper();
+  
+if (typeof GameCore == "function") {
   initSkins();
   // initCustomSkin();
   if (!location.href.includes("export")) {
