@@ -6,6 +6,41 @@ export const lerp = (start, end, amt) => {
   return (1 - amt) * start + amt * end;
 };
 
+/**
+ * Injects code into a function.
+ * @param {Function} functionToInjectTo - Function to inject to.
+ * @param {Object} options - Injection options.
+ * @param {Function} callback - The callback function to inject.
+ * @returns {Function} - Function with code injected.
+ */
+export function inject(functionToInjectTo, options, callback) {
+  if (!options) {
+    console.warn(`inject: No options provided - function ${functionToInjectTo.name} left untouched.`);
+    return;
+  }
+  let callbackReturn;
+  let oldFunction = functionToInjectTo;
+  functionToInjectTo = function () {
+    if (options.at == "before") {
+      callbackReturn = callback.apply(this, arguments);
+    }
+    let returnValue = oldFunction.apply(this, arguments);
+    if ((options.at = "after")) {
+      callbackReturn = callback.apply(this, arguments);
+    }
+    return callbackReturn || returnValue;
+  };
+  return functionToInjectTo;
+}
+
+export function functionExists(functionToTest) {
+  return typeof functionToTest == "function";
+}
+
+export function exists(varToTest) {
+  return varToTest != undefined;
+}
+
 // https://jsfiddle.net/12aueufy/1/
 var shakingElements = [];
 

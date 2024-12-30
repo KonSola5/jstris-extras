@@ -267,7 +267,7 @@ export const initActionText = () => {
     };
     functionStr = functionStr.replace(replacePattern, replacer);
 
-    GameCore.prototype.checkLineClears = new Function(...getArgs(GameCore.prototype.checkLineClears), functionStr);
+    /*GameCore.prototype.checkLineClears = new Function(...getArgs(GameCore.prototype.checkLineClears), functionStr);*/
     console.log(functionStr);
   } catch (e) {
     console.log(e);

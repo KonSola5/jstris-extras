@@ -16,26 +16,34 @@ function loadCustomSkin(url, ghost = false) {
   let img = new Image();
   console.log(url, ghost);
   img.onload = function () {
-    var height = img.height;
-    var width = img.width;
-    if (width / height == 9 && !ghost) {
-      customSkinSize = height;
-      usingConnected = false;
-      if (window.loadSkin) loadSkin(url, customSkinSize);
-    } else if (width / height == 9 / 20 && !ghost) {
-      usingConnected = true;
-      customSkinSize = width / 9;
-      if (window.loadSkin) loadSkin(url, customSkinSize);
-    } else if (width / height == 7 && ghost) {
-      usingGhostConnected = false;
-      customGhostSkinSize = height;
-      if (window.loadGhostSkin) loadGhostSkin(url, height);
-    } else if (width / height == 7 / 20 && ghost) {
-      offscreenCanvas.height = width / 7;
-      offscreenCanvas.width = width / 7;
-      usingGhostConnected = true;
-      customGhostSkinSize = width / 7;
-      if (window.loadSkin) loadGhostSkin(url, width / 7);
+    let height = img.height;
+    let width = img.width;
+    let ratio = width / height;
+    switch (true) {
+      case ratio == 9 && !ghost:
+        customSkinSize = height;
+        usingConnected = false;
+        if (window.loadSkin) loadSkin(url, customSkinSize);
+        break;
+      case ratio == 9 / 20 && !ghost:
+        usingConnected = true;
+        customSkinSize = width / 9;
+        if (window.loadSkin) loadSkin(url, customSkinSize);
+        break;
+      case ratio == 7 && ghost:
+        usingGhostConnected = false;
+        customGhostSkinSize = height;
+        if (window.loadGhostSkin) loadGhostSkin(url, height);
+        break;
+      case ratio == 7 / 20 && ghost:
+        offscreenCanvas.height = width / 7;
+        offscreenCanvas.width = width / 7;
+        usingGhostConnected = true;
+        customGhostSkinSize = width / 7;
+        if (window.loadSkin) loadGhostSkin(url, width / 7);
+        break;
+      default:
+        break;
     }
   };
   img.src = url;
@@ -65,6 +73,7 @@ export const initCustomSkin = () => {
     });
     let onload = Live.prototype.onCIDassigned;
 
+    // When player ID is assigned
     Live.prototype.onCIDassigned = function () {
       let v = onload.apply(this, arguments);
 
@@ -328,7 +337,8 @@ export const initConnectedSkins = () => {
       }
     };
   }
-  let template1 = function () {
+  // Template 1: Connected Ghost and Active Piece
+  let connectedGhostAndActiveTemplate = function () {
     let blockset = this.blockSets[this.activeBlock.set],
       blocks =
         blockset.scale === 1
@@ -452,7 +462,8 @@ export const initConnectedSkins = () => {
     }
     this.drawScale = 1;
   };
-  let template2 = function () {
+  // Template 2: Connected Hold
+  let connectedHoldTemplate = function () {
     if (this.ISGAME && this.redrawBlocked) {
       return;
     }
@@ -490,6 +501,7 @@ export const initConnectedSkins = () => {
       }
     }
   };
+  // Template 3: Matrix
   let template3 = function () {
     for (var row = 0; row < 20; row++) {
       for (var col = 0; col < 10; col++) {
@@ -548,7 +560,8 @@ export const initConnectedSkins = () => {
       }
     }
   };
-  let template4 = function () {
+  // Template 4: Connected Queue
+  let connectedQueueTemplate = function () {
     if (this.ISGAME && this.redrawBlocked) {
       return;
     } else {
@@ -608,11 +621,12 @@ export const initConnectedSkins = () => {
       }
     }
   };
+
   if (window.Game != undefined) {
     let onG = Game.prototype.drawGhostAndCurrent;
     Game.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
-        return template1.call(this);
+        return connectedGhostAndActiveTemplate.call(this);
       }
       let val = onG.apply(this, arguments);
       return val;
@@ -620,7 +634,7 @@ export const initConnectedSkins = () => {
     let onH = Game.prototype.redrawHoldBox;
     Game.prototype.redrawHoldBox = function () {
       if (usingConnected) {
-        return template2.call(this);
+        return connectedHoldTemplate.call(this);
       }
       let val = onH.apply(this, arguments);
       return val;
@@ -628,7 +642,7 @@ export const initConnectedSkins = () => {
     let onQ = Game.prototype.updateQueueBox;
     Game.prototype.updateQueueBox = function () {
       if (usingConnected) {
-        return template4.call(this);
+        return connectedQueueTemplate.call(this);
       }
       let val = onQ.apply(this, arguments);
       return val;
@@ -641,7 +655,7 @@ export const initConnectedSkins = () => {
     let onG = Replayer.prototype.drawGhostAndCurrent;
     Replayer.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || (usingGhostConnected && this.g.ghostSkinId === 0)) {
-        return template1.call(this);
+        return connectedGhostAndActiveTemplate.call(this);
       }
       let val = onG.apply(this, arguments);
       return val;
@@ -649,7 +663,7 @@ export const initConnectedSkins = () => {
     let onH = Replayer.prototype.redrawHoldBox;
     Replayer.prototype.redrawHoldBox = function () {
       if (usingConnected) {
-        return template2.call(this);
+        return connectedHoldTemplate.call(this);
       }
       let val = onH.apply(this, arguments);
       return val;
@@ -657,7 +671,7 @@ export const initConnectedSkins = () => {
     let onQ = Replayer.prototype.updateQueueBox;
     Replayer.prototype.updateQueueBox = function () {
       if (usingConnected) {
-        return template4.call(this);
+        return connectedQueueTemplate.call(this);
       }
       let val = onQ.apply(this, arguments);
       return val;

@@ -114,7 +114,7 @@ export const initFX = () => {
 
     return val;
   };
-
+  /* 
   const oldLineClears = GameCore.prototype.checkLineClears;
   GameCore.prototype.checkLineClears = function () {
     //console.log(this.GFXCanvas);
@@ -195,8 +195,10 @@ export const initFX = () => {
   };
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.checkLineClears = GameCore.prototype.checkLineClears;
-
   // placement animation
+*/
+
+  /*
   const oldPlaceBlock = GameCore.prototype.placeBlock;
   GameCore.prototype.placeBlock = function (col, row, time) {
     if (!this.GFXCanvas || !Config().ENABLE_PLACE_BLOCK_ANIMATION || isReplayerReversing)
@@ -292,6 +294,8 @@ export const initFX = () => {
 
     requestAnimationFrame(this.GFXLoop);
   };
+  */
+
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.placeBlock = GameCore.prototype.placeBlock;
 };

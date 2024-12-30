@@ -51,19 +51,19 @@ export const initPracticeSurvivalMode = () => {
       if (this.pmode != 2) return oldQueueBoxFunc.apply(this, arguments);
       return oldQueueBoxFunc.apply(this, arguments);
     };
-    const oldLineClears = GameCore.prototype.checkLineClears;
-    GameCore.prototype.checkLineClears = function (x) {
-      let oldAttack = this.gamedata.attack;
-      let val = oldLineClears.apply(this, arguments);
-      let curAttack = this.gamedata.attack - oldAttack;
-      if (this.pmode == 2 && curAttack > 0) {
-        this.gamedata.attack -= curAttack; // block or send attack also adds to the attack, so just subtracting to make stat accurate
-        if (shouldCancel) {
-          this.blockOrSendAttack(curAttack, x);
-        }
-      }
-      return val;
-    };
+    // const oldLineClears = GameCore.prototype.checkLineClears;
+    // GameCore.prototype.checkLineClears = function (x) {
+    //   let oldAttack = this.gamedata.attack;
+    //   let val = oldLineClears.apply(this, arguments);
+    //   let curAttack = this.gamedata.attack - oldAttack;
+    //   if (this.pmode == 2 && curAttack > 0) {
+    //     this.gamedata.attack -= curAttack; // block or send attack also adds to the attack, so just subtracting to make stat accurate
+    //     if (shouldCancel) {
+    //       this.blockOrSendAttack(curAttack, x);
+    //     }
+    //   }
+    //   return val;
+    // };
 
     const oldReadyGo = Game.prototype.readyGo;
     Game.prototype.readyGo = function () {

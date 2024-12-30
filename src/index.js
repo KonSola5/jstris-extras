@@ -23,6 +23,8 @@ import { initPracticeFumen, initReplayerSnapshot } from "./practiceFumen";
 import { authNotification, playSound, notify, setPlusSfx } from "./util";
 import { initScreenshot } from "./screenshot";
 import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
+import { initSkins } from "./skin_new.js";
+import { initTamper } from "./tamper.js";
 // inject style
 var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
@@ -46,9 +48,11 @@ if (typeof ReplayController == "function") {
 }
 
 if (typeof GameCore == "function") {
-  initCustomSkin();
+  initTamper();
+  initSkins();
+  // initCustomSkin();
   if (!location.href.includes("export")) {
-    initActionText();
+    // initActionText();
     initFX();
     initKeyboardDisplay();
   }
