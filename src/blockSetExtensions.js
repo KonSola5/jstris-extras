@@ -11,6 +11,7 @@ export function getBlockSetsEX() {
       this.ypOverride = null;
       this.centerX = null;
       this.centerY = null;
+      this.previewAs = null;
     }
   }
 
@@ -248,11 +249,13 @@ export function getBlockSetsEX() {
       ],
     },
   ];
+  bsStandard.previewAs = bsStandard;
 
   let bsBigBlock2 = new BlockSetEX();
   bsBigBlock2.pieces = [
     {
       name: "I",
+      xpOverride: [0, 3],
       ypOverride: [1, 2],
       connections: [
         [
@@ -299,6 +302,7 @@ export function getBlockSetsEX() {
     },
     {
       name: "O",
+      xpOverride: [1, 2],
       ypOverride: [1, 2],
       connections: [
         [
@@ -345,6 +349,7 @@ export function getBlockSetsEX() {
     },
     {
       name: "T",
+      xpOverride: [0, 2],
       ypOverride: [1, 2],
       connections: [
         [
@@ -391,6 +396,7 @@ export function getBlockSetsEX() {
     },
     {
       name: "L",
+      xpOverride: [0, 2],
       ypOverride: [1, 2],
       connections: [
         [
@@ -399,7 +405,7 @@ export function getBlockSetsEX() {
           [0, 0, 0, 0, S + E + SE, S + W + SW, 0, 0],
           [0, 0, 0, 0, FULL_E, FULL_W, 0, 0],
           [S + E + SE, FULL_S, FULL_S, FULL_S, ALL - NW, FULL_W, 0, 0],
-          [N + E + NE, FULL_S, FULL_S, FULL_S, FULL_S, N + W + NW, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, FULL_N, FULL_N, N + W + NW, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
         ],
@@ -418,10 +424,10 @@ export function getBlockSetsEX() {
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, FULL_S, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [FULL_E, ALL - SE, FULL_N, FULL_N, FULL_N, N + W + NW, 0, 0],
+          [FULL_E, FULL_W, 0, 0, 0, 0, 0, 0],
+          [N + E + NE, N + W + NW, 0, 0, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [S + E, W + E, W, 0],
@@ -430,12 +436,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, ALL - SW, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, N + E + NE, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [E, S + W, 0, 0],
           // [0, N + S, 0, 0],
@@ -445,15 +451,16 @@ export function getBlockSetsEX() {
     },
     {
       name: "J",
+      xpOverride: [0, 2],
       ypOverride: [1, 2],
       connections: [
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, S + W + SW, 0, 0, 0, 0, 0, 0],
+          [FULL_E, FULL_W, 0, 0, 0, 0, 0, 0],
+          [FULL_E, ALL - NE, FULL_S, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, FULL_N, FULL_N, N + W + NW, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           // [0, 0, 0, 0],
@@ -464,12 +471,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [0, 0, FULL_E, ALL - SE, FULL_N, N + W + NW, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, N + E + NE, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, S + E, W, 0],
           // [0, N + S, 0, 0],
@@ -480,10 +487,10 @@ export function getBlockSetsEX() {
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, FULL_S, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, FULL_N, ALL - SW, FULL_W, 0, 0],
+          [0, 0, 0, 0, FULL_E, FULL_W, 0, 0],
+          [0, 0, 0, 0, N + E + NE, N + W + NW, 0, 0],
           // [0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [E, W + E, W + S, 0],
@@ -492,12 +499,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, S + W + SW, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, ALL - NW, FULL_W, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, S, 0, 0],
           // [0, N + S, 0, 0],
@@ -507,15 +514,16 @@ export function getBlockSetsEX() {
     },
     {
       name: "S",
+      xpOverride: [0, 2],
       ypOverride: [1, 2],
       connections: [
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [0, 0, FULL_E, ALL - SE, FULL_N, N + W + NW, 0, 0],
+          [S + E + SE, FULL_S, ALL - NW, FULL_W, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, N + W + NW, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           // [0, 0, 0, 0],
@@ -526,12 +534,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, S + W + SW, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, ALL - NE, FULL_S, S + W + SW, 0, 0],
+          [0, 0, N + E + NE, FULL_N, ALL - SW, FULL_W, 0, 0],
+          [0, 0, 0, 0, FULL_E, FULL_W, 0, 0],
+          [0, 0, 0, 0, N + E + NE, N + W + NW, 0, 0],
           // [0, 0, 0, 0],
           // [0, S, 0, 0],
           // [0, N + E, W + S, 0],
@@ -542,10 +550,10 @@ export function getBlockSetsEX() {
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0],
+          [0, 0, FULL_E, ALL - SE, FULL_N, N + W + NW, 0, 0],
+          [S + E + SE, FULL_S, ALL - NW, FULL_W, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, FULL_N, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, S + E, W, 0],
@@ -554,12 +562,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, S + W + SW, 0, 0, 0, 0, 0, 0],
+          [FULL_E, FULL_W, 0, 0, 0, 0, 0, 0],
+          [FULL_E, ALL - NE, FULL_S, S + W + SW, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, ALL - SW, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, N + E + NE, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [S, 0, 0, 0],
           // [N + E, W + S, 0, 0],
@@ -569,15 +577,16 @@ export function getBlockSetsEX() {
     },
     {
       name: "Z",
+      xpOverride: [0, 2],
       ypOverride: [1, 2],
       connections: [
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, ALL - SW, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, ALL - NE, FULL_S, S + W + SW, 0, 0],
+          [0, 0, N + E + NE, FULL_N, FULL_N, N + W + NW, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           // [0, 0, 0, 0],
@@ -588,12 +597,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, S + E + SE, S + W + SW, 0, 0],
+          [0, 0, 0, 0, FULL_E, FULL_W, 0, 0],
+          [0, 0, S + E + SE, FULL_S, ALL - NW, FULL_W, 0, 0],
+          [0, 0, FULL_E, ALL - SE, FULL_N, N + W + NW, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [0, 0, N + E + NE, N + W + NW, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, 0, S, 0],
           // [0, S + E, N + W, 0],
@@ -604,10 +613,10 @@ export function getBlockSetsEX() {
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, FULL_S, S + W + SW, 0, 0, 0, 0],
+          [N + E + NE, FULL_N, ALL - SW, FULL_W, 0, 0, 0, 0],
+          [0, 0, FULL_E, ALL - NE, FULL_S, S + W + SW, 0, 0],
+          [0, 0, N + E + NE, FULL_N, FULL_N, N + W + NW, 0, 0],
           // [0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [E, W + S, 0, 0],
@@ -616,12 +625,12 @@ export function getBlockSetsEX() {
         [
           [0, 0, 0, 0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, S + E + SE, S + W + SW, 0, 0, 0, 0],
+          [0, 0, FULL_E, FULL_W, 0, 0, 0, 0],
+          [S + E + SE, FULL_S, ALL - NW, FULL_W, 0, 0, 0, 0],
+          [FULL_E, ALL - SE, FULL_N, N + W + NW, 0, 0, 0, 0],
+          [FULL_E, FULL_W, 0, 0, 0, 0, 0, 0],
+          [N + E + NE, N + W + NW, 0, 0, 0, 0, 0, 0],
           // [0, 0, 0, 0],
           // [0, S, 0, 0],
           // [S + E, N + W, 0, 0],
@@ -630,9 +639,11 @@ export function getBlockSetsEX() {
       ],
     },
   ];
+  bsBigBlock2.previewAs = bsStandard;
 
   let bsBigBlock1 = new BlockSetEX();
   bsBigBlock1.pieces = bsBigBlock2.pieces;
+  bsBigBlock1.previewAs = bsStandard;
 
   let bsArikaRS = new BlockSetEX();
   bsArikaRS.pieces = [
@@ -853,6 +864,7 @@ export function getBlockSetsEX() {
       ],
     },
   ];
+  bsArikaRS.previewAs = bsArikaRS;
 
   let bsPentomino = new BlockSetEX();
   bsPentomino.pieces = [
@@ -1485,6 +1497,7 @@ export function getBlockSetsEX() {
       ],
     },
   ];
+  bsPentomino.previewAs = bsPentomino
 
   let bsM123 = new BlockSetEX();
   bsM123.pieces = [
@@ -1572,10 +1585,13 @@ export function getBlockSetsEX() {
       ],
     },
   ];
+  bsPentomino.previewAs = bsPentomino;
   let bsAll29 = new BlockSetEX();
   bsAll29.pieces = bsStandard.pieces.slice().concat(bsM123.pieces.slice()).concat(bsPentomino.pieces.slice());
+  bsAll29.previewAs = bsAll29;
   let bsCultris2 = new BlockSetEX();
   bsCultris2.pieces = bsStandard.pieces;
+  bsCultris2.previewAs = bsCultris2;
   let bsOSpin = new BlockSetEX();
   bsOSpin.pieces = structuredClone(bsStandard.pieces);
   bsOSpin.pieces[1].name = "O+";
@@ -1605,23 +1621,14 @@ export function getBlockSetsEX() {
       [N + E + NE, FULL_N, FULL_N, N + W + NW],
     ],
   ];
+  bsOSpin.previewAs = bsOSpin;
   let bsNONE = new BlockSetEX();
   bsNONE.pieces = {
     name: "NONE",
     ypOverride: [1, 2],
     connections: [[[0]], [[0]], [[0]], [[0]]],
   };
+  bsNONE.previewAs = bsNONE;
 
-  return ([
-    bsStandard,
-    bsBigBlock2,
-    bsBigBlock1,
-    bsArikaRS,
-    bsPentomino,
-    bsM123,
-    bsAll29,
-    bsCultris2,
-    bsOSpin,
-    bsNONE,
-  ]);
+  return [bsStandard, bsBigBlock2, bsBigBlock1, bsArikaRS, bsPentomino, bsM123, bsAll29, bsCultris2, bsOSpin, bsNONE];
 }

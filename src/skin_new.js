@@ -313,26 +313,26 @@ export const initSkins = () => {
     }
     let currentBlockSet = this.blockSets[this.activeBlock.set];
     let currentBlockSetEX = this.blockSetsEX[this.activeBlock.set];
-    let pieceToDraw =
-      currentBlockSet.scale === 1 // It this isn't a giant piece
-        ? currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot] // Draw it as normal
-        : currentBlockSet.previewAs.blocks[this.activeBlock.id].blocks[this.activeBlock.rot]; // Else draw big blocks
+    let pieceToDraw = currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
+    // currentBlockSet.scale === 1 // It this isn't a giant piece
+    //   ? currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot] // Draw it as normal
+    //   : currentBlockSet.previewAs.blocks[this.activeBlock.id].blocks[this.activeBlock.rot]; // Else draw big blocks
     let pieceBBSize = pieceToDraw.length; // Piece bounding box size
-    this.drawScale = currentBlockSet.scale;
+    // this.drawScale = currentBlockSet.scale;
     if (this.hasGhost() && !this.gameEnded) {
       for (let i = 0; i < pieceBBSize; i++) {
         for (let j = 0; j < pieceBBSize; j++) {
           if (pieceToDraw[i][j] > 0) {
             this.v.drawGhostBlockConnected(
-              this.ghostPiece.pos.x + j * this.drawScale,
-              this.ghostPiece.pos.y + i * this.drawScale,
+              this.ghostPiece.pos.x + j, // * this.drawScale,
+              this.ghostPiece.pos.y + i, // * this.drawScale,
               currentBlockSet.blocks[this.activeBlock.id].color,
               currentBlockSetEX.pieces[this.activeBlock.id].connections[this.activeBlock.rot][i][j]
             );
             if (this.activeBlock.item && pieceToDraw[i][j] === this.activeBlock.item) {
               this.v.drawBrickOverlay(
-                this.ghostPiece.pos.x + j * this.drawScale,
-                this.ghostPiece.pos.y + i * this.drawScale,
+                this.ghostPiece.pos.x + j, // * this.drawScale,
+                this.ghostPiece.pos.y + i, // * this.drawScale,
                 true
               );
             }
@@ -375,7 +375,7 @@ export const initSkins = () => {
       (this.v.clearHoldCanvas(), null !== this.blockInHold)
     ) {
       let piecePreview = this.blockSets[this.blockInHold.set].previewAs;
-      let piecePreviewEX = this.blockSetsEX[this.blockInHold.set].pieces[this.blockInHold.id];
+      let piecePreviewEX = this.blockSetsEX[this.blockInHold.set].previewAs.pieces[this.blockInHold.id];
       let pieceInInitialState = piecePreview.blocks[this.blockInHold.id].blocks[0];
       let block_color = piecePreview.blocks[this.blockInHold.id].color;
       let pieceHeightSpan = piecePreview.blocks[this.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
@@ -442,9 +442,9 @@ export const initSkins = () => {
       let piece = this.queue[i];
       let piecePreview = this.blockSets[piece.set].previewAs;
       let pieceInInitialState = piecePreview.blocks[piece.id].blocks[0];
-      let connections = this.blockSetsEX[piece.set].pieces[piece.id].connections;
-      let xpOverride = this.blockSetsEX[piece.set].pieces[piece.id].xpOverride;
-      let ypOverride = this.blockSetsEX[piece.set].pieces[piece.id].ypOverride;
+      let connections = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
+      let xpOverride = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
+      let ypOverride = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
       let block_color = piecePreview.blocks[piece.id].color;
       let pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
       let pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
@@ -664,27 +664,27 @@ export const initSkins = () => {
   if (exists(window.Replayer) && location.href.includes("replay")) {
     let oldDrawGhostAndCurrent = Replayer.prototype.drawGhostAndCurrent;
     Replayer.prototype.drawGhostAndCurrent = function () {
-      let returnValue = oldDrawGhostAndCurrent.apply(this, arguments);
       if (usingConnected || usingGhostConnected) {
         return drawGhostAndCurrentConnected.call(this);
+      } else {
+        return oldDrawGhostAndCurrent.apply(this, arguments);
       }
-      return returnValue;
     };
     let oldRedrawHoldBox = Replayer.prototype.redrawHoldBox;
     Replayer.prototype.redrawHoldBox = function () {
-      let returnValue = oldRedrawHoldBox.apply(this, arguments);
       if (usingConnected) {
         return redrawHoldBoxConnected.call(this);
+      } else {
+        return oldRedrawHoldBox.apply(this, arguments);
       }
-      return returnValue;
     };
     let oldUpdateQueueBox = Replayer.prototype.updateQueueBox;
     Replayer.prototype.updateQueueBox = function () {
-      let returnValue = oldUpdateQueueBox.apply(this, arguments);
       if (usingConnected) {
         return updateQueueBoxConnected.call(this);
+      } else {
+        return oldUpdateQueueBox.apply(this, arguments);
       }
-      return returnValue;
     };
     Replayer.prototype.redrawMatrixConnected = redrawMatrixConnected;
 
@@ -700,7 +700,7 @@ export const initSkins = () => {
       }
     };
 
-    // Connected skins in ???
+    // Connected skins in, umm, replay too actually
 
     if (exists(window.View)) {
       if (!location.href.includes("export")) {
@@ -725,122 +725,280 @@ export const initSkins = () => {
             );
           }
         };
-      }
-
-      let oldRedraw = View.prototype.redraw;
-      View.prototype.redraw = function () {
-        if (usingConnected) {
-          if (!this.redrawBlocked) {
-            if ((this.clearMainCanvas(), !this.g.isInvisibleSkin)) this.g.redrawMatrixConnected();
-            this.drawGhostAndCurrent(),
-              this.g.redBar &&
-                this.drawRectangle(
-                  this.ctx,
-                  240,
-                  (20 - this.g.redBar) * this.block_size,
-                  8,
-                  this.g.redBar * this.block_size,
-                  "#FF270F"
-                );
+        let oldRedraw = View.prototype.redraw;
+        View.prototype.redraw = function () {
+          if (usingConnected) {
+            if (!this.redrawBlocked) {
+              if ((this.clearMainCanvas(), !this.g.isInvisibleSkin)) this.g.redrawMatrixConnected();
+              this.drawGhostAndCurrent(),
+                this.g.redBar &&
+                  this.drawRectangle(
+                    this.ctx,
+                    240,
+                    (20 - this.g.redBar) * this.block_size,
+                    8,
+                    this.g.redBar * this.block_size,
+                    "#FF270F"
+                  );
+            }
+            return;
           }
-          return;
-        }
-        return oldRedraw.apply(this, arguments);
-      };
+          return oldRedraw.apply(this, arguments);
+        };
 
-      // This draws the active piece and blocks on the matrix
-      View.prototype.drawBlockConnected = function (x, y, blockID, connection) {
-        if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
-          var scale = this.drawScale * this.block_size;
-          let [offsetX, offsetY] = getConnection(connection);
-          this.ctx.drawImage(
-            this.tex, // image
-            (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w, // sx
-            offsetY * this.g.skins[this.skinId].w, // sy
-            this.g.skins[this.skinId].w, // sWidth
-            this.g.skins[this.skinId].w, // sHeight
-            x * this.block_size, // dx
-            y * this.block_size, // dy
-            scale, // dWidth
-            scale // dHeight
-          );
-        }
-      };
+        // This draws the active piece and blocks on the matrix
+        View.prototype.drawBlockConnected = function (x, y, blockID, connection) {
+          if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
+            let scale = this.drawScale * this.block_size;
+            let [offsetX, offsetY] = getConnection(connection);
+            this.ctx.drawImage(
+              this.tex, // image
+              (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w, // sx
+              offsetY * this.g.skins[this.skinId].w, // sy
+              this.g.skins[this.skinId].w, // sWidth
+              this.g.skins[this.skinId].w, // sHeight
+              x * this.block_size, // dx
+              y * this.block_size, // dy
+              scale, // dWidth
+              scale // dHeight
+            );
+          }
+        };
 
-      View.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
-        if (x >= 0 && y >= 0 && x < 10 && y < 20) {
-          var scale = this.drawScale * this.block_size;
-          let [offsetX, offsetY] = getConnection(connection);
-          if (0 === this.ghostSkinId) {
-            this.ctx.globalAlpha = 0.5;
-            if (this.skinId > 0) {
+        View.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
+          if (x >= 0 && y >= 0 && x < 10 && y < 20) {
+            let scale = this.drawScale * this.block_size;
+            let [offsetX, offsetY] = getConnection(connection);
+            if (this.ghostSkinId === 0) {
+              this.ctx.globalAlpha = 0.5;
+              if (this.skinId > 0) {
+                this.ctx.drawImage(
+                  this.tex,
+                  (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w,
+                  offsetY * this.g.skins[this.skinId].w,
+                  this.g.skins[this.skinId].w,
+                  this.g.skins[this.skinId].w,
+                  x * this.block_size,
+                  y * this.block_size,
+                  scale,
+                  scale
+                );
+              } else {
+                this.drawBlockConnected(x, y, blockID);
+              }
+              this.ctx.globalAlpha = 1;
+            } else {
+              var ghostSkin = this.ghostSkins[this.ghostSkinId];
               this.ctx.drawImage(
-                this.tex,
-                (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w,
-                offsetY * this.g.skins[this.skinId].w,
-                this.g.skins[this.skinId].w,
-                this.g.skins[this.skinId].w,
+                this.ghostTex,
+                (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
+                offsetY * ghostSkin.w,
+                ghostSkin.w,
+                ghostSkin.w,
                 x * this.block_size,
                 y * this.block_size,
                 scale,
                 scale
               );
-            } else {
-              this.drawBlockConnected(x, y, blockID);
             }
-            this.ctx.globalAlpha = 1;
+          }
+        };
+
+        let oldViewDrawGhostAndCurrent = View.prototype.drawGhostAndCurrent;
+        View.prototype.drawGhostAndCurrent = function () {
+          if (usingConnected) {
+            if (!this.g.blockSetsEX) {
+              this.g.blockSetsEX = getBlockSetsEX();
+            }
+            let currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
+            let currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
+            let pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
+            let pieceLength = pieceToDraw.length;
+            if (this.ghostEnabled)
+              for (let i = 0; i < pieceLength; i++)
+                for (let j = 0; j < pieceLength; j++)
+                  pieceToDraw[i][j] > 0 &&
+                    this.drawGhostBlockConnected(
+                      this.g.ghostPiece.pos.x + j,
+                      this.g.ghostPiece.pos.y + i,
+                      currentBlockSet.blocks[this.g.activeBlock.id].color,
+                      currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
+                    );
+            for (let i = 0; i < pieceLength; i++)
+              for (let j = 0; j < pieceLength; j++)
+                pieceToDraw[i][j] > 0 &&
+                  this.drawBlockConnected(
+                    this.g.activeBlock.pos.x + j,
+                    this.g.activeBlock.pos.y + i,
+                    currentBlockSet.blocks[this.g.activeBlock.id].color,
+                    currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
+                  );
+          } else oldViewDrawGhostAndCurrent.call(this);
+        };
+      } else {
+        // things to do with export
+        View.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind, scale = 1) {
+          let blockSize = this.block_size;
+          let ctx = this.ctx;
+          if (
+            (ctxKind === this.HOLD
+              ? ((this.drawOffsetTop = this.AP.HLD.T),
+                (this.drawOffsetLeft = this.AP.HLD.L),
+                (this.block_size = this.AP.HLD.BS))
+              : ((this.drawOffsetTop = this.AP.QUE.T),
+                (this.drawOffsetLeft = this.AP.QUE.L),
+                (this.block_size = this.AP.QUE.BS)),
+            0 === this.skinId)
+          ) {
+            var color = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+            this.drawRectangle(ctx, x * this.block_size, y * this.block_size, this.block_size, this.block_size, color);
           } else {
-            var ghostSkin = this.ghostSkins[this.ghostSkinId];
-            this.ctx.drawImage(
-              this.ghostTex,
-              (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
-              offsetY * ghostSkin.w,
-              ghostSkin.w,
-              ghostSkin.w,
+            let [offsetX, offsetY] = getConnection(connection);
+            this.drawImage(
+              ctx,
+              this.tex,
+              (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w, // sx
+              offsetY * this.g.skins[this.skinId].w, // sy
+              this.g.skins[this.skinId].w,
+              this.g.skins[this.skinId].w,
               x * this.block_size,
               y * this.block_size,
-              scale,
-              scale
+              this.block_size * scale,
+              this.block_size * scale
             );
           }
-        }
-      };
 
-      let oldViewDrawGhostAndCurrent = View.prototype.drawGhostAndCurrent;
-      View.prototype.drawGhostAndCurrent = function () {
-        if (usingConnected) {
+          this.block_size = blockSize;
+        };
+
+        View.prototype.drawBlockConnected = function (x, y, blockID, connection) {
+          if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
+            let scale = this.drawScale * this.BS;
+            let [offsetX, offsetY] = getConnection(connection);
+            if (this.skinId) {
+              this.drawImage(
+                this.ctx,
+                this.tex,
+                (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w,
+                offsetY * this.g.skins[this.skinId].w,
+                this.g.skins[this.skinId].w,
+                this.g.skins[this.skinId].w,
+                x * this.BS,
+                y * this.BS,
+                scale,
+                scale
+              );
+            } else {
+              let mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+              this.drawRectangle(this.ctx, x * this.BS, y * this.BS, scale, scale, mono);
+            }
+          }
+        };
+
+        View.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
+          if (x >= 0 && y >= 0 && x < 10 && y < 20) {
+            let scale = this.drawScale * this.BS;
+            let [offsetX, offsetY] = getConnection(connection);
+            if (this.ghostSkinId === 0) {
+              this.ctx.globalAlpha = 0.5;
+              if (this.skinId > 0) {
+                this.drawImage(
+                  this.ctx,
+                  this.tex,
+                  (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w,
+                  offsetY * this.g.skins[this.skinId].w,
+                  this.g.skins[this.skinId].w,
+                  this.g.skins[this.skinId].w,
+                  x * this.BS,
+                  y * this.BS,
+                  scale,
+                  scale
+                );
+              } else {
+                this.drawBlock(x, y, blockID);
+              }
+              this.ctx.globalAlpha = 1;
+            } else {
+              var ghostSkin = this.ghostSkins[this.ghostSkinId];
+              this.drawImage(
+                this.ctx,
+                this.ghostTex,
+                (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
+                offsetY * ghostSkin.w,
+                ghostSkin.w,
+                ghostSkin.w,
+                x * this.BS,
+                y * this.BS,
+                scale,
+                scale
+              );
+            }
+          }
+        };
+        View.prototype.drawGhostAndCurrentConnected = function () {
           if (!this.g.blockSetsEX) {
             this.g.blockSetsEX = getBlockSetsEX();
           }
           let currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
           let currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
-          let pieceToDraw =
-              1 === currentBlockSet.scale
-                ? currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot]
-                : currentBlockSet.previewAs.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot],
-            pieceLength = pieceToDraw.length;
-          if (((this.drawScale = currentBlockSet.scale), this.ghostEnabled))
-            for (let i = 0; i < pieceLength; i++)
-              for (let j = 0; j < pieceLength; j++)
-                pieceToDraw[i][j] > 0 &&
+          let pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
+          let pieceLength = pieceToDraw.length;
+          if (this.ghostEnabled) {
+            for (let i = 0; i < pieceLength; i++) {
+              for (let j = 0; j < pieceLength; j++) {
+                if (pieceToDraw[i][j] > 0) {
                   this.drawGhostBlockConnected(
-                    this.g.ghostPiece.pos.x + j * this.drawScale,
-                    this.g.ghostPiece.pos.y + i * this.drawScale,
+                    this.g.ghostPiece.pos.x + j,
+                    this.g.ghostPiece.pos.y + i,
                     currentBlockSet.blocks[this.g.activeBlock.id].color,
                     currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
                   );
-          for (let i = 0; i < pieceLength; i++)
-            for (let j = 0; j < pieceLength; j++)
-              pieceToDraw[i][j] > 0 &&
+                }
+              }
+            }
+          }
+          for (let i = 0; i < pieceLength; i++) {
+            for (let j = 0; j < pieceLength; j++) {
+              if (pieceToDraw[i][j] > 0) {
                 this.drawBlockConnected(
-                  this.g.activeBlock.pos.x + j * this.drawScale,
-                  this.g.activeBlock.pos.y + i * this.drawScale,
+                  this.g.activeBlock.pos.x + j,
+                  this.g.activeBlock.pos.y + i,
                   currentBlockSet.blocks[this.g.activeBlock.id].color,
                   currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
                 );
-          this.drawScale = 1;
-        } else oldViewDrawGhostAndCurrent.call(this);
-      };
+              }
+            }
+          }
+        };
+
+        let oldDrawMainStage = View.prototype.drawMainStage;
+        View.prototype.drawMainStage = function () {
+          if (usingConnected) {
+            if (!this.g.connections) {
+              this.g.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+            }
+            this.drawOffsetTop = this.AP.STG.T;
+            this.drawOffsetLeft = this.AP.STG.L;
+            if (!this.g.isInvisibleSkin) {
+              for (var y = 0; y < 20; y++) {
+                for (var x = 0; x < 10; x++) {
+                  this.drawBlockConnected(x, y, this.g.matrix[y][x], this.g.connections[y + 1][x]);
+                }
+              }
+            }
+            this.drawGhostAndCurrentConnected(),
+              this.g.redBar &&
+                this.drawRectangle(
+                  this.ctx,
+                  this.AP.STG.W,
+                  (20 - this.g.redBar) * this.BS,
+                  8,
+                  this.g.redBar * this.BS,
+                  "#FF270F"
+                );
+          } else oldDrawMainStage.call(this);
+        };
+      }
     }
   }
   // Remaining skin init
