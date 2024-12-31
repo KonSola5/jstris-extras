@@ -1,18 +1,18 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 export const createKeyInputElement = (varName, desc) => {
-  const TOGGLE_CHAT_KEY_INPUT_ELEMENT = document.createElement("div");
-  TOGGLE_CHAT_KEY_INPUT_ELEMENT.className = "settings-inputRow";
-  TOGGLE_CHAT_KEY_INPUT_ELEMENT.innerHTML += `<b>${desc}</b>`;
+  const toggleChatKey_INPUT_ELEMENT = document.createElement("div");
+  toggleChatKey_INPUT_ELEMENT.className = "settings-inputRow";
+  toggleChatKey_INPUT_ELEMENT.innerHTML += `<b>${desc}</b>`;
 
   const inputDiv = document.createElement("div");
   const input = document.createElement("input");
-  input.value = displayKey(Config().varName);
+  input.value = displayKey(Config.settings[varName]);
   input.id = `${varName}_INPUT_ELEMENT`;
 
   input.addEventListener("keydown", (e) => {
     let key = e.code;
-    Config().set(varName, key);
+    Config.set(varName, key);
     input.value = displayKey(key);
     e.stopPropagation();
     e.preventDefault();
@@ -21,7 +21,7 @@ export const createKeyInputElement = (varName, desc) => {
   input.addEventListener("keypress", () => false);
   const clearBtn = document.createElement("button");
   clearBtn.addEventListener("click", (e) => {
-    Config().set(varName, null);
+    Config.set(varName, null);
     input.value = displayKey(null);
   });
   clearBtn.textContent = "Clear";
@@ -30,9 +30,9 @@ export const createKeyInputElement = (varName, desc) => {
   inputDiv.style.display = "flex";
   inputDiv.appendChild(input);
   inputDiv.appendChild(clearBtn);
-  TOGGLE_CHAT_KEY_INPUT_ELEMENT.appendChild(inputDiv);
+  toggleChatKey_INPUT_ELEMENT.appendChild(inputDiv);
 
-  return TOGGLE_CHAT_KEY_INPUT_ELEMENT;
+  return toggleChatKey_INPUT_ELEMENT;
 };
 
 export function displayKey(key) {

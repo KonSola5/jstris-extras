@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 export const initKeyboardDisplay = () => {
   const isGame = typeof Game != "undefined";
   const isReplayer = typeof Replayer != "undefined";
@@ -15,8 +15,8 @@ export const initKeyboardDisplay = () => {
   var kbhold = document.createElement("div");
   kbhold.id = "keyboardHolder";
 
-  if (!Config().ENABLE_KEYBOARD_DISPLAY) kbhold.classList.add("hide-kbd-display");
-  Config().onChange("ENABLE_KEYBOARD_DISPLAY", (val) => {
+  if (!Config.settings.keyboardOSD) kbhold.classList.add("hide-kbd-display");
+  Config.onChange("keyboardOSD", (val) => {
     if (val) {
       kbhold.classList.remove("hide-kbd-display");
     } else {

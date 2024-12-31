@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/soundPresets.json";
 
@@ -25,8 +25,8 @@ const dropdown = document.createElement("select");
 dropdown.innerHTML += "<option>Select...</option>";
 
 dropdown.addEventListener("change", () => {
-  document.getElementById("CUSTOM_SFX_JSON").value = dropdown.value;
-  Config().set("CUSTOM_SFX_JSON", dropdown.value);
+  document.getElementById("customSFX_JSON").value = dropdown.value;
+  Config.set("customSFX_JSON", dropdown.value);
 
   dropdown.selectedIndex = 0;
 });

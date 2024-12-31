@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 import { inject, functionExists, exists } from "./util";
 import { getBlockSetsEX } from "./blockSetExtensions";
 
@@ -14,7 +14,7 @@ export const initSkins = () => {
 
   function loadCustomSkin(url, ghost = false) {
     // if not allowing force replay skin, don't load custom skin
-    if (location.href.includes("replay") && !Config().ENABLE_REPLAY_SKIN) {
+    if (location.href.includes("replay") && !Config.settings.customSkinInReplays) {
       return;
     }
 
@@ -1004,18 +1004,18 @@ export const initSkins = () => {
   // Remaining skin init
   let skinLoaded = false;
   let game = null;
-  if (Config().CUSTOM_SKIN_URL) loadCustomSkin(Config().CUSTOM_SKIN_URL);
+  if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
 
-  if (Config().CUSTOM_GHOST_SKIN_URL) loadCustomSkin(Config().CUSTOM_GHOST_SKIN_URL, true);
+  if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
 
   if (functionExists(window.Live)) {
-    Config().onChange("CUSTOM_SKIN_URL", (val) => {
+    Config.onChange("customSkinURL", (val) => {
       if (val) loadCustomSkin(val);
       else {
         loadSkin("resetRegular");
       }
     });
-    Config().onChange("CUSTOM_GHOST_SKIN_URL", (val) => {
+    Config.onChange("customGhostSkinURL", (val) => {
       if (val) loadCustomSkin(val, true);
       else if (game) {
         game.ghostSkinId = 0;
@@ -1029,8 +1029,8 @@ export const initSkins = () => {
       if (!skinLoaded) {
         game = this.p;
         skinLoaded = true;
-        if (Config().CUSTOM_SKIN_URL) loadCustomSkin(Config().CUSTOM_SKIN_URL);
-        if (Config().CUSTOM_GHOST_SKIN_URL) loadCustomSkin(Config().CUSTOM_GHOST_SKIN_URL, true);
+        if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
+        if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
       }
       return returnValue;
     };
@@ -1041,10 +1041,10 @@ export const initSkins = () => {
     let oldOnReady = View.prototype.onReady;
     View.prototype.onReady = function () {
       let returnValue = oldOnReady.apply(this, arguments);
-      if (Config().ENABLE_REPLAY_SKIN && Config().CUSTOM_SKIN_URL) {
+      if (Config.settings.customSkinInReplays && Config.settings.customSkinURL) {
         this.tex.crossOrigin = "anonymous";
         this.skinId = 1;
-        this.g.skins[1].data = Config().CUSTOM_SKIN_URL;
+        this.g.skins[1].data = Config.settings.customSkinURL;
         this.g.skins[1].w = customSkinSize;
         this.tex.src = this.g.skins[1].data;
       }

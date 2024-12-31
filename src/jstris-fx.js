@@ -1,6 +1,6 @@
 import { lerp, shake, shouldRenderEffectsOnView } from "./util.js";
-import { Config } from "./config.js";
 import { isReplayerReversing } from "./replayManager.js";
+import { Config } from "./index.js";
 // helper function
 const initGFXCanvas = (obj, refCanvas) => {
   obj.GFXCanvas = refCanvas.cloneNode(true);
@@ -114,7 +114,7 @@ export const initFX = () => {
 
     return val;
   };
-  /* 
+
   const oldLineClears = GameCore.prototype.checkLineClears;
   GameCore.prototype.checkLineClears = function () {
     //console.log(this.GFXCanvas);
@@ -141,10 +141,10 @@ export const initFX = () => {
         cleared++; // add to cleared
 
         // send a line clear animation on this line
-        if (Config().ENABLE_LINECLEAR_ANIMATION && Config().LINE_CLEAR_LENGTH > 0) {
+        if (Config.settings.lineClearAnimationEnabled && Config.settings.lineClearAnimationLength > 0) {
           this.GFXQueue.push({
             opacity: 1,
-            delta: 1 / ((Config().LINE_CLEAR_LENGTH * 1000) / 60),
+            delta: 1 / ((Config.settings.lineClearAnimationLength * 1000) / 60),
             row,
             blockSize: this.block_size,
             amountParted: 0,
@@ -183,11 +183,11 @@ export const initFX = () => {
     if (cleared > 0) {
       // if any line was cleared, send a shake
       let attack = this.gamedata.attack - oldAttack;
-      if (Config().ENABLE_LINECLEAR_SHAKE)
+      if (Config.settings.lineClearShakeEnabled)
         shake(
           this.GFXCanvas.parentNode.parentNode,
-          Math.min(1 + attack * 5, 50) * Config().LINE_CLEAR_SHAKE_STRENGTH,
-          Config().LINE_CLEAR_SHAKE_LENGTH * (1000 / 60)
+          Math.min(1 + attack * 5, 50) * Config.settings.lineClearShakeStrength,
+          Config.settings.lineClearShakeLength * (1000 / 60)
         );
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     }
@@ -196,12 +196,12 @@ export const initFX = () => {
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.checkLineClears = GameCore.prototype.checkLineClears;
   // placement animation
-*/
 
-  /*
+
+
   const oldPlaceBlock = GameCore.prototype.placeBlock;
   GameCore.prototype.placeBlock = function (col, row, time) {
-    if (!this.GFXCanvas || !Config().ENABLE_PLACE_BLOCK_ANIMATION || isReplayerReversing)
+    if (!this.GFXCanvas || !Config.settings.piecePlacementAnimationEnabled || isReplayerReversing)
       return oldPlaceBlock.apply(this, arguments);
 
     const block = this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
@@ -209,10 +209,10 @@ export const initFX = () => {
     let val = oldPlaceBlock.apply(this, arguments);
 
     // flashes the piece once you place it
-    if (Config().PIECE_FLASH_LENGTH > 0) {
+    if (Config.settings.piecePlacementAnimationLength > 0) {
       this.GFXQueue.push({
-        opacity: Config().PIECE_FLASH_OPACITY,
-        delta: Config().PIECE_FLASH_OPACITY / ((Config().PIECE_FLASH_LENGTH * 1000) / 60),
+        opacity: Config.settings.piecePlacementAnimationOpacity,
+        delta: Config.settings.piecePlacementAnimationOpacity / ((Config.settings.piecePlacementAnimationLength * 1000) / 60),
         col,
         row,
         blockSize: this.block_size,
@@ -294,7 +294,6 @@ export const initFX = () => {
 
     requestAnimationFrame(this.GFXLoop);
   };
-  */
 
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.placeBlock = GameCore.prototype.placeBlock;

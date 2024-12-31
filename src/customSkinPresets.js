@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/skinPresets.json";
 export let CUSTOM_SKIN_PRESETS = [];
@@ -26,10 +26,10 @@ dropdown.innerHTML += "<option>Select...</option>";
 dropdown.addEventListener("change", () => {
   var { url, ghostUrl } = JSON.parse(dropdown.value);
 
-  document.getElementById("CUSTOM_SKIN_URL").value = url || "";
-  Config().set("CUSTOM_SKIN_URL", url || "");
-  document.getElementById("CUSTOM_GHOST_SKIN_URL").value = ghostUrl || "";
-  Config().set("CUSTOM_GHOST_SKIN_URL", ghostUrl || "");
+  document.getElementById("customSkinURL").value = url || "";
+  Config.set("customSkinURL", url || "");
+  document.getElementById("customGhostSkinURL").value = ghostUrl || "";
+  Config.set("customGhostSkinURL", ghostUrl || "");
   dropdown.selectedIndex = 0;
 });
 

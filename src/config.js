@@ -1,82 +1,161 @@
-// these are default values
-var config = {
-  FIRST_OPEN: true,
+// // these are default values
+// var config = {
+//   FIRST_OPEN: true,
 
-  ENABLE_LINECLEAR_ANIMATION: true,
-  ENABLE_LINECLEAR_SHAKE: true,
-  ENABLE_PLACE_BLOCK_ANIMATION: true,
-  ENABLE_ACTION_TEXT: true,
+//   lineClearAnimationEnabled: true,
+//   lineClearShakeEnabled: true,
+//   piecePlacementAnimationEnabled: true,
+//   actionTextEnabled: true,
 
-  PIECE_FLASH_OPACITY: 0.5,
-  PIECE_FLASH_LENGTH: 0.5,
-  LINE_CLEAR_LENGTH: 0.5,
-  LINE_CLEAR_SHAKE_STRENGTH: 1,
-  LINE_CLEAR_SHAKE_LENGTH: 1,
+//   piecePlacementAnimationOpacity: 0.5,
+//   piecePlacementAnimationLength: 0.5,
+//   lineClearAnimationLength: 0.5,
+//   lineClearShakeStrength: 1,
+//   lineClearShakeLength: 1,
 
-  BACKGROUND_IMAGE_URL: "",
-  CUSTOM_SKIN_URL: "",
-  CUSTOM_GHOST_SKIN_URL: "",
-  ENABLE_REPLAY_SKIN: true,
-  ENABLE_KEYBOARD_DISPLAY: false,
+//   backgroundURL: "",
+//   customSkinURL: "",
+//   customGhostSkinURL: "",
+//   customSkinInReplays: true,
+//   keyboardOSD: false,
 
-  ENABLE_OPPONENT_SFX: true,
-  OPPONENT_SFX_VOLUME_MULTPLIER: 0.5,
-  ENABLE_CUSTOM_VFX: false,
-  ENABLE_CUSTOM_SFX: false,
-  CUSTOM_SFX_JSON: "",
-  CUSTOM_PLUS_SFX_JSON: "",
+//   opponentSFXEnabled: true,
+//   opponentSFXVolumeMultiplier: 0.5,
+//   customPieceSpawnSFXEnabled: false,
+//   customSFXEnabled: false,
+//   customSFX_JSON: "",
+//   customPlusSFX_JSON: "",
 
-  ENABLE_STAT_APP: false,
-  ENABLE_STAT_PPD: false,
-  ENABLE_STAT_CHEESE_BLOCK_PACE: false,
-  ENABLE_STAT_CHEESE_TIME_PACE: false,
-  ENABLE_STAT_PPB: false,
-  ENABLE_STAT_SCORE_PACE: false,
-  ENABLE_STAT_PC_NUMBER: false,
+//   statAPPEnabled: false,
+//   statPPDEnabled: false,
+//   statCheeseRacePiecePaceEnabled: false,
+//   statCheeseRaceTimePaceEnabled: false,
+//   statUltraSPPEnabled: false,
+//   statUltraScorePaceEnabled: false,
+//   statPCNumberEnabled: false,
 
-  ENABLE_AUTOMATIC_REPLAY_CODES: false,
-  ENABLE_CHAT_TIMESTAMPS: true,
-  SHOW_QUEUE_INFO: true,
-  SHOW_MM_BUTTON: true,
-  TOGGLE_CHAT_KEY: null,
-  CLOSE_CHAT_KEY: null,
-  SCREENSHOT_KEY: null,
+//   automaticReplayCodesEnabled: false,
+//   chatTimestampsEnabled: true,
+//   SHOW_QUEUE_INFO: true,
+//   SHOW_MM_BUTTON: true,
+//   toggleChatKey: null,
+//   closeChatKey: null,
+//   SCREENSHOT_KEY: null,
 
-  UNDO_KEY: null,
+//   undoKey: null,
+// };
+
+// const defaultConfig = { ...config };
+
+// var listeners = [];
+
+// export const initConfig = () => {
+//   // Remove keycodes from local storage
+//   localStorage.removeItem("toggleChatKeyCODE");
+//   localStorage.removeItem("closeChatKeyCODE");
+//   localStorage.removeItem("SCREENSHOT_KEYCODE");
+//   localStorage.removeItem("undoKeyCODE");
+//   for (var i in config) {
+//     var val = JSON.parse(localStorage.getItem(i));
+//     if (val != undefined && val != null) {
+//       config[i] = val;
+//     }
+//   }
+// };
+
+// const set = function (name, val) {
+//   config[name] = val;
+//   localStorage.setItem(name, JSON.stringify(val));
+//   for (var { event, listener } of listeners) {
+//     if (event == name) listener(val);
+//   }
+// };
+
+// const reset = function (name) {
+//   set(name, defaultConfig[name]);
+// };
+
+// const onChange = (event, listener) => {
+//   listeners.push({ event, listener });
+// };
+
+// export const Config = () => ({ ...config, set, onChange, reset });
+
+const defaultConfig = {
+  isFirstOpen: false,
+
+  lineClearAnimationEnabled: true,
+  lineClearAnimationLength: 0.5,
+
+  lineClearShakeEnabled: true,
+  lineClearShakeStrength: 1,
+  lineClearShakeLength: 1,
+
+  piecePlacementAnimationEnabled: true,
+  piecePlacementAnimationOpacity: 0.5,
+  piecePlacementAnimationLength: 0.5,
+
+  actionTextEnabled: true,
+
+  backgroundURL: "",
+  customSkinURL: "",
+  customGhostSkinURL: "",
+  customSkinInReplays: true,
+
+  keyboardOSD: false,
+
+  opponentSFXEnabled: true,
+  opponentSFXVolumeMultiplier: 0.5,
+
+  customSFXEnabled: false,
+  customSFX_JSON: "",
+  customPieceSpawnSFXEnabled: false,
+
+  statAPPEnabled: false,
+  statPPDEnabled: false,
+  statCheeseRacePiecePaceEnabled: false,
+  statCheeseRaceTimePaceEnabled: false,
+  statUltraSPPEnabled: false,
+  statUltraScorePaceEnabled: false,
+  statPCNumberEnabled: false,
+
+  automaticReplayCodesEnabled: false,
+  chatTimestampsEnabled: false,
+
+  toggleChatKey: null,
+  closeChatKey: null,
+  undoKey: null,
+
+  // To be removed
+  customPlusSFX_JSON: "",
+  thirdPartyMatchmakingEnabled: true,
 };
 
-const defaultConfig = { ...config };
-
-var listeners = [];
-
-export const initConfig = () => {
-  // Remove keycodes from local storage
-  localStorage.removeItem("TOGGLE_CHAT_KEYCODE");
-  localStorage.removeItem("CLOSE_CHAT_KEYCODE");
-  localStorage.removeItem("SCREENSHOT_KEYCODE");
-  localStorage.removeItem("UNDO_KEYCODE");
-  for (var i in config) {
-    var val = JSON.parse(localStorage.getItem(i));
-    if (val != undefined && val != null) {
-      config[i] = val;
+export class ConfigManager {
+  constructor() {
+    this.settings = structuredClone(defaultConfig);
+    this.listeners = [];
+    for (let setting in this.settings) {
+      let value = JSON.parse(localStorage.getItem(setting));
+      if (value != null) {
+        this.settings[setting] = value;
+      }
     }
   }
-};
 
-const set = function (name, val) {
-  config[name] = val;
-  localStorage.setItem(name, JSON.stringify(val));
-  for (var { event, listener } of listeners) {
-    if (event == name) listener(val);
+  set(name, value) {
+    this.settings[name] = value;
+    localStorage.setItem(name, JSON.stringify(value));
+    for (let [event, listener] of this.listeners) {
+      if (event == name) listener(value);
+    }
   }
-};
 
-const reset = function (name) {
-  set(name, defaultConfig[name]);
-};
+  reset(name) {
+    this.set(name, defaultConfig[name]);
+  }
 
-const onChange = (event, listener) => {
-  listeners.push({ event, listener });
-};
-
-export const Config = () => ({ ...config, set, onChange, reset });
+  onChange(event, listener) {
+    this.listeners.push([event, listener]);
+  }
+}

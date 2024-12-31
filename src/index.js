@@ -2,9 +2,8 @@
 
 import { initActionText } from "./actiontext";
 import { initFX } from "./jstris-fx";
-import { initMM } from "./matchmaking";
 import { initChat } from "./chat.js";
-import { Config, initConfig } from "./config";
+import { ConfigManager } from "./config";
 
 import css from "./style.css";
 import { initModal } from "./settingsModal";
@@ -20,8 +19,7 @@ import { initPracticeUndo } from "./practiceUndo";
 import { initPracticeSurvivalMode } from "./practiceSurvivalMode";
 import { fixTeamsMode } from "./teamsMode";
 import { initPracticeFumen, initReplayerSnapshot } from "./practiceFumen";
-import { authNotification, playSound, notify, setPlusSfx } from "./util";
-import { initScreenshot } from "./screenshot";
+import { authNotification, playSound, notify, setPlusSfx, functionExists } from "./util";
 import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
 import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";
@@ -30,26 +28,25 @@ var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
 document.body.appendChild(styleSheet);
 
-initConfig();
+export const Config = new ConfigManager;
 initModal();
 
-if (Config().FIRST_OPEN) {
+if (Config.settings.isFirstOpen) {
   alert(
-    "Hi! Thank you for installing Jstris+! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"
+    "Hi! Thank you for installing Jstris Extras! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"
   );
-  Config().set("FIRST_OPEN", false);
+  Config.set("isFirstOpen", false);
 }
 
 authNotification();
+initTamper();
 
-if (typeof ReplayController == "function") {
+if (functionExists(ReplayController)) {
   initReplayManager();
   initReplayerSnapshot();
 }
 
-  initTamper();
-  
-if (typeof GameCore == "function") {
+if (functionExists(GameCore)) {
   initSkins();
   // initCustomSkin();
   if (!location.href.includes("export")) {
@@ -62,28 +59,26 @@ if (typeof GameCore == "function") {
 
   initPracticeSurvivalMode();
 }
-if (typeof Game == "function") {
+if (functionExists(Game)) {
   initLayout();
   initPracticeUndo();
   initPracticeFumen();
-  setPlusSfx(Config().CUSTOM_PLUS_SFX_JSON);
+  setPlusSfx(Config.settings.customPlusSFX_JSON);
   let pbListener = GameCaption.prototype.newPB;
   GameCaption.prototype.newPB = function () {
     playSound("PB");
     let val = pbListener.apply(this, arguments);
     return val;
   };
-  let b4Reset = Live.prototype.beforeReset;
+  let oldBeforeReset = Live.prototype.beforeReset;
   Live.prototype.beforeReset = function () {
     if (!this.p.isTabFocused) {
       notify("Jstris", "⚠ New game starting! ⚠");
     }
-    return b4Reset.apply(this, arguments);
+    return oldBeforeReset.apply(this, arguments);
   };
-  initScreenshot();
   fixTeamsMode();
   initAutomaticReplayCodes();
 }
-if (typeof Live == "function") initChat();
+if (functionExists(Live)) initChat();
 initReplayerSFX();
-initMM();

@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 const clone = function (x) {
   return JSON.parse(JSON.stringify(x));
 };
@@ -154,7 +154,7 @@ export const initPracticeUndo = () => {
           "keydown",
           (keyEvent) => {
             if (this.focusState === 0) {
-              if (keyEvent.code === Config().UNDO_KEY) {
+              if (keyEvent.code === Config.settings.undoKey) {
                 this.undoToSaveState();
               }
             }

@@ -205,7 +205,7 @@ let plusSfx = {
   PB: "https://jstrisplus.github.io/jstris-plus-assets/sfx/personalBest.wav",
 };
 export const setPlusSfx = (sfx) => {
-  let d = document.getElementById("custom_plus_sfx_json_err");
+  let d = document.getElementById("customPlusSFX_JSON_err");
   try {
     sfx = JSON.parse(sfx);
   } catch (e) {

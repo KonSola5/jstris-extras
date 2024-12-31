@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 const changeBG = (link) => {
   console.log("Changing BG to " + link);
@@ -8,9 +8,9 @@ const changeBG = (link) => {
 };
 
 export const initLayout = () => {
-  changeBG(Config().BACKGROUND_IMAGE_URL);
-  Config().onChange("BACKGROUND_IMAGE_URL", (val) => {
-    changeBG(val);
+  changeBG(Config.settings.backgroundURL);
+  Config.onChange("backgroundURL", (value) => {
+    changeBG(value);
   });
   console.log("Layout loaded.");
 };

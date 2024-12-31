@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 export const initAutomaticReplayCodes = () => {
   window.copyReplayText = function (number) {
@@ -30,7 +30,7 @@ export const initAutomaticReplayCodes = () => {
 
     this.Replay.getData();
 
-    if (this.GameStats.stats.BLOCKS.value > piecesPlacedCutoff && Config().ENABLE_AUTOMATIC_REPLAY_CODES) {
+    if (this.GameStats.stats.BLOCKS.value > piecesPlacedCutoff && Config.settings.automaticReplayCodesEnabled) {
       let replayHTML = `
         <div style='font-size:14px;'>
             Userscript Generated Replay <b>#${this.replayCounter}</b>

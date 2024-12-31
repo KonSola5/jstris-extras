@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 const replaceBadValues = (n, defaultValue) => {
   // NaN check
@@ -28,11 +28,11 @@ const initStat = (index, name, configVar, calc, options = {}) => {
     name,
     calc,
     val: 0,
-    enabled: Config()[configVar],
+    enabled: Config.settings[configVar],
     initialValue: options.initialValue || 0,
     enabledMode: options.enabledMode || 0, // 0 = enabled for all modes
   });
-  Config().onChange(configVar, (val) => {
+  Config.onChange(configVar, (val) => {
     for (var individualStats of stats) var stat = individualStats.find((e) => e.name == name);
     stat.enabled = val;
   });
@@ -48,17 +48,17 @@ export const initStats = () => {
 };
 export const initGameStats = (stageEle, index) => {
   // these must be non-arrow functions so they can be bound
-  initStat(index, "APP", "ENABLE_STAT_APP", (game) =>
+  initStat(index, "APP", "statAPPEnabled", (game) =>
     replaceBadValues(game.gamedata.attack / game.placedBlocks).toFixed(3)
   );
-  initStat(index, "PPD", "ENABLE_STAT_PPD", (game) =>
+  initStat(index, "PPD", "statPPDEnabled", (game) =>
     replaceBadValues(game.placedBlocks / game.gamedata.garbageCleared).toFixed(3)
   );
 
   initStat(
     index,
     "Block pace",
-    "ENABLE_STAT_CHEESE_BLOCK_PACE",
+    "statCheeseRacePiecePaceEnabled",
     (game) => {
       let totalLines = game.ISGAME ? game["cheeseModes"][game["sprintMode"]] : game.initialLines;
       let linesLeft = game.linesRemaining;
@@ -72,7 +72,7 @@ export const initGameStats = (stageEle, index) => {
   initStat(
     index,
     "Time pace",
-    "ENABLE_STAT_CHEESE_TIME_PACE",
+    "statCheeseRaceTimePaceEnabled",
     (game) => {
       let totalLines = game.ISGAME ? game["cheeseModes"][game["sprintMode"]] : game.initialLines;
       let linesLeft = game.linesRemaining;
@@ -90,7 +90,7 @@ export const initGameStats = (stageEle, index) => {
   initStat(
     index,
     "PPB",
-    "ENABLE_STAT_PPB",
+    "statUltraSPPEnabled",
     (game) => {
       var score = game["gamedata"]["score"];
       var placedBlocks = game["placedBlocks"];
@@ -102,7 +102,7 @@ export const initGameStats = (stageEle, index) => {
   initStat(
     index,
     "Score pace",
-    "ENABLE_STAT_SCORE_PACE",
+    "statUltraScorePaceEnabled",
     (game) => {
       var score = game["gamedata"]["score"];
       let time = game.ISGAME ? game.clock : game.clock / 1000;
@@ -114,7 +114,7 @@ export const initGameStats = (stageEle, index) => {
   initStat(
     index,
     "PC #",
-    "ENABLE_STAT_PC_NUMBER",
+    "statPCNumberEnabled",
     (game) => {
       let suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th"];
       let pcs = game.gamedata.PCs;

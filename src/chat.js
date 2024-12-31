@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 import { displayKey } from "./toggleChatKeyInput";
 
 let game = null;
@@ -8,8 +8,8 @@ export const initChat = () => {
 
   // === show or hide chat timestamps code ===
   // showing timestamp logic is in css
-  if (Config().ENABLE_CHAT_TIMESTAMPS) document.body.classList.add("show-chat-timestamps");
-  Config().onChange("ENABLE_CHAT_TIMESTAMPS", (val) => {
+  if (Config.settings.chatTimestampsEnabled) document.body.classList.add("show-chat-timestamps");
+  Config.onChange("chatTimestampsEnabled", (val) => {
     if (val) {
       document.body.classList.add("show-chat-timestamps");
     } else {
@@ -25,13 +25,13 @@ export const initChat = () => {
 
   // === toggle chat button code ===
 
-  document.getElementById("TOGGLE_CHAT_KEY_INPUT_ELEMENT").value = displayKey(Config().TOGGLE_CHAT_KEY);
-  document.getElementById("CLOSE_CHAT_KEY_INPUT_ELEMENT").value = displayKey(Config().CLOSE_CHAT_KEY);
+  document.getElementById("toggleChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.toggleChatKey);
+  document.getElementById("closeChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.closeChatKey);
 
   // thanks justin https://greasyfork.org/en/scripts/423192-change-chat-key
   document.addEventListener("keydown", (e) => {
     let key = e.code;
-    if (key == Config().TOGGLE_CHAT_KEY) {
+    if (key == Config.settings.toggleChatKey) {
       if (game && game.focusState !== 1) {
         // game already focused, unfocus
         game.setFocusState(1);
@@ -40,11 +40,11 @@ export const initChat = () => {
         }, 0); // setTimeout to prevent the key from being typed
 
         // if keys are same, should close chat in this case
-      } else if (Config().CLOSE_CHAT_KEY == Config().TOGGLE_CHAT_KEY) {
+      } else if (Config.settings.closeChatKey == Config.settings.toggleChatKey) {
         document.getElementsByClassName("layer mainLayer gfxLayer")[0].click();
         document.getElementsByClassName("layer mainLayer gfxLayer")[0].focus();
       }
-    } else if (key == Config().CLOSE_CHAT_KEY) {
+    } else if (key == Config.settings.closeChatKey) {
       // focus game
       document.getElementsByClassName("layer mainLayer gfxLayer")[0].click();
       document.getElementsByClassName("layer mainLayer gfxLayer")[0].focus();

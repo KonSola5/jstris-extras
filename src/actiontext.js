@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 import { shouldRenderEffectsOnView } from "./util";
 
 const DELAY = 1500; // ms
@@ -17,7 +17,7 @@ class Displayer {
   }
 
   displayNewAction(value, atk) {
-    if (!Config().ENABLE_ACTION_TEXT) return;
+    if (!Config.settings.actionTextEnabled) return;
 
     let ctime = new Date().getTime();
     let spike_tracker = document.getElementById(`atk_spike_${this.index + 1}`);

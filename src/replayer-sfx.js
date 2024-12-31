@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 import { loadCustomSFX } from "./sfxLoader";
 import { shouldRenderEffectsOnView } from "./util";
 
@@ -10,21 +10,21 @@ export const initReplayerSFX = () => {
 
 export const initCustomReplaySFX = () => {
   console.log("init replayer sfx");
-  var json = Config().CUSTOM_SFX_JSON;
+  var json = Config.settings.customSFX_JSON;
   let sfx = null;
   if (json) {
     try {
       sfx = JSON.parse(json);
-      document.getElementById("custom_sfx_json_err").textContent = "Loaded " + (sfx.name || "custom sounds");
+      document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
     } catch (e) {
       console.log("SFX json was invalid.");
-      document.getElementById("custom_sfx_json_err").textContent = "SFX json is invalid.";
+      document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
     }
   } else {
-    document.getElementById("custom_sfx_json_err").textContent = "";
+    document.getElementById("customSFX_JSON_err").textContent = "";
   }
 
-  if (!Config().ENABLE_CUSTOM_SFX || !Config().CUSTOM_SFX_JSON) {
+  if (!Config.settings.customSFXEnabled || !Config.settings.customSFX_JSON) {
     return;
   }
 
@@ -62,12 +62,12 @@ const initOpponentSFX = () => {
 
   console.log("init opponent sfx");
   SlotView.prototype.playReplayerSound = function (sound) {
-    let volume = Config().OPPONENT_SFX_VOLUME_MULTPLIER || 0;
+    let volume = Config.settings.opponentSFXVolumeMultiplier || 0;
 
     if (!shouldRenderEffectsOnView(this)) {
       volume /= 4;
     }
-    let enabled = !!localStorage.getItem("SE") && Config().ENABLE_OPPONENT_SFX;
+    let enabled = !!localStorage.getItem("SE") && Config.settings.opponentSFXEnabled;
     if (enabled) {
       if (Array.isArray(sound)) {
         sound.forEach((e) => {

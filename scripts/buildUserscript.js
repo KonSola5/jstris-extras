@@ -7,21 +7,21 @@ var package = JSON.parse(fs.readFileSync("package.json"))
 if (!fs.existsSync("build")) {
     fs.mkdirSync("build");
 }
-if (!fs.existsSync(`build/jstris-plus-chrome`)) {
-    fs.mkdirSync(`build/jstris-plus-chrome`);
+if (!fs.existsSync(`build/jstris-extras-chrome`)) {
+    fs.mkdirSync(`build/jstris-extras-chrome`);
 }
-if (!fs.existsSync(`build/jstris-plus-firefox`)) {
-    fs.mkdirSync(`build/jstris-plus-firefox`);
+if (!fs.existsSync(`build/jstris-extras-firefox`)) {
+    fs.mkdirSync(`build/jstris-extras-firefox`);
 }
 
 // userscript 
 var userscriptHeader = `
 // ==UserScript==
-// @name         jstris+
+// @name         Jstris Extras
 // @namespace    http://tampermonkey.net/
 // @version      ${package.version}
 // @description  ${package.description}
-// @author       orz and frey
+// @author       KonSola5, orz and frey
 // @run-at       document-idle
 // @match        https://*.jstris.jezevec10.com/*
 // @grant        none
@@ -36,13 +36,13 @@ fs.writeFileSync(`build/bundle.user.js`, userscriptHeader + "\n\n" + script);
 
 // chrome extension
 const chromeExtensionManifest = {
-    "name": "Jstris+",
+    "name": "Jstris Extras",
     "action": {},
     "manifest_version": 3,
     "version": package.version,
     "description": package.description,
     "web_accessible_resources": [{
-        "resources": [ "jstris-plus.js" ],
+        "resources": [ "jstris-extras.js" ],
         "matches": [ "https://*.jstris.jezevec10.com/*" ]
     }],
     "icons": {
@@ -61,14 +61,14 @@ const chromeExtensionManifest = {
 // https://stackoverflow.com/questions/9515704/access-variables-and-functions-defined-in-page-context-using-a-content-script/9517879#9517879
 const chromeContentScript = `
 var s = document.createElement('script');
-s.src = chrome.runtime.getURL('jstris-plus.js');
+s.src = chrome.runtime.getURL('jstris-extras.js');
 (document.head || document.documentElement).appendChild(s);
 `;
-fs.writeFileSync(`build/jstris-plus-chrome/manifest.json`, JSON.stringify(chromeExtensionManifest));
-fs.writeFileSync(`build/jstris-plus-chrome/content-script.js`, chromeContentScript);
-fs.writeFileSync(`build/jstris-plus-chrome/jstris-plus.js`, script);
-fs.copyFileSync(`icon.png`, `build/jstris-plus-chrome/icon.png`);
-zipFolder(`build/jstris-plus-chrome`, `build/jstris-plus-chrome.zip`, function(err) {
+fs.writeFileSync(`build/jstris-extras-chrome/manifest.json`, JSON.stringify(chromeExtensionManifest));
+fs.writeFileSync(`build/jstris-extras-chrome/content-script.js`, chromeContentScript);
+fs.writeFileSync(`build/jstris-extras-chrome/jstris-extras.js`, script);
+fs.copyFileSync(`icon.png`, `build/jstris-extras-chrome/icon.png`);
+zipFolder(`build/jstris-extras-chrome`, `build/jstris-extras-chrome.zip`, function(err) {
     if(err)
         return console.log('oh no! ', err);
     
@@ -79,13 +79,13 @@ zipFolder(`build/jstris-plus-chrome`, `build/jstris-plus-chrome.zip`, function(e
 const firefoxExtensionManifest = {
 
     "manifest_version": 2,
-    "name": "Jstris+",
+    "name": "Jstris Extras",
     "version": package.version,
   
     "description": package.description,
   
     "web_accessible_resources": [
-        "jstris-plus.js"
+        "jstris-extras.js"
     ],
 
     "content_scripts": [
@@ -104,14 +104,14 @@ const firefoxExtensionManifest = {
   }
 const firefoxContentScript = `
 var s = document.createElement('script');
-s.src = browser.runtime.getURL('jstris-plus.js');
+s.src = browser.runtime.getURL('jstris-extras.js');
 (document.head || document.documentElement).appendChild(s);
 `;
-fs.writeFileSync(`build/jstris-plus-firefox/manifest.json`, JSON.stringify(firefoxExtensionManifest));
-fs.writeFileSync(`build/jstris-plus-firefox/content-script.js`, firefoxContentScript);
-fs.writeFileSync(`build/jstris-plus-firefox/jstris-plus.js`, script);
-fs.copyFileSync(`icon.png`, `build/jstris-plus-firefox/icon.png`);
-zipFolder(`build/jstris-plus-firefox`, `build/jstris-plus-firefox.zip`, function(err) {
+fs.writeFileSync(`build/jstris-extras-firefox/manifest.json`, JSON.stringify(firefoxExtensionManifest));
+fs.writeFileSync(`build/jstris-extras-firefox/content-script.js`, firefoxContentScript);
+fs.writeFileSync(`build/jstris-extras-firefox/jstris-extras.js`, script);
+fs.copyFileSync(`icon.png`, `build/jstris-extras-firefox/icon.png`);
+zipFolder(`build/jstris-extras-firefox`, `build/jstris-extras-firefox.zip`, function(err) {
     if(err)
         return console.log('oh no! ', err);
     

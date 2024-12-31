@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { Config } from "./index.js";
 
 const attemptLoadSFX = function () {
   if (typeof loadSFX == "function") {
@@ -84,22 +84,22 @@ const loadDefaultSFX = () => {
 };
 
 const changeSFX = () => {
-  var json = Config().CUSTOM_SFX_JSON;
+  var json = Config.settings.customSFX_JSON;
   let sfx = null;
 
   if (json) {
     try {
       sfx = JSON.parse(json);
-      document.getElementById("custom_sfx_json_err").textContent = "Loaded " + (sfx.name || "custom sounds");
+      document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
     } catch (e) {
       console.log("SFX json was invalid.");
-      document.getElementById("custom_sfx_json_err").textContent = "SFX json is invalid.";
+      document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
     }
   } else {
-    document.getElementById("custom_sfx_json_err").textContent = "";
+    document.getElementById("customSFX_JSON_err").textContent = "";
   }
   if (typeof Game == "function") {
-    if (!Config().ENABLE_CUSTOM_SFX || !sfx) {
+    if (!Config.settings.customSFXEnabled || !sfx) {
       loadDefaultSFX();
     } else {
       console.log("Changing SFX...");
@@ -132,7 +132,7 @@ export const initCustomSFX = () => {
   if (typeof Game == "function") {
     let onnextblock = Game.prototype.getNextBlock;
     Game.prototype.getNextBlock = function () {
-      if (Config().ENABLE_CUSTOM_VFX) {
+      if (Config.settings.customPieceSpawnSFXEnabled) {
         this.playCurrentPieceSound();
       }
       let val = onnextblock.apply(this, arguments);
@@ -140,7 +140,7 @@ export const initCustomSFX = () => {
     };
     let onholdblock = Game.prototype.holdBlock;
     Game.prototype.holdBlock = function () {
-      if (Config().ENABLE_CUSTOM_VFX) {
+      if (Config.settings.customPieceSpawnSFXEnabled) {
         this.playCurrentPieceSound();
       }
       let val = onholdblock.apply(this, arguments);
@@ -154,10 +154,10 @@ export const initCustomSFX = () => {
            let val = onPlay.apply(this, arguments)
            return val
        }*/
-  changeSFX(Config().CUSTOM_SFX_JSON);
-  Config().onChange("CUSTOM_SFX_JSON", changeSFX);
-  Config().onChange("ENABLE_CUSTOM_SFX", changeSFX);
-  Config().onChange("ENABLE_CUSTOM_VFX", changeSFX);
+  changeSFX(Config.settings.customSFX_JSON);
+  Config.onChange("customSFX_JSON", changeSFX);
+  Config.onChange("customSFXEnabled", changeSFX);
+  Config.onChange("customPieceSpawnSFXEnabled", changeSFX);
   return true;
 };
 
