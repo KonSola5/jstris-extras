@@ -1,12 +1,8 @@
 import { Config } from "./index.js";
-import { inject, functionExists, exists } from "./util";
+import { inject, functionExists, exists, Modes } from "./util";
 import { getBlockSetsEX } from "./blockSetExtensions";
 
 export const initSkins = () => {
-  let offscreenCanvas = document.createElement("canvas");
-  let offscreenContext = offscreenCanvas.getContext("2d");
-  offscreenCanvas.height = 32;
-  offscreenCanvas.width = 32;
   let customSkinSize = 32;
   let customGhostSkinSize = 32;
   let usingConnected = false;
@@ -18,31 +14,44 @@ export const initSkins = () => {
       return;
     }
 
+    /* Currently supporting:
+    - Jstris standard skins,
+    - Jstris Extras connected skins.
+
+    TODO:
+    - Jstris+ connected skins,
+    - TETR.IO PLUS standard skins
+    - TETR.IO PLUS connected skins,
+    - auto-conversion of above skins to Jstris or Jstris Extras format,
+
+    - animated skins,
+    - tintable skins (only 1 grayscale mino provided which is tinted)
+    - any combination of connected/animated/tintable skins.
+
+    */
     let img = new Image();
     console.log(url, ghost);
-    img.onload = function () {
+    img.onload = (event) => {
       let height = img.height;
       let width = img.width;
       let ratio = width / height;
       switch (true) {
-        case ratio == 9 && !ghost:
+        case ratio == 9 && !ghost: // Normal skin
           customSkinSize = height;
           usingConnected = false;
           if (window.loadSkin) loadSkin(url, customSkinSize);
           break;
-        case ratio == (6 * 9) / 8 && !ghost:
+        case ratio == (6 * 9) / 8 && !ghost: // Jstris Extras connected skin
           usingConnected = true;
           customSkinSize = width / (6 * 9);
           if (window.loadSkin) loadSkin(url, customSkinSize);
           break;
-        case ratio == 7 && ghost:
+        case ratio == 7 && ghost: // Normal ghost skin
           usingGhostConnected = false;
           customGhostSkinSize = height;
           if (window.loadGhostSkin) loadGhostSkin(url, height);
           break;
-        case ratio == (6 * 7) / 8 && ghost:
-          offscreenCanvas.height = width / (6 * 7);
-          offscreenCanvas.width = width / (6 * 7);
+        case ratio == (6 * 7) / 8 && ghost: // Jstris Extras ghost skin
           usingGhostConnected = true;
           customGhostSkinSize = width / (6 * 7);
           if (window.loadSkin) loadGhostSkin(url, width / (6 * 7));
@@ -106,15 +115,13 @@ export const initSkins = () => {
       255: [1, 1],
     };
 
+    // Return the unused tile if it doesn't exist in the lookup table above.
+    // It should not appear, if it appears, it's a bug.
     return tileLookup[connection] ?? [4, 5];
   }
 
-  // Connected skin init
-
-  let drawCanvas = false;
-
   // WebGL connected skin init
-  if (exists(window.WebGLView)) {
+  if (window.WebGLView) {
     let oldRedrawMatrix = WebGLView.prototype.redrawMatrix;
     WebGLView.prototype.redrawMatrix = function () {
       if (usingConnected) {
@@ -202,7 +209,7 @@ export const initSkins = () => {
 
   // 2D canvas connected skin init
 
-  if (exists(window.Ctx2DView)) {
+  if (window.Ctx2DView) {
     let oldRedrawMatrix = Ctx2DView.prototype.redrawMatrix;
     Ctx2DView.prototype.redrawMatrix = function () {
       if (usingConnected) {
@@ -314,11 +321,7 @@ export const initSkins = () => {
     let currentBlockSet = this.blockSets[this.activeBlock.set];
     let currentBlockSetEX = this.blockSetsEX[this.activeBlock.set];
     let pieceToDraw = currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
-    // currentBlockSet.scale === 1 // It this isn't a giant piece
-    //   ? currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot] // Draw it as normal
-    //   : currentBlockSet.previewAs.blocks[this.activeBlock.id].blocks[this.activeBlock.rot]; // Else draw big blocks
     let pieceBBSize = pieceToDraw.length; // Piece bounding box size
-    // this.drawScale = currentBlockSet.scale;
     if (this.hasGhost() && !this.gameEnded) {
       for (let i = 0; i < pieceBBSize; i++) {
         for (let j = 0; j < pieceBBSize; j++) {
@@ -516,7 +519,7 @@ export const initSkins = () => {
     }
   }
 
-  if (functionExists(GameCore)) {
+  if (typeof GameCore == "function") {
     GameCore.prototype.injected_placeBlock = function (y, i, x, j) {
       if (usingConnected) {
         if (!this.blockSetsEX) {
@@ -631,7 +634,7 @@ export const initSkins = () => {
 
   // Connected skins in game
 
-  if (exists(window.Game)) {
+  if (window.Game) {
     let oldDrawGhostAndCurrent = Game.prototype.drawGhostAndCurrent;
     Game.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
@@ -657,11 +660,19 @@ export const initSkins = () => {
       }
     };
     Game.prototype.redrawMatrixConnected = redrawMatrixConnected;
+
+    // let oldStartPractice = Game.prototype.startPractice;
+    // Game.prototype.startPractice = function () {
+    //   oldStartPractice.apply(this, arguments);
+    //   if (this.pmode === Modes.MAPS && usingConnected) {
+
+    //   }
+    // };
   }
 
   // Connected skins in Replayer
 
-  if (exists(window.Replayer) && location.href.includes("replay")) {
+  if (window.Replayer && location.href.includes("replay")) {
     let oldDrawGhostAndCurrent = Replayer.prototype.drawGhostAndCurrent;
     Replayer.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
@@ -702,7 +713,7 @@ export const initSkins = () => {
 
     // Connected skins in, umm, replay too actually
 
-    if (exists(window.View)) {
+    if (window.View) {
       if (!location.href.includes("export")) {
         // This draws blocks in HOLD and NEXT queues
         View.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind, drawScale = 1) {
@@ -1008,7 +1019,7 @@ export const initSkins = () => {
 
   if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
 
-  if (functionExists(window.Live)) {
+  if (typeof window.Live == "function") {
     Config.onChange("customSkinURL", (val) => {
       if (val) loadCustomSkin(val);
       else {
@@ -1036,7 +1047,7 @@ export const initSkins = () => {
     };
   }
 
-  if (functionExists(window.View) && !functionExists(window.Live)) {
+  if (typeof window.View == "function" && !typeof window.Live == "function") {
     // Force skin on replayers
     let oldOnReady = View.prototype.onReady;
     View.prototype.onReady = function () {
@@ -1052,7 +1063,7 @@ export const initSkins = () => {
     };
   }
 
-  if (functionExists(window.Game)) {
+  if (typeof window.Game == "function") {
     let oldChangeSkin = Game.prototype.changeSkin;
     Game.prototype.changeSkin = function () {
       let returnValue = oldChangeSkin.apply(this, arguments);

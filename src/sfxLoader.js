@@ -11,14 +11,14 @@ const loadSound = (name, url) => {
   if (!name || !url) {
     return;
   }
-  let ishta = url.url;
-  if (ishta) {
-    let enslee = createjs.Sound.registerSound(ishta, name);
-    if (!enslee || !createjs.Sound._idHash[name]) {
+  let soundURL = url.url;
+  if (soundURL) {
+    let registeredSound = createjs.Sound.registerSound(soundURL, name);
+    if (!registeredSound || !createjs.Sound._idHash[name]) {
       return void console.error(
         "loadSounds error: src parse / cannot init plugins, id=" +
           name +
-          (false === enslee ? ", rs=false" : ", no _idHash")
+          (false === registeredSound ? ", rs=false" : ", no _idHash")
       );
     }
     createjs.Sound._idHash[name].sndObj = url;
@@ -90,13 +90,13 @@ const changeSFX = () => {
   if (json) {
     try {
       sfx = JSON.parse(json);
-      document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
+      // document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
     } catch (e) {
       console.log("SFX json was invalid.");
-      document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
+      // document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
     }
   } else {
-    document.getElementById("customSFX_JSON_err").textContent = "";
+    // document.getElementById("customSFX_JSON_err").textContent = "";
   }
   if (typeof Game == "function") {
     if (!Config.settings.customSFXEnabled || !sfx) {

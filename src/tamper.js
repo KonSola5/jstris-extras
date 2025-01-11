@@ -243,12 +243,12 @@ export function initTamper() {
     Replayer.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString);
   }
 
-  if (functionExists(GameCore)) {
+  if (typeof GameCore == "function") {
     injectIntoPlaceBlock();
     injectIntoCheckLineClears();
     injectIntoAddGarbage();
   }
-  if (functionExists(Replayer)) {
+  if (typeof Replayer == "function") {
     injectIntoReplayerAddGarbage();
   }
 }

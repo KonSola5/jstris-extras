@@ -211,8 +211,8 @@ export const initFX = () => {
     // flashes the piece once you place it
     if (Config.settings.piecePlacementAnimationLength > 0) {
       this.GFXQueue.push({
-        opacity: Config.settings.piecePlacementAnimationOpacity,
-        delta: Config.settings.piecePlacementAnimationOpacity / ((Config.settings.piecePlacementAnimationLength * 1000) / 60),
+        opacity: Config.settings.piecePlacementAnimationOpacity / 100,
+        delta: Config.settings.piecePlacementAnimationOpacity / (100 * ((Config.settings.piecePlacementAnimationLength * 1000) / 60)),
         col,
         row,
         blockSize: this.block_size,

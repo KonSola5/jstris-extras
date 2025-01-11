@@ -15,13 +15,13 @@ export const initCustomReplaySFX = () => {
   if (json) {
     try {
       sfx = JSON.parse(json);
-      document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
+      // document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
     } catch (e) {
       console.log("SFX json was invalid.");
-      document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
+      // document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
     }
   } else {
-    document.getElementById("customSFX_JSON_err").textContent = "";
+    // document.getElementById("customSFX_JSON_err").textContent = "";
   }
 
   if (!Config.settings.customSFXEnabled || !Config.settings.customSFX_JSON) {

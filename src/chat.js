@@ -25,8 +25,8 @@ export const initChat = () => {
 
   // === toggle chat button code ===
 
-  document.getElementById("toggleChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.toggleChatKey);
-  document.getElementById("closeChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.closeChatKey);
+  // document.getElementById("toggleChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.toggleChatKey);
+  // document.getElementById("closeChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.closeChatKey);
 
   // thanks justin https://greasyfork.org/en/scripts/423192-change-chat-key
   document.addEventListener("keydown", (e) => {

@@ -23,13 +23,15 @@ import { authNotification, playSound, notify, setPlusSfx, functionExists } from 
 import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
 import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";
+import { initSidebar } from "./settingsSidebar.js";
 // inject style
 var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
 document.body.appendChild(styleSheet);
 
 export const Config = new ConfigManager;
-initModal();
+// initModal();
+initSidebar();
 
 if (Config.settings.isFirstOpen) {
   alert(
@@ -41,12 +43,12 @@ if (Config.settings.isFirstOpen) {
 authNotification();
 initTamper();
 
-if (functionExists(ReplayController)) {
+if (typeof ReplayController == "function") {
   initReplayManager();
   initReplayerSnapshot();
 }
 
-if (functionExists(GameCore)) {
+if (typeof GameCore == "function") {
   initSkins();
   // initCustomSkin();
   if (!location.href.includes("export")) {
@@ -59,7 +61,7 @@ if (functionExists(GameCore)) {
 
   initPracticeSurvivalMode();
 }
-if (functionExists(Game)) {
+if (typeof Game == "function") {
   initLayout();
   initPracticeUndo();
   initPracticeFumen();
@@ -80,5 +82,5 @@ if (functionExists(Game)) {
   fixTeamsMode();
   initAutomaticReplayCodes();
 }
-if (functionExists(Live)) initChat();
+if (typeof Live == "function") initChat();
 initReplayerSFX();

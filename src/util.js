@@ -7,6 +7,21 @@ export const lerp = (start, end, amt) => {
 };
 
 /**
+ * An enum for easier readability of modes.
+ */
+export const Modes = Object.freeze({
+  SPRINT: 1,
+  PRACTICE: 2,
+  CHEESE_RACE: 3,
+  SURVIVAL: 4,
+  ULTRA: 5,
+  MAPS: 6,
+  TSD20: 7,
+  PC_MODE: 8,
+  USERMODE: 9
+})
+
+/**
  * Injects code into a function.
  * @param {Function} functionToInjectTo - Function to inject to.
  * @param {Object} options - Injection options.
@@ -31,14 +46,6 @@ export function inject(functionToInjectTo, options, callback) {
     return callbackReturn || returnValue;
   };
   return functionToInjectTo;
-}
-
-export function functionExists(functionToTest) {
-  return typeof functionToTest == "function";
-}
-
-export function exists(varToTest) {
-  return varToTest != undefined;
 }
 
 // https://jsfiddle.net/12aueufy/1/
@@ -205,22 +212,22 @@ let plusSfx = {
   PB: "https://jstrisplus.github.io/jstris-plus-assets/sfx/personalBest.wav",
 };
 export const setPlusSfx = (sfx) => {
-  let d = document.getElementById("customPlusSFX_JSON_err");
-  try {
-    sfx = JSON.parse(sfx);
-  } catch (e) {
-    if (d) {
-      d.textContent = "SFX json is invalid";
-    }
-    return;
-  }
-  d.textContent = `Loaded ${sfx.name} Jstris+ SFX`;
-  plusSfx = sfx;
+  // let d = document.getElementById("customPlusSFX_JSON_err");
+  // try {
+  //   sfx = JSON.parse(sfx);
+  // } catch (e) {
+  //   if (d) {
+  //     d.textContent = "SFX json is invalid";
+  //   }
+  //   return;
+  // }
+  // d.textContent = `Loaded ${sfx.name} Jstris+ SFX`;
+  // plusSfx = sfx;
 };
 export const playSound = (id) => {
-  if (!plusSfx[id]) {
-    return console.error(`unknown sfx ${id}`);
-  }
-  const audio = new Audio(plusSfx[id]);
-  audio.play();
+  // if (!plusSfx[id]) {
+  //   return console.error(`unknown sfx ${id}`);
+  // }
+  // const audio = new Audio(plusSfx[id]);
+  // audio.play();
 };

@@ -1,5 +1,427 @@
 @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
 
+/* Sidebar */
+
+#colorPickerPopup {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(2, min-content);
+  grid-template-rows: min-content;
+  border: 2px solid #222;
+  width: min-content;
+  background: #222;
+  gap: 2px;
+  z-index: 10;
+}
+
+#colorPickerPopup.hidden {
+  display: none;
+}
+
+#colorPicker {
+  position: relative;
+  display: block;
+  width: 200px;
+  height: 200px;
+  background-image: linear-gradient(to top, #000f, #0000), linear-gradient(to right, #ffff, #fff0);
+  background-color: #f00;
+}
+
+#hueSlider {
+  position: relative;
+  display: block;
+  height: 200px;
+  width: 20px;
+  background-image: linear-gradient(to top, #f00 0, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%);
+}
+
+#colorPickerMarker {
+  position: absolute;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  margin: -6px;
+  border-radius: 50%;
+  border: 2px solid black;
+  top: 0%;
+  left: 0%;
+  transition: 10ms;
+  z-index: 3;
+}
+
+#colorPickerMarkerInner {
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+#hueSliderMarker {
+  display: block;
+  color: black;
+  margin: -0.5em 0 -0.5em 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border: 0.5em solid;
+  box-sizing: border-box;
+  border-color: transparent black transparent black;
+}
+
+#color {
+  background-color: #111;
+  border: 2px solid black;
+}
+
+#color * {
+  font-family: "Exo 2", sans-serif;
+  color: #f1f1f1;
+}
+
+/* The sidebar */
+.sidebar {
+  height: 100%;
+  width: min(480px, 100%);
+  position: fixed;
+  z-index: 1001;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  transform: translate(-100%);
+  -webkit-transform: translate(-100%);
+  -moz-transform: translate(-100%);
+}
+
+.sidebar.noAnimation,
+.sidebar.noAnimation * {
+  transition: unset !important;
+}
+
+/* Everything in sidebar uses Exo 2 */
+.sidebar * {
+  font-family: "Exo 2", sans-serif;
+  color: #f1f1f1;
+  text-align: left;
+  line-height: unset;
+}
+
+.sidebar-shown {
+  transform: unset;
+  -webkit-transform: unset;
+  -moz-transform: unset;
+  visibility: visible;
+}
+
+.sidebarButton {
+  padding: 8px 32px;
+  text-decoration: none;
+  font-size: 25px;
+  margin: 10px 10px 10px 10px;
+  text-align: center;
+  color: #818181;
+  display: block;
+  transition: 0.3s;
+  border: #818181 solid 4px;
+  border-radius: 10px;
+  background-color: #111;
+}
+
+.sidebarButton:hover {
+  cursor: pointer;
+  background-color: #222;
+  text-decoration: none;
+  color: #f1f1f1;
+}
+
+/* Sidebar Header */
+
+.sidebarHeader {
+  height: 60px;
+  background-color: darkcyan;
+  display: flex;
+  flex-shrink: 0;
+  margin-bottom: auto;
+  border-bottom: rgb(0, 100, 100) solid 2px;
+}
+
+.sidebarHeader h1 {
+  margin: auto;
+  font-size: 2em;
+  font-weight: bold;
+}
+
+.sidebarHeader .closebtn {
+  text-decoration: none;
+  margin: auto 10px auto auto;
+  width: 30px;
+  height: 30px;
+  color: #ccc;
+  transition: 0.3s;
+  border: none;
+  display: block;
+}
+
+.sidebar .closebtn > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sidebarHeader .closebtn:hover {
+  color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Sidebar content (to position divs inside absolutely) */
+
+.sidebarContent {
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: 0.5s;
+  height: 100%;
+  position: relative; /* This is needed for the "absolute" children inside to be positioned relative to this element */
+}
+
+/* Sidebar main box and submenus (positioned absolutely) */
+
+.sidebarMain,
+.submenu {
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: 0.5s;
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebarMain-hidden {
+  transform: translate(-100%); /* Comes from the left */
+  -webkit-transform: translate(-100%);
+  -moz-transform: translate(-100%);
+  visibility: hidden;
+}
+
+/* Submenus */
+
+.submenu {
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  visibility: visible;
+}
+
+.submenu-hidden {
+  transform: translate(100%); /* Comes from the right */
+  -webkit-transform: translate(100%);
+  -moz-transform: translate(100%);
+  visibility: hidden;
+}
+
+.submenu h3 {
+  margin: 10px;
+  font-size: 1.17em;
+  font-weight: bold;
+}
+
+.submenu hr {
+  margin: 10px;
+  color: #ccc;
+}
+
+/* Submenu navigation */
+
+.submenuNavigation {
+  height: 60px;
+  background-color: darkcyan;
+  display: flex;
+  flex-direction: row;
+  border-bottom: rgb(0, 100, 100) solid 2px;
+}
+
+.submenuNavigation h2 {
+  margin: auto;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.submenuNavigation .closeSubmenuBtn {
+  padding: 5px 10px;
+  text-decoration: none;
+  font-size: 20px;
+  margin: 10px 10px 10px 10px;
+  text-align: center;
+  background-color: crimson;
+  color: #bdbdbd;
+  display: block;
+  transition: 0.3s;
+  border: #bdbdbd solid 2px;
+  border-radius: 5px;
+}
+
+.submenuNavigation .closeSubmenuBtn:hover {
+  background-color: red;
+  color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* User inputs */
+
+.userInput label {
+  white-space: nowrap;
+  flex: 1 1 auto;
+  font-weight: unset;
+  margin-bottom: unset;
+}
+
+.userInput input[type="text"] {
+  width: fit-content;
+  margin-left: 5px;
+  margin-right: 5px;
+  background-color: #111;
+  border: 2px solid #bdbdbd;
+  border-radius: 2px;
+  transition: 0.5s;
+  font-size: 16px;
+  &:focus {
+    outline: 2px solid white;
+    background-color: #222;
+  }
+  &.colorPickerInput {
+    position: relative;
+  }
+}
+
+.userInput input[type="checkbox"],
+.userInput input[type="radio"] {
+  width: fit-content;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.userInput input[type="range"] {
+  width: unset;
+}
+
+.userInput .inputValidity {
+  width: 22px;
+}
+
+.userInput > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 0 1 auto;
+}
+
+.userInput .dragDropArea {
+  flex-direction: column;
+  border: #818181 dotted 2px;
+  height: 180px;
+  justify-content: center;
+  transition: 0.5s;
+  text-align: center;
+  cursor: pointer;
+}
+
+.userInput .dragover,
+.dragDropArea:hover {
+  border-color: #f1f1f1;
+  background-color: #222;
+}
+
+.userInput .status {
+  justify-content: center;
+}
+
+.userInput small {
+  color: gray;
+  font-style: italic;
+  font-size: smaller;
+  white-space: pre-wrap;
+}
+
+.userInput .value {
+  width: 3em;
+  text-align: right;
+  margin-right: 5px;
+}
+
+.userInput .percentage::after {
+  content: "%";
+}
+
+.userInput .seconds::after {
+  content: "s";
+}
+
+.userInput .times::after {
+  content: "x";
+}
+
+.userInput .button {
+  text-decoration: none;
+  margin-left: 5px;
+  margin-right: 5px;
+  text-align: center;
+  color: #bdbdbd;
+  background-color: #111;
+  transition: 0.3s;
+  border: #bdbdbd solid 2px;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 16px;
+  height: 20px;
+  display: inline-flex;
+  svg {
+    margin-right: 5px;
+  }
+}
+
+.userInput .button:hover {
+  color: #f1f1f1;
+  background-color: #222;
+  cursor: pointer;
+}
+
+.userInput b {
+  margin-left: 0.5em;
+}
+
+/* .userInput .copy {
+  background-color: green;
+}
+
+.userInput .paste {
+  background-color: red;
+} */
+
+.userInput {
+  margin: 10px 10px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+}
+
+/* Sidebar Footer */
+
+.sidebarFooter {
+  margin-top: auto;
+}
+
+/* #main {
+  transition: margin-left 0.5s;
+  padding: 20px;
+} */
+
 /* =========== settings modal css ============= */
 
 .settings-modal {
