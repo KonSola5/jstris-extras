@@ -1,0 +1,3 @@
+[submodule "jstris-typings"]
+	path = jstris-typings
+	url = https://github.com/KonSola5/jstris-typings.git
