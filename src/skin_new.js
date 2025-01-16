@@ -120,6 +120,64 @@ export const initSkins = () => {
     return tileLookup[connection] ?? [4, 5];
   }
 
+  /** @param {Game} game @param {number} x @param {number} y */
+  function connectMap(game, x, y) {
+    // Shallow copies, so mutating arrays inside of the arrays will mutate the original arrays
+    let tempMatrix = [game.deadline].concat(game.matrix);
+
+    let blockColor = tempMatrix[y][x];
+    if (blockColor === 0) game.connections[y][x] = 0;
+    // Bitmask
+    let cardinalsFound = 0;
+    // prettier-ignore
+    const NORTH = 1, EAST = 2, SOUTH = 4, WEST = 8;
+    let connectionValue = 0;
+    if (tempMatrix[y - 1]?.[x] === blockColor) {
+      connectionValue += 2;
+      cardinalsFound += NORTH;
+    }
+    if (tempMatrix[y]?.[x + 1] === blockColor) {
+      connectionValue += 16;
+      cardinalsFound += EAST;
+    }
+    if (tempMatrix[y + 1]?.[x] === blockColor) {
+      connectionValue += 64;
+      cardinalsFound += SOUTH;
+    }
+    if (tempMatrix[y]?.[x - 1] === blockColor) {
+      connectionValue += 8;
+      cardinalsFound += WEST;
+    }
+    if ((cardinalsFound & (NORTH + EAST)) == NORTH + EAST) {
+      if (tempMatrix[y - 1]?.[x + 1] === blockColor) connectionValue += 4;
+    }
+    if ((cardinalsFound & (NORTH + WEST)) == NORTH + WEST) {
+      if (tempMatrix[y - 1]?.[x - 1] === blockColor) connectionValue += 1;
+    }
+    if ((cardinalsFound & (SOUTH + EAST)) == SOUTH + EAST) {
+      if (tempMatrix[y + 1]?.[x + 1] === blockColor) connectionValue += 128;
+    }
+    if ((cardinalsFound & (SOUTH + WEST)) == SOUTH + WEST) {
+      if (tempMatrix[y + 1]?.[x - 1] === blockColor) connectionValue += 32;
+    }
+    game.connections[y][x] = connectionValue;
+  }
+
+  /**
+   * @param {(x: number, y: number, neighbor: number) => void} callbackFn
+   * @param {Game} thisArg
+   */
+  function forEachNeighbor(x, y, callbackFn, thisArg) {
+    callbackFn(x - 1, y + 1, 1);
+    callbackFn(x, y + 1, 2);
+    callbackFn(x + 1, y + 1, 4);
+    callbackFn(x - 1, y, 8);
+    callbackFn(x + 1, y, 16);
+    callbackFn(x - 1, y - 1, 32);
+    callbackFn(x, y - 1, 64);
+    callbackFn(x - 1, y - 1, 128);
+  }
+
   // WebGL connected skin init
   if (window.WebGLView) {
     let oldRedrawMatrix = WebGLView.prototype.redrawMatrix;
@@ -661,13 +719,58 @@ export const initSkins = () => {
     };
     Game.prototype.redrawMatrixConnected = redrawMatrixConnected;
 
-    // let oldStartPractice = Game.prototype.startPractice;
-    // Game.prototype.startPractice = function () {
-    //   oldStartPractice.apply(this, arguments);
-    //   if (this.pmode === Modes.MAPS && usingConnected) {
+    Game.prototype.injected_connectMap = function () {
+      if (usingConnected) {
+        this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+        // TODO: A toggle for connecting blocks of maps.
+        if (this.pmode === Modes.MAPS) {
+          let tempMatrix = [this.deadline].concat(this.matrix);
+          tempMatrix.forEach((row, y) => {
+            row.forEach((column, x) => connectMap(this, x, y));
+          });
+        }
+      }
+    };
+  }
 
+  if (typeof ModeManager === "function") {
+    // /** @param {Game} game @param {number} x @param {number} y @param {number} blockID */
+    // ModeManager.prototype.injected_connectSetBoard = function (game, x, y, blockID) {
+    //   if (usingConnected) {
+    //     // TODO: An alternative option that connects the map on refresh.
+    //     // TODO: In the alt version, this method would just mark the board as dirty.
+    //     function getBlock(x, y) {
+    //       if (y == -1) return game.deadline[x];
+    //       else return game.matrix[y]?.[x];
+    //     }
+    //     // If block is removed, disconnect all neighbors
+    //     if (blockID == 0) {
+    //       game.connections[y + 1][x] = 0;
+    //       if (game.connections[y]?.[x - 1] && getBlock(x - 1, y - 1) > 0) game.connections[y][x - 1] &= ~128;
+    //       if (game.connections[y]?.[x] && getBlock(x, y - 1) > 0) game.connections[y][x] &= ~224;
+    //       if (game.connections[y]?.[x + 1] && getBlock(x + 1, y - 1) > 0) game.connections[y][x + 1] &= ~32;
+    //       if (game.connections[y + 1]?.[x - 1] && getBlock(x - 1, y) > 0) game.connections[y + 1][x - 1] &= ~148;
+    //       if (game.connections[y + 1]?.[x + 1] && getBlock(x + 1, y) > 0) game.connections[y + 1][x + 1] &= ~41;
+    //       if (game.connections[y + 2]?.[x - 1] && getBlock(x - 1, y + 1) > 0) game.connections[y + 2][x - 1] &= ~4;
+    //       if (game.connections[y + 2]?.[x] && getBlock(x, y + 1) > 0) game.connections[y + 2][x] &= ~7;
+    //       if (game.connections[y + 2]?.[x + 1] && getBlock(x + 1, y + 1) > 0) game.connections[y + 2][x + 1] &= ~1;
+    //     }
+    //     // If block is added, connect it to all same-color neighbors
+    //     else {
+    //       this.markDirty = true;
+    //     }
     //   }
     // };
+    ModeManager.prototype.injected_connectMap = function () {
+      if (usingConnected) {
+        this.p.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+        // TODO: A toggle for connecting blocks of maps.
+        let tempMatrix = [this.p.deadline].concat(this.p.matrix);
+        tempMatrix.forEach((row, y) => {
+          row.forEach((column, x) => connectMap(this.p, x, y));
+        });
+      }
+    };
   }
 
   // Connected skins in Replayer

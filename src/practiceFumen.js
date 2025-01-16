@@ -130,31 +130,37 @@ export const initPracticeFumen = () => {
     this.fumenMatrixRoll = true; //matrix modulated, need to update fumen matrix
     return onGarbageAdded.apply(this, arguments);
   };
-  const onHardDrop = Game.prototype.beforeHardDrop;
+  const oldBeforeHardDrop = Game.prototype.beforeHardDrop;
 
   Game.prototype.beforeHardDrop = function () {
-    let val = onHardDrop.apply(this, arguments);
-    if (!this.fumenPages) return val;
+    let returnValue = oldBeforeHardDrop.apply(this, arguments);
+    if (!this.fumenPages) return returnValue;
+
     if (this.altBlocks) {
       this.pages.push({ field: Field.create(this.generateFumenMatrix()) });
       return;
     }
-    let ss = this.activeBlock;
-
-    let x = jstrisToCenterX[ss.id][ss.rot] + this.activeBlock.pos.x;
-    let y = 19 - (jstrisToCenterY[ss.id][ss.rot] + this.ghostPiece.pos.y);
-    let msg = {
-      operation: { type: this.blockSets[ss.set].blocks[ss.id].name, rotation: rIndex[ss.rot], x: x, y: y },
-    };
-    if (this.fumenMatrixRoll) {
-      msg.field = Field.create(this.generateFumenMatrix());
-      this.fumenMatrixRoll = false;
+    if (this.activeBlock.set == 0) {
+      let x = jstrisToCenterX[this.activeBlock.id][this.activeBlock.rot] + this.activeBlock.pos.x;
+      let y = 19 - (jstrisToCenterY[this.activeBlock.id][this.activeBlock.rot] + this.ghostPiece.pos.y);
+      let msg = {
+        operation: {
+          type: this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].name,
+          rotation: rIndex[this.activeBlock.rot],
+          x: x,
+          y: y,
+        },
+      };
+      if (this.fumenMatrixRoll) {
+        msg.field = Field.create(this.generateFumenMatrix());
+        this.fumenMatrixRoll = false;
+      }
+      msg.comment = this.generateFumenQueue();
+      msg.flags = { quiz: true };
+      this.fumenPages.push(msg);
     }
-    msg.comment = this.generateFumenQueue();
-    msg.flags = { quiz: true };
-    this.fumenPages.push(msg);
     //   console.log(encoder.encode(this.fumenPages))
-    return val;
+    return returnValue;
   };
 
   const chatListener = Live.prototype.sendChat;
@@ -162,12 +168,12 @@ export const initPracticeFumen = () => {
     var msg = "string" != typeof rawmsg ? this.chatInput.value.replace(/"/g, '\\"') : rawmsg;
     if (msg == "/fumen") {
       if (this.p.pmode != 2) {
-        this.showInChat("Jstris+", "Live fumen export only supported in practice mode");
+        this.showInChat("Jstris Extras", "Live Fumen export is only supported in Practice mode.");
         this.chatInput.value = "";
         return;
       }
       if (!this.p.fumenPages) {
-        this.showInChat("Jstris+", "No fumen data available");
+        this.showInChat("Jstris Extras", "No Fumen data available.");
         this.chatInput.value = "";
         return;
       }
@@ -183,7 +189,7 @@ export const initPracticeFumen = () => {
       return;
     } else if ("/fumen" === msg.substring(0, 6)) {
       if (this.p.pmode != 2) {
-        this.showInChat("Jstris+", "Fumen import only supported in practce mode");
+        this.showInChat("Jstris Extras", "Fumen import is only supported in Practice mode.");
         this.chatInput.value = "";
         return;
       }
@@ -192,7 +198,7 @@ export const initPracticeFumen = () => {
         pages = decoder.decode(msg.substring(5));
       } catch (error) {
         console.log(error);
-        this.showInChat("Jstris+", error.message);
+        this.showInChat("Jstris Extras", error.message);
         this.chatInput.value = "";
         return;
       }
@@ -291,7 +297,7 @@ export const initReplayerSnapshot = () => {
                 openButton.textContent = "open";
                 let fumenLink = `https://harddrop.com/fumen/?${data.fumen}`;
                 if (data.fumen.length >= 8168) {
-                  alert("fumen code too long for url, you'll need to paste the code in manually");
+                  alert("Fumen code is too long for URL, you'll need to paste the code in manually.");
                   fumenLink = `https://harddrop.com/fumen/?`;
                 }
 
@@ -413,7 +419,7 @@ export const loadFumen = (pages) => {
       tetrises: 0,
       maxCombo: 0,
       linesSent: 0,
-      linesReceived: 9,
+      linesReceived: 0,
       PCs: 0,
       lastPC: 0,
       TSD: 0,
@@ -423,8 +429,8 @@ export const loadFumen = (pages) => {
       score: 0,
       holds: 0,
       garbageCleared: 0,
-      wasted: 1,
-      tpieces: 1,
+      wasted: 0,
+      tpieces: 0,
       tspins: 0,
     },
   };

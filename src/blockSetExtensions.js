@@ -1497,7 +1497,7 @@ export function getBlockSetsEX() {
       ],
     },
   ];
-  bsPentomino.previewAs = bsPentomino
+  bsPentomino.previewAs = bsPentomino;
 
   let bsM123 = new BlockSetEX();
   bsM123.pieces = [
@@ -1623,11 +1623,14 @@ export function getBlockSetsEX() {
   ];
   bsOSpin.previewAs = bsOSpin;
   let bsNONE = new BlockSetEX();
-  bsNONE.pieces = {
-    name: "NONE",
-    ypOverride: [1, 2],
-    connections: [[[0]], [[0]], [[0]], [[0]]],
-  };
+  bsNONE.pieces = [
+    {
+      name: "NONE",
+      xpOverride: [0, 0],
+      ypOverride: [1, 2],
+      connections: [[[0]], [[0]], [[0]], [[0]]],
+    },
+  ];
   bsNONE.previewAs = bsNONE;
 
   return [bsStandard, bsBigBlock2, bsBigBlock1, bsArikaRS, bsPentomino, bsM123, bsAll29, bsCultris2, bsOSpin, bsNONE];

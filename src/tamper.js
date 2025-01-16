@@ -74,9 +74,9 @@ export function initTamper() {
 
     let injectedPlaceBlockString =
       part1 +
-      `this.injected_placeBlock && this.injected_placeBlock(${variables[0]}, ${variables[1]}, ${variables[2]}, ${variables[3]}),` +
+      `this.injected_placeBlock?.(${variables[0]}, ${variables[1]}, ${variables[2]}, ${variables[3]}),` +
       part2 +
-      `this.injected_beforePlaceBlockInDeadline && this.injected_beforePlaceBlockInDeadline(${variables[0]}, ${variables[1]}, ${variables[2]}, ${variables[3]}),` +
+      `this.injected_beforePlaceBlockInDeadline?.(${variables[0]}, ${variables[1]}, ${variables[2]}, ${variables[3]}),` +
       part3;
 
     GameCore.prototype.placeBlock = new Function(
@@ -122,11 +122,11 @@ export function initTamper() {
 
     let injectedLineClearString =
       part1 +
-      `this.injected_clearHiddenRow1 && this.injected_clearHiddenRow1(),` +
+      `this.injected_clearHiddenRow1?.(),` +
       part2 +
-      `\{this.injected_moveLinesDown && this.injected_moveLinesDown(${variables[0]});` +
+      `\{this.injected_moveLinesDown?.(${variables[0]});` +
       part3 +
-      `\};this.injected_afterLinesMoved && this.injected_afterLinesMoved(${variables[1]});` +
+      `\};this.injected_afterLinesMoved?.(${variables[1]});` +
       remainingPart;
 
     GameCore.prototype.checkLineClears = new Function(
@@ -180,9 +180,9 @@ export function initTamper() {
 
     let injectedAddGarbageString =
       part1 +
-      `this.injected_initConnectedGarbage && this.injected_initConnectedGarbage(${garbageLine});` +
+      `this.injected_initConnectedGarbage?.(${garbageLine});` +
       part2 +
-      `this.injected_bumpUpConnections && this.injected_bumpUpConnections(${trueHeight}, ${amountOfLines});` +
+      `this.injected_bumpUpConnections?.(${trueHeight}, ${amountOfLines});` +
       remainingPart;
 
     GameCore.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString);
@@ -235,12 +235,54 @@ export function initTamper() {
 
     let injectedAddGarbageString =
       part1 +
-      `this.injected_initConnectedGarbage && this.injected_initConnectedGarbage(${garbageLine});` +
+      `this.injected_initConnectedGarbage?.(${garbageLine});` +
       part2 +
-      `this.injected_bumpUpConnections && this.injected_bumpUpConnections(${trueHeight}, ${amountOfLines});` +
+      `this.injected_bumpUpConnections?.(${trueHeight}, ${amountOfLines});` +
       remainingPart;
 
     Replayer.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString);
+  }
+
+  function injectIntoStartPractice() {
+    Game.prototype.injected_connectMap = function () {};
+
+    let strippedStartPracticeString = stripCurlyBrackets(Game.prototype.startPractice.toString());
+
+    // Matches `this.Replay.config.map = this.sprintMode = this.MapManager.mapId,`
+    const mapIDbindingRegex =
+      /this\[[^,\[\]]*\]\[[^,\[\]]*\]\[[^,\[\]]*\]=this\[[^,\[\]]*\]=this\[[^,\[\]]*\]\[[^,\[\]]*\],/g;
+    let regexResults1 = mapIDbindingRegex.exec(strippedStartPracticeString);
+    let part1 = strippedStartPracticeString.slice(0, mapIDbindingRegex.lastIndex);
+    let remainingPart = strippedStartPracticeString.slice(mapIDbindingRegex.lastIndex);
+
+    let injectedStartPracticeString = part1 + `this.injected_connectMap?.(),` + remainingPart;
+
+    Game.prototype.startPractice = new Function(
+      ...getArguments(Game.prototype.startPractice),
+      injectedStartPracticeString
+    );
+  }
+
+  function injectIntoExecCommand() {
+    ModeManager.prototype.injected_connectMap = function () {}
+
+    let strippedExecCommandString = stripCurlyBrackets(ModeManager.prototype.execCommand.toString());
+
+    // Injection point
+    const copyMatrixRegex =
+      /this\[[^\[\]\,]*\]\[[^\[\]\,]*\]=_0x\w*\[[^\[\]\,]*\]\(copyMatrix,_0x\w*\);}/g;
+    copyMatrixRegex.exec(strippedExecCommandString);
+
+    let part1 = strippedExecCommandString.slice(0, copyMatrixRegex.lastIndex);
+    let remainingPart = strippedExecCommandString.slice(copyMatrixRegex.lastIndex);
+
+    let injectedExecCommandString =
+      part1 + `this.injected_connectMap?.();` + remainingPart;
+
+    ModeManager.prototype.execCommand = new Function(
+      ...getArguments(ModeManager.prototype.execCommand),
+      injectedExecCommandString
+    );
   }
 
   if (typeof GameCore == "function") {
@@ -250,5 +292,11 @@ export function initTamper() {
   }
   if (typeof Replayer == "function") {
     injectIntoReplayerAddGarbage();
+  }
+  if (typeof Game == "function") {
+    injectIntoStartPractice();
+  }
+  if (typeof ModeManager == "function") {
+    injectIntoExecCommand();
   }
 }

@@ -1,4 +1,5 @@
 import { Config } from "./index.js";
+import { Modes } from "./util.js";
 const clone = function (x) {
   return JSON.parse(JSON.stringify(x));
 };
@@ -11,6 +12,7 @@ export class SaveState {
     this.deadline = clone(game.deadline);
     this.activeBlock = clone(game.activeBlock);
     this.blockInHold = clone(game.blockInHold);
+    if (game.connections) this.connections = clone(game.connections);
 
     this.b2b = game.b2b;
     this.combo = game.comboCounter;
@@ -48,7 +50,7 @@ export const initPracticeUndo = () => {
   Game.prototype.undoToSaveState = function () {
     if (this.pmode !== 2) return;
     if (this.saveStates.length === 0) {
-      this.Live.showInChat("Jstris+", "Can't undo any further!");
+      this.Live.showInChat("Jstris Extras", "Can't undo any further!");
       return;
     }
     if (this.fumenPages) {
@@ -60,6 +62,7 @@ export const initPracticeUndo = () => {
   };
   Game.prototype.loadSaveState = function (lastState) {
     this.matrix = lastState.matrix;
+    if (lastState.connections) this.connections = lastState.connections;
     this.deadline = lastState.deadline;
     this.isBack2Back = lastState.b2b;
     this.comboCounter = lastState.combo;
@@ -131,7 +134,7 @@ export const initPracticeUndo = () => {
    * initializes the save state stack. To be run before a practice mode is a started
    */
   Game.prototype.initSaveStates = function () {
-    if (this.pmode !== 2) return;
+    if (this.pmode !== Modes.PRACTICE) return;
     this.saveStates = [];
   };
 
@@ -170,13 +173,13 @@ export const initPracticeUndo = () => {
 
   // neatly tell the user that replays don't work with undos or fumen/snapshot imports
   const oldUploadError = Replay.prototype.uploadError;
-  Replay.prototype.uploadError = function (LivePtr, err) {
+  Replay.prototype.uploadError = function (live, err) {
     if (this.invalidFromSnapshot) {
-      LivePtr.showInChat("Jstris+", "Can't generate replay for game with fumen or snapshot import!");
+      live.showInChat("Jstris Extras", "Can't generate replay for game with Fumen or snapshot import!");
       return;
     }
     if (this.invalidFromUndo) {
-      LivePtr.showInChat("Jstris+", "Can't generate replay for game with undos!");
+      live.showInChat("Jstris Extras", "Can't generate replay for game with undos!");
       return;
     }
     return oldUploadError.apply(this, arguments);
