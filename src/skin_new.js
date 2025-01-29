@@ -1,5 +1,5 @@
 import { Config } from "./index.js";
-import { inject, functionExists, exists, Modes } from "./util";
+import { Modes } from "./util";
 import { getBlockSetsEX } from "./blockSetExtensions";
 
 export const initSkins = () => {
