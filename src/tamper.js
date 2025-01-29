@@ -264,20 +264,18 @@ export function initTamper() {
   }
 
   function injectIntoExecCommand() {
-    ModeManager.prototype.injected_connectMap = function () {}
+    ModeManager.prototype.injected_connectMap = function () {};
 
     let strippedExecCommandString = stripCurlyBrackets(ModeManager.prototype.execCommand.toString());
 
     // Injection point
-    const copyMatrixRegex =
-      /this\[[^\[\]\,]*\]\[[^\[\]\,]*\]=_0x\w*\[[^\[\]\,]*\]\(copyMatrix,_0x\w*\);}/g;
+    const copyMatrixRegex = /this\[[^\[\]\,]*\]\[[^\[\]\,]*\]=_0x\w*\[[^\[\]\,]*\]\(copyMatrix,_0x\w*\);}/g;
     copyMatrixRegex.exec(strippedExecCommandString);
 
     let part1 = strippedExecCommandString.slice(0, copyMatrixRegex.lastIndex);
     let remainingPart = strippedExecCommandString.slice(copyMatrixRegex.lastIndex);
 
-    let injectedExecCommandString =
-      part1 + `this.injected_connectMap?.();` + remainingPart;
+    let injectedExecCommandString = part1 + `this.injected_connectMap?.();` + remainingPart;
 
     ModeManager.prototype.execCommand = new Function(
       ...getArguments(ModeManager.prototype.execCommand),

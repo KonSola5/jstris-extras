@@ -2,12 +2,13 @@ export const shouldRenderEffectsOnView = (view) => {
   return view.holdCanvas && view.holdCanvas.width >= 70;
 };
 
-export const lerp = (start, end, amt) => {
-  return (1 - amt) * start + amt * end;
+export const lerp = (start, end, amount) => {
+  return (1 - amount) * start + amount * end;
 };
 
 /**
  * An enum for easier readability of modes.
+ * @enum {number}
  */
 export const Modes = Object.freeze({
   SPRINT: 1,
@@ -18,8 +19,9 @@ export const Modes = Object.freeze({
   MAPS: 6,
   TSD20: 7,
   PC_MODE: 8,
-  USERMODE: 9
-})
+  USERMODE: 9,
+  BOT: 10,
+});
 
 /**
  * Injects code into a function.

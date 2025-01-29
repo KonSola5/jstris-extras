@@ -1,3 +1,4 @@
+/// <reference types="../jstris-typings/jstris_typings.d.ts" />
 "use strict";
 
 import { initActionText } from "./actiontext";
@@ -19,7 +20,7 @@ import { initPracticeUndo } from "./practiceUndo";
 import { initPracticeSurvivalMode } from "./practiceSurvivalMode";
 import { fixTeamsMode } from "./teamsMode";
 import { initPracticeFumen, initReplayerSnapshot } from "./practiceFumen";
-import { authNotification, playSound, notify, setPlusSfx, functionExists } from "./util";
+import { authNotification, playSound, notify, setPlusSfx } from "./util";
 import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
 import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";
@@ -29,10 +30,9 @@ var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
 document.body.appendChild(styleSheet);
 
-export const Config = new ConfigManager;
+export const Config = new ConfigManager();
 // initModal();
 initSidebar();
-
 if (Config.settings.isFirstOpen) {
   alert(
     "Hi! Thank you for installing Jstris Extras! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"

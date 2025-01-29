@@ -192,7 +192,6 @@ export const initSkins = () => {
       }
       return oldRedrawMatrix.apply(this, arguments);
     };
-
     let oldInitRenderer = WebGLView.prototype.initRenderer;
     WebGLView.prototype.initRenderer = function () {
       let returnValue = oldInitRenderer.apply(this, arguments);
@@ -372,28 +371,30 @@ export const initSkins = () => {
     };
   }
 
-  function drawGhostAndCurrentConnected() {
-    if (!this.blockSetsEX) {
-      this.blockSetsEX = getBlockSetsEX();
+  /** @param {Game} game */
+  function drawGhostAndCurrentConnected(game) {
+    if (!game.blockSetsEX) {
+      game.blockSetsEX = getBlockSetsEX();
     }
-    let currentBlockSet = this.blockSets[this.activeBlock.set];
-    let currentBlockSetEX = this.blockSetsEX[this.activeBlock.set];
-    let pieceToDraw = currentBlockSet.blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
+    let currentBlockSet = game.blockSets[game.activeBlock.set];
+    let currentBlockSetEX = game.blockSetsEX[game.activeBlock.set];
+    let pieceToDraw = currentBlockSet.blocks[game.activeBlock.id].blocks[game.activeBlock.rot];
     let pieceBBSize = pieceToDraw.length; // Piece bounding box size
-    if (this.hasGhost() && !this.gameEnded) {
+
+    if (game.hasGhost() && !game.gameEnded) {
       for (let i = 0; i < pieceBBSize; i++) {
         for (let j = 0; j < pieceBBSize; j++) {
           if (pieceToDraw[i][j] > 0) {
-            this.v.drawGhostBlockConnected(
-              this.ghostPiece.pos.x + j, // * this.drawScale,
-              this.ghostPiece.pos.y + i, // * this.drawScale,
-              currentBlockSet.blocks[this.activeBlock.id].color,
-              currentBlockSetEX.pieces[this.activeBlock.id].connections[this.activeBlock.rot][i][j]
+            game.v.drawGhostBlockConnected(
+              game.ghostPiece.pos.x + j, // * game.drawScale,
+              game.ghostPiece.pos.y + i, // * game.drawScale,
+              currentBlockSet.blocks[game.activeBlock.id].color,
+              currentBlockSetEX.pieces[game.activeBlock.id].connections[game.activeBlock.rot][i][j]
             );
-            if (this.activeBlock.item && pieceToDraw[i][j] === this.activeBlock.item) {
-              this.v.drawBrickOverlay(
-                this.ghostPiece.pos.x + j, // * this.drawScale,
-                this.ghostPiece.pos.y + i, // * this.drawScale,
+            if (game.activeBlock.item && pieceToDraw[i][j] === game.activeBlock.item) {
+              game.v.drawBrickOverlay(
+                game.ghostPiece.pos.x + j, // * game.drawScale,
+                game.ghostPiece.pos.y + i, // * game.drawScale,
                 true
               );
             }
@@ -401,21 +402,22 @@ export const initSkins = () => {
         }
       }
     }
-    if (!this.gameEnded) {
+
+    if (!game.gameEnded) {
       for (let i = 0; i < pieceBBSize; i++) {
         for (let j = 0; j < pieceBBSize; j++) {
           if (pieceToDraw[i][j] > 0) {
-            this.v.drawBlockConnected(
-              this.activeBlock.pos.x + j * this.drawScale,
-              this.activeBlock.pos.y + i * this.drawScale,
-              currentBlockSet.blocks[this.activeBlock.id].color,
-              currentBlockSetEX.pieces[this.activeBlock.id].connections[this.activeBlock.rot][i][j],
+            game.v.drawBlockConnected(
+              game.activeBlock.pos.x + j * game.drawScale,
+              game.activeBlock.pos.y + i * game.drawScale,
+              currentBlockSet.blocks[game.activeBlock.id].color,
+              currentBlockSetEX.pieces[game.activeBlock.id].connections[game.activeBlock.rot][i][j],
               0
             );
-            if (this.activeBlock.item && pieceToDraw[i][j] === this.activeBlock.item) {
-              this.v.drawBrickOverlay(
-                this.activeBlock.pos.x + j * this.drawScale,
-                this.activeBlock.pos.y + i * this.drawScale,
+            if (game.activeBlock.item && pieceToDraw[i][j] === game.activeBlock.item) {
+              game.v.drawBrickOverlay(
+                game.activeBlock.pos.x + j * game.drawScale,
+                game.activeBlock.pos.y + i * game.drawScale,
                 false
               );
             }
@@ -423,89 +425,91 @@ export const initSkins = () => {
         }
       }
     }
-    this.drawScale = 1;
+    game.drawScale = 1;
   }
 
-  function redrawHoldBoxConnected() {
-    if (!this.blockSetsEX) {
-      this.blockSetsEX = getBlockSetsEX();
+  /** @param {Game | Replayer} game */
+  function redrawHoldBoxConnected(game) {
+    if (!game.blockSetsEX) {
+      game.blockSetsEX = getBlockSetsEX();
     }
     if (
-      (!this.ISGAME || !this.redrawBlocked) &&
-      (this.ISGAME || (!this.v.redrawBlocked && this.v.QueueHoldEnabled)) &&
-      (this.v.clearHoldCanvas(), null !== this.blockInHold)
+      (!game.ISGAME || !game.redrawBlocked) &&
+      (game.ISGAME || (!game.v.redrawBlocked && game.v.QueueHoldEnabled)) &&
+      (game.v.clearHoldCanvas(), null !== game.blockInHold)
     ) {
-      let piecePreview = this.blockSets[this.blockInHold.set].previewAs;
-      let piecePreviewEX = this.blockSetsEX[this.blockInHold.set].previewAs.pieces[this.blockInHold.id];
-      let pieceInInitialState = piecePreview.blocks[this.blockInHold.id].blocks[0];
-      let block_color = piecePreview.blocks[this.blockInHold.id].color;
-      let pieceHeightSpan = piecePreview.blocks[this.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
+      let piecePreview = game.blockSets[game.blockInHold.set].previewAs;
+      let piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs.pieces[game.blockInHold.id];
+      let pieceInInitialState = piecePreview.blocks[game.blockInHold.id].blocks[0];
+      let block_color = piecePreview.blocks[game.blockInHold.id].color;
+      let pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
       let pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
       let pieceMatrixHeight = pieceInInitialState.length;
-      let pieceWidthSpan = piecePreview.blocks[this.blockInHold.id].xp
-        ? piecePreview.blocks[this.blockInHold.id].xp
+      let pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp
+        ? piecePreview.blocks[game.blockInHold.id].xp
         : piecePreviewEX.xpOverride; // xp = horizontal span
       let pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
-      this.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
+      game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
 
-      let hOffset = (4 * (1 / this.drawScale) - pieceWidth) / 2;
-      let vOffset = (3 * (1 / this.drawScale) - pieceHeight) / 2;
+      let hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
+      let vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
           if (pieceInInitialState[j][k] > 0) {
-            this.v.drawBlockOnCanvasConnected(
-              this.drawScale * (k - pieceWidthSpan[0] + hOffset),
-              this.drawScale * (j - pieceHeightSpan[0] + vOffset),
+            game.v.drawBlockOnCanvasConnected(
+              game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+              game.drawScale * (j - pieceHeightSpan[0] + vOffset),
               block_color,
               piecePreviewEX.connections[0][j][k],
-              this.v.HOLD,
-              this.drawScale
+              game.v.HOLD,
+              game.drawScale
             );
 
-            if (this.blockInHold.item && pieceInInitialState[j][k] === this.blockInHold.item) {
-              this.v.drawBrickOverlayOnCanvas(
-                this.drawScale * (k - pieceWidthSpan[0] + hOffset),
-                this.drawScale * (j - pieceHeightSpan[0] + vOffset),
-                this.v.HOLD
+            if (game.blockInHold.item && pieceInInitialState[j][k] === game.blockInHold.item) {
+              game.v.drawBrickOverlayOnCanvas(
+                game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+                game.drawScale * (j - pieceHeightSpan[0] + vOffset),
+                game.v.HOLD
               );
             }
           }
         }
       }
-      this.drawScale = 1;
+      game.drawScale = 1;
     }
   }
 
-  function updateQueueBoxConnected() {
+  /** @param {Game | Replayer} game */
+  function updateQueueBoxConnected(game) {
     // Contains Better NEXT, need to split it up somehow
-    if (!this.blockSetsEX) {
-      this.blockSetsEX = getBlockSetsEX();
+    if (!game.blockSetsEX) {
+      game.blockSetsEX = getBlockSetsEX();
     }
-    if (this.ISGAME && this.redrawBlocked) {
+    if (game.ISGAME && game.redrawBlocked) {
       return;
     }
-    if (!this.ISGAME && (this.v.redrawBlocked || !this.v.QueueHoldEnabled)) {
+    if (!game.ISGAME && (game.v.redrawBlocked || !game.v.QueueHoldEnabled)) {
       return;
     }
-    this.v.clearQueueCanvas();
+    game.v.clearQueueCanvas();
     let spacing = 0;
-    for (let i = 0; i < this.R.showPreviews; i++) {
-      if (i >= this.queue.length) {
-        if (this.pmode != 9) {
+    for (let i = 0; i < game.R.showPreviews; i++) {
+      if (i >= game.queue.length) {
+        if (game.pmode != 9) {
           break;
         }
-        if (!this.ModeManager.repeatQueue) {
+        if (!game.ModeManager.repeatQueue) {
           break;
         }
-        this.ModeManager.addStaticQueueToQueue();
+        game.ModeManager.addStaticQueueToQueue();
       }
-      let piece = this.queue[i];
-      let piecePreview = this.blockSets[piece.set].previewAs;
+      let piece = game.queue[i];
+      let piecePreview = game.blockSets[piece.set].previewAs;
       let pieceInInitialState = piecePreview.blocks[piece.id].blocks[0];
-      let connections = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
-      let xpOverride = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
-      let ypOverride = this.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
+      let connections = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
+      let xpOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
+      let ypOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
       let block_color = piecePreview.blocks[piece.id].color;
       let pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
       let pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
@@ -513,33 +517,33 @@ export const initSkins = () => {
       let pieceWidthSpan = piecePreview.blocks[piece.id].xp ? piecePreview.blocks[piece.id].xp : xpOverride; // xp = horizontal span
       let pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
-      this.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
+      game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
 
-      let hOffset = (4 * (1 / this.drawScale) - pieceWidth) / 2;
-      let vOffset = (3 * (1 / this.drawScale) - pieceHeight) / 2;
+      let hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
+      let vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
           if (pieceInInitialState[j][k] > 0) {
-            this.v.drawBlockOnCanvasConnected(
-              this.drawScale * (k - pieceWidthSpan[0] + hOffset),
-              this.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
+            game.v.drawBlockOnCanvasConnected(
+              game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+              game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
               block_color,
               connections[0][j][k],
-              this.v.QUEUE,
-              this.drawScale
+              game.v.QUEUE,
+              game.drawScale
             );
 
             if (piece.item && pieceInInitialState[j][k] === piece.item) {
-              this.v.drawBrickOverlayOnCanvas(
-                this.drawScale * (k - pieceWidthSpan[0] + hOffset),
-                this.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
-                this.v.QUEUE
+              game.v.drawBrickOverlayOnCanvas(
+                game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+                game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
+                game.v.QUEUE
               );
             }
           }
         }
       }
-      this.drawScale = 1;
+      game.drawScale = 1;
       spacing += 3;
     }
   }
@@ -671,20 +675,18 @@ export const initSkins = () => {
     };
   }
 
-  function clearLinesConnected() {}
-
-  function redrawMatrixConnected() {
-    if (!this.connections) {
-      this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+  function redrawMatrixConnected(game) {
+    if (!game.connections) {
+      game.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
     }
     for (let row = 0; row < 20; row++) {
       for (let column = 0; column < 10; column++) {
-        this.v.drawBlockConnected(
+        game.v.drawBlockConnected(
           column,
           row,
-          this.matrix[row][column],
-          this.connections[row + 1][column],
-          this.v.MAIN
+          game.matrix[row][column],
+          game.connections[row + 1][column],
+          game.v.MAIN
         );
       }
     }
@@ -696,7 +698,7 @@ export const initSkins = () => {
     let oldDrawGhostAndCurrent = Game.prototype.drawGhostAndCurrent;
     Game.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
-        return drawGhostAndCurrentConnected.call(this);
+        return drawGhostAndCurrentConnected(this);
       } else {
         return oldDrawGhostAndCurrent.apply(this, arguments);
       }
@@ -704,7 +706,7 @@ export const initSkins = () => {
     let oldRedrawHoldBox = Game.prototype.redrawHoldBox;
     Game.prototype.redrawHoldBox = function () {
       if (usingConnected) {
-        return redrawHoldBoxConnected.call(this);
+        return redrawHoldBoxConnected(this);
       } else {
         return oldRedrawHoldBox.apply(this, arguments);
       }
@@ -712,12 +714,14 @@ export const initSkins = () => {
     let oldUpdateQueueBox = Game.prototype.updateQueueBox;
     Game.prototype.updateQueueBox = function () {
       if (usingConnected) {
-        return updateQueueBoxConnected.call(this);
+        return updateQueueBoxConnected(this);
       } else {
         return oldUpdateQueueBox.apply(this, arguments);
       }
     };
-    Game.prototype.redrawMatrixConnected = redrawMatrixConnected;
+    Game.prototype.redrawMatrixConnected = function () {
+      redrawMatrixConnected(this);
+    };
 
     Game.prototype.injected_connectMap = function () {
       if (usingConnected) {
@@ -734,33 +738,6 @@ export const initSkins = () => {
   }
 
   if (typeof ModeManager === "function") {
-    // /** @param {Game} game @param {number} x @param {number} y @param {number} blockID */
-    // ModeManager.prototype.injected_connectSetBoard = function (game, x, y, blockID) {
-    //   if (usingConnected) {
-    //     // TODO: An alternative option that connects the map on refresh.
-    //     // TODO: In the alt version, this method would just mark the board as dirty.
-    //     function getBlock(x, y) {
-    //       if (y == -1) return game.deadline[x];
-    //       else return game.matrix[y]?.[x];
-    //     }
-    //     // If block is removed, disconnect all neighbors
-    //     if (blockID == 0) {
-    //       game.connections[y + 1][x] = 0;
-    //       if (game.connections[y]?.[x - 1] && getBlock(x - 1, y - 1) > 0) game.connections[y][x - 1] &= ~128;
-    //       if (game.connections[y]?.[x] && getBlock(x, y - 1) > 0) game.connections[y][x] &= ~224;
-    //       if (game.connections[y]?.[x + 1] && getBlock(x + 1, y - 1) > 0) game.connections[y][x + 1] &= ~32;
-    //       if (game.connections[y + 1]?.[x - 1] && getBlock(x - 1, y) > 0) game.connections[y + 1][x - 1] &= ~148;
-    //       if (game.connections[y + 1]?.[x + 1] && getBlock(x + 1, y) > 0) game.connections[y + 1][x + 1] &= ~41;
-    //       if (game.connections[y + 2]?.[x - 1] && getBlock(x - 1, y + 1) > 0) game.connections[y + 2][x - 1] &= ~4;
-    //       if (game.connections[y + 2]?.[x] && getBlock(x, y + 1) > 0) game.connections[y + 2][x] &= ~7;
-    //       if (game.connections[y + 2]?.[x + 1] && getBlock(x + 1, y + 1) > 0) game.connections[y + 2][x + 1] &= ~1;
-    //     }
-    //     // If block is added, connect it to all same-color neighbors
-    //     else {
-    //       this.markDirty = true;
-    //     }
-    //   }
-    // };
     ModeManager.prototype.injected_connectMap = function () {
       if (usingConnected) {
         this.p.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
@@ -779,7 +756,7 @@ export const initSkins = () => {
     let oldDrawGhostAndCurrent = Replayer.prototype.drawGhostAndCurrent;
     Replayer.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
-        return drawGhostAndCurrentConnected.call(this);
+        return drawGhostAndCurrentConnected(this);
       } else {
         return oldDrawGhostAndCurrent.apply(this, arguments);
       }
@@ -787,7 +764,7 @@ export const initSkins = () => {
     let oldRedrawHoldBox = Replayer.prototype.redrawHoldBox;
     Replayer.prototype.redrawHoldBox = function () {
       if (usingConnected) {
-        return redrawHoldBoxConnected.call(this);
+        return redrawHoldBoxConnected(this);
       } else {
         return oldRedrawHoldBox.apply(this, arguments);
       }
@@ -795,12 +772,14 @@ export const initSkins = () => {
     let oldUpdateQueueBox = Replayer.prototype.updateQueueBox;
     Replayer.prototype.updateQueueBox = function () {
       if (usingConnected) {
-        return updateQueueBoxConnected.call(this);
+        return updateQueueBoxConnected(this);
       } else {
         return oldUpdateQueueBox.apply(this, arguments);
       }
     };
-    Replayer.prototype.redrawMatrixConnected = redrawMatrixConnected;
+    Replayer.prototype.redrawMatrixConnected = function () {
+      redrawMatrixConnected(this);
+    };
 
     Replayer.prototype.injected_initConnectedGarbage = function (garbageLine) {
       if (usingConnected) {
@@ -1150,7 +1129,7 @@ export const initSkins = () => {
     };
   }
 
-  if (typeof window.View == "function" && !typeof window.Live == "function") {
+  if (typeof window.View == "function" && typeof window.Live != "function") {
     // Force skin on replayers
     let oldOnReady = View.prototype.onReady;
     View.prototype.onReady = function () {

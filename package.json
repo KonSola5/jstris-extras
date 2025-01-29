@@ -1,7 +1,7 @@
 {
-  "name": "jstris-plus",
-  "version": "2.5.6",
-  "description": "3rd party matchmaking, custom skins/sfx/gfx, and many more improvements to jstris!",
+  "name": "jstris-extras",
+  "version": "1.0.0",
+  "description": "Even more customization features for Jstris!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
