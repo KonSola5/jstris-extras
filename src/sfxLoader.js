@@ -25,53 +25,6 @@ const loadSound = (name, url) => {
   }
 };
 
-/*
-// functionality is now addressed in replayer-sfx.js
-const loadReplayerSFX = function (sfx) {
-    let SOUNDS = ["hold", "linefall", "lock", "harddrop", "rotate", "success", "garbage", "b2b", "land", "move", "died", "ready", "go", "golive", "ding", "msg", "fault", "item", "pickup"];
-    let SErot = localStorage.getItem("SErot")
-    if (!SErot) {
-        sfx.rotate = { url: "null.wav" }
-    }
-    if (sfx.scoring) {
-        for (var i = 0; i < sfx.scoring.length; ++i) {
-            sfx.scoring[i] && loadSound("s" + i, sfx.scoring[i]);
-        }
-    }
-    if (sfx.b2bScoring && Array.isArray(sfx.b2bScoring)) {
-        for (i = 0; i < sfx.b2bScoring.length; ++i) {
-            sfx.b2bScoring[i] && loadSound("bs" + i, sfx.b2bScoring[i]);
-        }
-    }
-    if (sfx.spawns) {
-        for (var talitha in sfx.spawns) {
-            loadSound("b_" + talitha, sfx.spawns[talitha]);
-        }
-    }
-    for (i = 0; i < SOUNDS.length; ++i) {
-        let kayley = SOUNDS[i];
-        loadSound(kayley, sfx[kayley]);
-    }
-    if (sfx.comboTones && Array.isArray(sfx.comboTones)) {
-        for (i = 0; i < sfx.comboTones.length; ++i) {
-            var zohet = sfx.comboTones[i];
-            zohet && createjs.Sound.registerSound(sfx.getSoundUrlFromObj(zohet), "c" + i);
-        }
-        sfx.maxCombo = sfx.comboTones.length - 1;
-    } else {
-        if (sfx.comboTones) {
-            var kisa = [];
-            for (i = 0; i < sfx.comboTones.cnt; ++i) {
-                kisa.push({ id: "c" + i, startTime: i * (sfx.comboTones.duration + sfx.comboTones.spacing), duration: sfx.comboTones.duration });
-            }
-            sfx.maxCombo = sfx.comboTones.cnt - 1;
-            var kaley = [{ src: sfx.getSoundUrl("comboTones"), data: { audioSprite: kisa } }];
-            createjs.Sound.registerSounds(kaley, "");
-        }
-    }
-}
-*/
-
 const loadDefaultSFX = () => {
   console.log("loading default sfx");
   try {

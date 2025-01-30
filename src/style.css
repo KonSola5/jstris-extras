@@ -1,5 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
 
+.hidden {
+  display: none !important;
+}
+
 /* Sidebar */
 
 #colorPickerPopup {
@@ -960,6 +964,123 @@
 .really-hide-kbd-display {
   /* for when keyboard display really should not be shown, like 1v1 replays (for now) */
   display: none !important;
+}
+
+.keyboard-div {
+  position: absolute;
+  z-index: 10;
+  /* resize: both;
+  overflow: auto; */
+
+  display: grid;
+}
+
+.keyboard-osd {
+  grid-area: 1/1;
+  min-width: 0px;
+  min-height: 0px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    ".  .  rs ng  .  . "
+    ".  hd .  rl rr rf"
+    "ml sd mr hl .  . ";
+
+  gap: 2px;
+
+  cursor: move;
+}
+
+.keyboard-osd .kps * {
+  font-size: 30px;
+}
+
+.keyboard-osd .key {
+  background-color: black;
+  border: 2px solid white;
+  border-radius: 5px;
+  min-width: 0px;
+  min-height: 0px;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  transition: 100ms;
+}
+
+.keyboard-osd .key.pressed {
+  background-color: darkcyan;
+}
+
+.keyboard-osd .key path {
+  fill: white;
+}
+
+.keyboard-osd .key.hard-drop {
+  grid-area: hd;
+}
+
+.keyboard-osd .key.soft-drop {
+  grid-area: sd;
+}
+
+.keyboard-osd .key.move-left {
+  grid-area: ml;
+}
+
+.keyboard-osd .key.move-right {
+  grid-area: mr;
+}
+
+.keyboard-osd .key.rotate-left {
+  grid-area: rl;
+}
+
+.keyboard-osd .key.rotate-right {
+  grid-area: rr;
+}
+
+.keyboard-osd .key.rotate-180 {
+  grid-area: rf;
+}
+
+.keyboard-osd .key.hold {
+  grid-area: hl;
+}
+
+.keyboard-osd .key.reset {
+  grid-area: rs;
+}
+
+.keyboard-osd .key.new-game {
+  grid-area: ng;
+}
+
+.key-svg {
+  width: 80%;
+  height: 80%;
+  margin: auto;
+}
+
+.resize-handle {
+  grid-area: 1/1;
+  width: 10px;
+  height: 10px;
+  align-self: end;
+  justify-self: end;
+}
+
+.handle-svg {
+  margin: auto;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+
+  cursor: nwse-resize;
+}
+
+.handle-svg path {
+  fill: white;
 }
 
 /* custom emoji */

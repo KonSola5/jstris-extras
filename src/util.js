@@ -7,6 +7,19 @@ export const lerp = (start, end, amount) => {
 };
 
 /**
+ * Clamps a value between the given minimum and maximum value.
+ * @param {number} value The value to clamp.
+ * @param {number} min The minimum value.
+ * @param {number} max The maximum value.
+ * @returns The clamped value.
+ */
+export function clamp(value, min, max) {
+  if (value < min) return min;
+  if (value > max) return max;
+  return value;
+}
+
+/**
  * An enum for easier readability of modes.
  * @enum {number}
  */
@@ -24,30 +37,26 @@ export const Modes = Object.freeze({
 });
 
 /**
- * Injects code into a function.
- * @param {Function} functionToInjectTo - Function to inject to.
- * @param {Object} options - Injection options.
- * @param {Function} callback - The callback function to inject.
- * @returns {Function} - Function with code injected.
+ * Creates an SVG element.
+ * @param {string[]} cssClassArray Array of CSS classes to apply to SVG.
+ * @param {string} viewBox The SVG view box.
+ * @param {object[]} pathArray Array of objects containing path attributes.
+ * @returns The SVG element.
  */
-export function inject(functionToInjectTo, options, callback) {
-  if (!options) {
-    console.warn(`inject: No options provided - function ${functionToInjectTo.name} left untouched.`);
-    return;
-  }
-  let callbackReturn;
-  let oldFunction = functionToInjectTo;
-  functionToInjectTo = function () {
-    if (options.at == "before") {
-      callbackReturn = callback.apply(this, arguments);
+export function createSVG(cssClassArray, viewBox, pathArray) {
+  let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.classList.add(...cssClassArray);
+  svg.setAttribute("viewBox", viewBox);
+  let paths = [];
+  pathArray.forEach(path => {
+    let pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    for (const [key, value] of Object.entries(path)) {
+      pathElement.setAttribute(key, value)
     }
-    let returnValue = oldFunction.apply(this, arguments);
-    if ((options.at = "after")) {
-      callbackReturn = callback.apply(this, arguments);
-    }
-    return callbackReturn || returnValue;
-  };
-  return functionToInjectTo;
+    paths.push(pathElement)
+  });
+  svg.append(...paths)
+  return svg;
 }
 
 // https://jsfiddle.net/12aueufy/1/

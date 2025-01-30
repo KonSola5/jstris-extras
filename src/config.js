@@ -126,6 +126,11 @@ const defaultConfig = {
   closeChatKey: null,
   undoKey: null,
 
+  // Config not settable via sidebar
+  keyboardOSDViewportX: 10,
+  keyboardOSDViewportY: 10,
+  keyboardOSDWidthPx: 250,
+  keyboardOSDHeightPx: 124,
   // To be removed
   customPlusSFX_JSON: "",
   thirdPartyMatchmakingEnabled: true,
