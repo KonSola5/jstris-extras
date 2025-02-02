@@ -7,6 +7,7 @@ import { initChat } from "./chat.js";
 import { ConfigManager } from "./config";
 
 import css from "./style.css";
+import customGameCSS from "./custom-game-style.css"
 import { initModal } from "./settingsModal";
 import { initLayout } from "./layout";
 import { initStats } from "./stats";
@@ -25,10 +26,17 @@ import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
 import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";
 import { initSidebar } from "./settingsSidebar.js";
+import { initLayoutChanges } from "./layoutChanges.js";
 // inject style
 var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
 document.body.appendChild(styleSheet);
+
+initLayoutChanges();
+
+var customGameStylesheet = document.createElement("style");
+customGameStylesheet.innerText = customGameCSS;
+document.body.appendChild(customGameStylesheet);
 
 export const Config = new ConfigManager();
 // initModal();
@@ -40,7 +48,7 @@ if (Config.settings.isFirstOpen) {
   Config.set("isFirstOpen", false);
 }
 
-authNotification();
+// authNotification();
 initTamper();
 
 if (typeof ReplayController == "function") {
@@ -59,7 +67,7 @@ if (typeof GameCore == "function") {
   initStats();
   initCustomSFX();
 
-  initPracticeSurvivalMode();
+  // initPracticeSurvivalMode();
 }
 if (typeof Game == "function") {
   initLayout();
