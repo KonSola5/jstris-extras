@@ -527,7 +527,7 @@ export function initLayoutChanges() {
       gamePlaceCaption.append(place, instructions);
     };
     GameCaption.prototype.speedWarning = function (PPSLimit) {
-      if (!(this.GAME_PLACE in this.captions) || !this.captions[this.GAME_PLACE].classList.contains("hidden")) {
+      if (!(this.GAME_PLACE in this.captions) || this.captions[this.GAME_PLACE].classList.contains("hidden")) {
         let speedLimitCaption;
         if (this.SPEED_LIMIT in this.captions) {
           this.captions[this.SPEED_LIMIT].classList.remove("hidden");
@@ -666,6 +666,15 @@ export function initLayoutChanges() {
       warningDescriptionDiv.textContent = warningDescription;
       warningCaption.append(warningTitleDiv, warningDescriptionDiv);
       this._fadeOut(warningCaption, fadeTimer_ms, 2, 0.85);
+    };
+  }
+
+  if (typeof StatLine !== "undefined") {
+    StatLine.prototype.enable = function () {
+      this.enabled = true;
+      this.label.classList.remove("hidden");
+      this.label.style.display = null;
+      return this;
     };
   }
 

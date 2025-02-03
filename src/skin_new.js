@@ -692,6 +692,76 @@ export const initSkins = () => {
     }
   }
 
+  class LineClearAnimatorConnected {
+    /** @type {Game} */
+    g;
+    /** @type {number[][]} */
+    connections;
+    /** @type {number[][]} */
+    matrix;
+    /** @type {number[]} */
+    clearPositions;
+    /** @type {number} */
+    clearDelay;
+    /** @type {number} */
+    t;
+    /** @type {boolean} */
+    IS_SOLID;
+    /**
+     * @param {number[][]} matrixCopy
+     * @param {number[][]} connectionsCopy
+     * @param {number[]} linesToClear
+     * @param {Game} game
+     */
+    constructor(matrixCopy, connectionsCopy, linesToClear, game) {
+      this.g = game;
+      this.connections = connectionsCopy;
+      this.matrix = matrixCopy;
+      this.clearPositions = linesToClear;
+      this.clearDelay = this.g.R.clearDelay / 1000;
+      this.t = 0;
+      this.IS_SOLID = true;
+    }
+
+    render(timeDelta_ms) {
+      this.t += timeDelta_ms;
+      let alpha = Math.max(0, 1 - this.t / this.clearDelay);
+      this.g.v.clearMainCanvas();
+      this.matrix.forEach((row, i) => {
+        if (this.clearPositions.indexOf(i) !== -1) {
+          if (this.IS_SOLID) {
+            this.g.v.drawClearLine(i, alpha);
+          } else {
+            this.g.v.setAlpha(alpha);
+            row.forEach((block, j) => {
+              this.g.v.drawBlockConnected(j, i, block, this.connections[i + 1][j], 0);
+            });
+            this.g.v.setAlpha(1);
+          }
+        } else {
+          row.forEach((block, j) => {
+            this.g.v.drawBlockConnected(j, i, block, this.connections[i + 1][j], 0);
+          });
+        }
+      });
+      this.g.v.redrawRedBar(false);
+      if (this.t > this.clearDelay) {
+        this.finished();
+      }
+    }
+
+    finished() {
+      this.g.animator = null;
+      if (!this.g.gameEnded) {
+        this.g.play = true;
+      }
+      this.g.redrawBlocked = false;
+      this.g.redraw();
+      this.g.updateQueueBox();
+      this.g.redrawHoldBox();
+    }
+  }
+
   // Connected skins in game
 
   if (window.Game) {
@@ -735,6 +805,12 @@ export const initSkins = () => {
         }
       }
     };
+
+    Game.prototype.injected_createLineClearAnimator = function (matrixCopy, linesToClear, connectionsCopy) {
+      if (usingConnected && connectionsCopy) {
+        this.animator = new LineClearAnimatorConnected(matrixCopy, connectionsCopy, linesToClear, this);
+      } else this.animator = new LineClearAnimator(matrixCopy, linesToClear, this);
+    };
   }
 
   if (typeof ModeManager === "function") {
@@ -746,6 +822,51 @@ export const initSkins = () => {
         tempMatrix.forEach((row, y) => {
           row.forEach((column, x) => connectMap(this.p, x, y));
         });
+      }
+    };
+  }
+
+  if (typeof LineClearAnimator == "function") {
+    LineClearAnimator.prototype.render = function (timeDelta_ms) {
+      this.t += timeDelta_ms;
+      let alpha = Math.max(0, 1 - this.t / this.clearDelay);
+      this.g.v.clearMainCanvas();
+      for (let row = 0; row < 20; row++) {
+        if (this.clearPositions.indexOf(row) !== -1) {
+          if (this.IS_SOLID) {
+            this.g.v.drawClearLine(row, alpha);
+          } else {
+            this.g.v.setAlpha(alpha);
+            for (let column = 0; column < 10; column++) {
+              if (usingConnected) {
+                this.g.v.drawBlockConnected(
+                  column,
+                  row,
+                  this.matrix[row][column],
+                  this.g.connections[row + 1][column],
+                  0
+                );
+              } else this.g.v.drawBlock(column, row, this.matrix[row][column], 0);
+            }
+            this.g.v.setAlpha(1);
+          }
+        } else {
+          for (let column = 0; column < 10; column++) {
+            if (usingConnected) {
+              this.g.v.drawBlockConnected(
+                column,
+                row,
+                this.matrix[row][column],
+                this.g.connections[row + 1][column],
+                0
+              );
+            } else this.g.v.drawBlock(column, row, this.matrix[row][column], 0);
+          }
+        }
+      }
+      this.g.v.redrawRedBar(false);
+      if (this.t > this.clearDelay) {
+        this.finished();
       }
     };
   }

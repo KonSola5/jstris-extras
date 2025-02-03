@@ -20,6 +20,11 @@ export function initTamper() {
     return [];
   }
 
+  /**
+   *
+   * @param {string} functionString
+   * @returns {string}
+   */
   function stripCurlyBrackets(functionString) {
     let firstCurlyBracketRegex = /\{/g;
     let firstCurlyBracketResults = firstCurlyBracketRegex.exec(functionString);
@@ -93,7 +98,6 @@ export function initTamper() {
     GameCore.prototype.injected_afterLinesMoved = function (row) {};
 
     let strippedLineClearsString = stripCurlyBrackets(GameCore.prototype.checkLineClears.toString());
-
     // Matches `this.deadline = [0,0,0,0,0,0,0,0,0,0]`.
     // There are two of them in the function, but only the first one is relevant here.
     const deadlineRegex = /this\[[^,\[\]]*?\]=\[([^,\[\]]*,){9}[^,\[\]]*\],/g;
@@ -101,31 +105,49 @@ export function initTamper() {
     let part1 = strippedLineClearsString.slice(0, deadlineRegex.lastIndex);
     let remainingPart = strippedLineClearsString.slice(deadlineRegex.lastIndex);
 
+    // Matches `matrixCopy = copyMatrix(this.matrix)`.
+    const matrixCopyRegex = /_0x\w*=_0x\w*\[[^,\[\]]*?\]\(copyMatrix,this\[[^,\[\]]*?\]\)/g;
+    let regexResults2 = matrixCopyRegex.exec(remainingPart);
+    let part2 = remainingPart.slice(0, matrixCopyRegex.lastIndex);
+    remainingPart = remainingPart.slice(matrixCopyRegex.lastIndex);
+
     // Matches `for (var i = row; i > 0; i--)`.
     // There are two interesting variables here: `i` and `row`.
     const forLoopRegex = /for\(var _0x\w*=_0x\w*;_0x\w*\[[^,\[\]]*\]\(_0x\w*,[^,\[\]\(\)]*\);_0x\w*--\)/g;
-    let regexResults2 = forLoopRegex.exec(remainingPart);
-    let part2 = remainingPart.slice(0, forLoopRegex.lastIndex);
+    let regexResults3 = forLoopRegex.exec(remainingPart);
+    let part3 = remainingPart.slice(0, forLoopRegex.lastIndex);
     remainingPart = remainingPart.slice(forLoopRegex.lastIndex);
 
     let variables = [];
     const variableRegex = /_0x\w*/g;
     for (const i in [0, 1]) {
-      let regexResult = variableRegex.exec(regexResults2[0]);
+      let regexResult = variableRegex.exec(regexResults3[0]);
       variables.push(regexResult[0]);
     }
 
     const nextSemicolonRegex = /;/g;
-    let regexResults3 = nextSemicolonRegex.exec(remainingPart);
-    let part3 = remainingPart.slice(0, nextSemicolonRegex.lastIndex);
+    let regexResults4 = nextSemicolonRegex.exec(remainingPart);
+    let part4 = remainingPart.slice(0, nextSemicolonRegex.lastIndex);
     remainingPart = remainingPart.slice(nextSemicolonRegex.lastIndex);
 
+    // Matches `this.animator = new LineClearAnimator(matrixCopy, linesToClear, this);`
+    // Class names aren't obfuscated.
+    // There are two interesting variables here: `matrxixCopy` and `linesToClear`.
+    const newLineClearAnimatorRegex = /this\[[^,\[\]]*?\]=new LineClearAnimator\((_0x\w*),(_0x\w*),this\)/g;
+    remainingPart = remainingPart.replace(
+      newLineClearAnimatorRegex,
+      "this.injected_createLineClearAnimator?.($1, $2, connectionsCopy)"
+    );
+
     let injectedLineClearString =
+      `let connectionsCopy = null;` +
       part1 +
       `this.injected_clearHiddenRow1?.(),` +
       part2 +
-      `\{this.injected_moveLinesDown?.(${variables[0]});` +
+      `,this.connections && (connectionsCopy = copyMatrix(this.connections))` +
       part3 +
+      `\{this.injected_moveLinesDown?.(${variables[0]});` +
+      part4 +
       `\};this.injected_afterLinesMoved?.(${variables[1]});` +
       remainingPart;
 
