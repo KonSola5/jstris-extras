@@ -7,7 +7,7 @@ import { initChat } from "./chat.js";
 import { ConfigManager } from "./config";
 
 import css from "./style.css";
-import customGameCSS from "./custom-game-style.css"
+import customGameCSS from "./custom-game-style.css";
 import { initModal } from "./settingsModal";
 import { initLayout } from "./layout";
 import { initStats } from "./stats";
@@ -34,7 +34,7 @@ document.body.appendChild(styleSheet);
 
 initLayoutChanges();
 
-var customGameStylesheet = document.createElement("style");
+let customGameStylesheet = document.createElement("style");
 customGameStylesheet.innerText = customGameCSS;
 document.body.appendChild(customGameStylesheet);
 

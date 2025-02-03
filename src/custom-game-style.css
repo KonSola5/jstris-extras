@@ -2,6 +2,14 @@
   display: none !important;
 }
 
+.stack {
+  display: grid;
+}
+
+.stack > * {
+  grid-area: 1/1;
+}
+
 /* Holds most of the game UI */
 #gameFrame {
   display: grid;
@@ -47,6 +55,35 @@
   position: relative;
 }
 
+#replayerGameFrame .two-boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#replayerGameFrame #main {
+  width: unset;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr);
+  grid-template-areas:
+  ".          name      .          "
+  "left-stage mid-stage right-stage";
+
+  /* Default rules */
+  float: none;
+  position: relative;
+}
+
+.replayName {
+  grid-area: name;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  text-align: unset;
+  margin-left: unset;
+  width: unset;
+}
+
 /* Left stage, contains hold, April Fools items and some Usermode stuff */
 #main .lstage {
   grid-area: left-stage;
@@ -63,7 +100,7 @@
 }
 
 /* Hold canvas */
-.lstage #holdCanvas {
+:is(.lstage #holdCanvas, .lstage #holdCanvas1, .lstage #holdCanvas2) {
   margin-bottom: auto;
 
   float: none;
@@ -441,7 +478,7 @@
   flex: none;
 }
 
-#rstage #queueCanvas {
+:is(#rstage #queueCanvas, #rstage #queueCanvas1, #rstage #queueCanvas2) {
   margin-right: auto;
 }
 
