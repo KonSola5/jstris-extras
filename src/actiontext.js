@@ -1,5 +1,5 @@
 import { Config } from "./index.js";
-import { shouldRenderEffectsOnView } from "./util";
+import { shouldRenderEffectsOnView } from "./util.js";
 
 const DELAY = 1500; // ms
 const FADEOUT = 0.15; // s

@@ -1,8 +1,8 @@
 import { Config } from "./index.js";
-import { CUSTOM_SKIN_PRESET_ELEMENT, fetchSkinPresets } from "./customSkinPresets";
-import { CUSTOM_SOUND_PRESET_ELEMENT, fetchSoundPresets } from "./customSoundPresets";
-import { CUSTOM_PLUS_SOUND_PRESET_ELEMENT, fetchPlusSoundPresets } from "./plusSoundPresets";
-import { createKeyInputElement, toggleChatKey_INPUT_ELEMENT } from "./toggleChatKeyInput";
+import { CUSTOM_SKIN_PRESET_ELEMENT, fetchSkinPresets } from "./customSkinPresets.js";
+import { CUSTOM_SOUND_PRESET_ELEMENT, fetchSoundPresets } from "./customSoundPresets.js";
+import { CUSTOM_PLUS_SOUND_PRESET_ELEMENT, fetchPlusSoundPresets } from "./plusSoundPresets.js";
+import { createKeyInputElement, toggleChatKey_INPUT_ELEMENT } from "./toggleChatKeyInput.js";
 
 export const createTitle = (text, style) => {
   var modalBody = document.getElementById("settingsBody");

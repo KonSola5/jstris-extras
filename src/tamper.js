@@ -1,5 +1,3 @@
-import { functionExists } from "./util";
-
 /* A function designed for injecting stuff in the middle of functions by:
   - stringifying the function,
   - finding appropriate patterns and stuff in the function,

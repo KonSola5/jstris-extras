@@ -1,5 +1,5 @@
 import { Config } from "./index.js";
-import { setPlusSfx } from "./util";
+import { setPlusSfx } from "./util.js";
 
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/plusSoundPresets.json";
 

@@ -1,7 +1,7 @@
-var fs = require("fs");
-var zipFolder = require("zip-folder");
+import * as fs from "fs";
+import * as zipFolder from "zip-folder";
 
-var package = JSON.parse(fs.readFileSync("package.json"));
+var packageJSON = JSON.parse(fs.readFileSync("package.json"));
 
 // setup build folders
 if (!fs.existsSync("build")) {
@@ -19,16 +19,16 @@ var userscriptHeader = `
 // ==UserScript==
 // @name         Jstris Extras
 // @namespace    http://tampermonkey.net/
-// @version      ${package.version}
-// @description  ${package.description}
+// @version      ${packageJSON.version}
+// @description  ${packageJSON.description}
 // @author       KonSola5, orz and frey
 // @run-at       document-body
 // @match        https://*.jstris.jezevec10.com/*
 // @grant        none
 // ==/UserScript==
 `;
-userscriptHeader = userscriptHeader.replace("${version}", package.version);
-userscriptHeader = userscriptHeader.replace("${description}", package.description);
+userscriptHeader = userscriptHeader.replace("${version}", packageJSON.version);
+userscriptHeader = userscriptHeader.replace("${description}", packageJSON.description);
 
 var script = fs.readFileSync("bundle.js");
 
@@ -39,8 +39,8 @@ const chromeExtensionManifest = {
   name: "Jstris Extras",
   action: {},
   manifest_version: 3,
-  version: package.version,
-  description: package.description,
+  version: packageJSON.version,
+  description: packageJSON.description,
   web_accessible_resources: [
     {
       resources: ["jstris-extras.js"],
@@ -78,9 +78,9 @@ zipFolder(`build/jstris-extras-chrome`, `build/jstris-extras-chrome.zip`, functi
 const firefoxExtensionManifest = {
   manifest_version: 2,
   name: "Jstris Extras",
-  version: package.version,
+  version: packageJSON.version,
 
-  description: package.description,
+  description: packageJSON.description,
 
   web_accessible_resources: ["jstris-extras.js"],
 

@@ -1,27 +1,27 @@
 /// <reference types="../jstris-typings/jstris_typings.d.ts" />
 "use strict";
 
-import { initActionText } from "./actiontext";
-import { initFX } from "./jstris-fx";
+import { initActionText } from "./actiontext.js";
+import { initFX } from "./jstris-fx.js";
 import { initChat } from "./chat.js";
-import { ConfigManager } from "./config";
+import { ConfigManager } from "./config.js";
 
 import css from "./style.css";
 import customGameCSS from "./custom-game-style.css";
-import { initModal } from "./settingsModal";
-import { initLayout } from "./layout";
-import { initStats } from "./stats";
-import { initReplayerSFX } from "./replayer-sfx";
-import { initKeyboardDisplay } from "./keyboardDisplay";
-import { initCustomSkin } from "./skin";
-import { initCustomSFX } from "./sfxLoader";
+import { initModal } from "./settingsModal.js";
+import { initLayout } from "./layout.js";
+import { initStats } from "./stats.js";
+import { initReplayerSFX } from "./replayer-sfx.js";
+import { initKeyboardDisplay } from "./keyboardDisplay.js";
+import { initCustomSkin } from "./skin.js";
+import { initCustomSFX } from "./sfxLoader.js";
 //import { initConnectedSkins } from './connectedSkins';
-import { initReplayManager } from "./replayManager";
-import { initPracticeUndo } from "./practiceUndo";
-import { initPracticeSurvivalMode } from "./practiceSurvivalMode";
-import { fixTeamsMode } from "./teamsMode";
-import { initPracticeFumen, initReplayerSnapshot } from "./practiceFumen";
-import { authNotification, playSound, notify, setPlusSfx } from "./util";
+import { initReplayManager } from "./replayManager.js";
+import { initPracticeUndo } from "./practiceUndo.js";
+import { initPracticeSurvivalMode } from "./practiceSurvivalMode.js";
+import { fixTeamsMode } from "./teamsMode.js";
+import { initPracticeFumen, initReplayerSnapshot } from "./practiceFumen.js";
+import { authNotification, playSound, notify, setPlusSfx } from "./util.js";
 import { initAutomaticReplayCodes } from "./automatic_replay_codes.js";
 import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";

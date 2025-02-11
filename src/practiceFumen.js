@@ -1,5 +1,5 @@
 import { encoder, decoder, Field } from "tetris-fumen";
-import { SaveState } from "./practiceUndo";
+import { SaveState } from "./practiceUndo.js";
 const clone = function (x) {
   return JSON.parse(JSON.stringify(x));
 };

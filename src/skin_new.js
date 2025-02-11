@@ -1,6 +1,6 @@
 import { Config } from "./index.js";
-import { Modes } from "./util";
-import { getBlockSetsEX } from "./blockSetExtensions";
+import { Modes } from "./util.js";
+import { getBlockSetsEX } from "./blockSetExtensions.js";
 
 export const initSkins = () => {
   let customSkinSize = 32;

@@ -1,6 +1,6 @@
 import { Config } from "./index.js";
-import { loadCustomSFX } from "./sfxLoader";
-import { shouldRenderEffectsOnView } from "./util";
+import { loadCustomSFX } from "./sfxLoader.js";
+import { shouldRenderEffectsOnView } from "./util.js";
 
 export const initReplayerSFX = () => {
   if (typeof View == "function" && typeof window.Live != "function" && !location.href.includes("export"))
