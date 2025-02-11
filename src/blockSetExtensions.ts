@@ -2,16 +2,23 @@
 // W  ?  E
 // SW S SE
 
+interface PieceDefinition {
+  name: string;
+  connections: [number[][], number[][], number[][], number[][]]
+  xpOverride?: [number, number]
+  ypOverride?: [number, number]
+  centerX?: [number, number]
+  centerY?: [number, number]
+}
+
 export function getBlockSetsEX() {
   class BlockSetEX {
+    name: string;
+    pieces: PieceDefinition[];
+    previewAs?: BlockSetEX;
     constructor() {
       this.name = "";
       this.pieces = [];
-      this.xpOverride = null;
-      this.ypOverride = null;
-      this.centerX = null;
-      this.centerY = null;
-      this.previewAs = null;
     }
   }
 
@@ -29,7 +36,7 @@ export function getBlockSetsEX() {
     FULL_E = N + NE + E + S + SE,
     FULL_S = W + E + SW + S + SE;
 
-  let bsStandard = new BlockSetEX();
+  const bsStandard = new BlockSetEX();
   bsStandard.pieces = [
     {
       name: "I",
@@ -251,7 +258,7 @@ export function getBlockSetsEX() {
   ];
   bsStandard.previewAs = bsStandard;
 
-  let bsBigBlock2 = new BlockSetEX();
+  const bsBigBlock2 = new BlockSetEX();
   bsBigBlock2.pieces = [
     {
       name: "I",
@@ -641,11 +648,11 @@ export function getBlockSetsEX() {
   ];
   bsBigBlock2.previewAs = bsStandard;
 
-  let bsBigBlock1 = new BlockSetEX();
+  const bsBigBlock1 = new BlockSetEX();
   bsBigBlock1.pieces = bsBigBlock2.pieces;
   bsBigBlock1.previewAs = bsStandard;
 
-  let bsArikaRS = new BlockSetEX();
+  const bsArikaRS = new BlockSetEX();
   bsArikaRS.pieces = [
     {
       name: "I",
@@ -866,7 +873,7 @@ export function getBlockSetsEX() {
   ];
   bsArikaRS.previewAs = bsArikaRS;
 
-  let bsPentomino = new BlockSetEX();
+  const bsPentomino = new BlockSetEX();
   bsPentomino.pieces = [
     {
       name: "I5",
@@ -1499,7 +1506,7 @@ export function getBlockSetsEX() {
   ];
   bsPentomino.previewAs = bsPentomino;
 
-  let bsM123 = new BlockSetEX();
+  const bsM123 = new BlockSetEX();
   bsM123.pieces = [
     {
       name: "O1",
@@ -1586,13 +1593,13 @@ export function getBlockSetsEX() {
     },
   ];
   bsPentomino.previewAs = bsPentomino;
-  let bsAll29 = new BlockSetEX();
+  const bsAll29 = new BlockSetEX();
   bsAll29.pieces = bsStandard.pieces.slice().concat(bsM123.pieces.slice()).concat(bsPentomino.pieces.slice());
   bsAll29.previewAs = bsAll29;
-  let bsCultris2 = new BlockSetEX();
+  const bsCultris2 = new BlockSetEX();
   bsCultris2.pieces = bsStandard.pieces;
   bsCultris2.previewAs = bsCultris2;
-  let bsOSpin = new BlockSetEX();
+  const bsOSpin = new BlockSetEX();
   bsOSpin.pieces = structuredClone(bsStandard.pieces);
   bsOSpin.pieces[1].name = "O+";
   bsOSpin.pieces[1].connections = [
@@ -1622,7 +1629,7 @@ export function getBlockSetsEX() {
     ],
   ];
   bsOSpin.previewAs = bsOSpin;
-  let bsNONE = new BlockSetEX();
+  const bsNONE = new BlockSetEX();
   bsNONE.pieces = [
     {
       name: "NONE",

@@ -77,10 +77,10 @@ if (typeof Game == "function") {
   initPracticeUndo();
   initPracticeFumen();
   setPlusSfx(Config.settings.customPlusSFX_JSON);
-  const pbListener = GameCaption.prototype.newPB;
+  const oldNewPB = GameCaption.prototype.newPB;
   GameCaption.prototype.newPB = function (...args) {
     playSound("PB");
-    const returnValue = pbListener.apply(this, args);
+    const returnValue = oldNewPB.apply(this, args);
     return returnValue;
   };
   const oldBeforeReset = Live.prototype.beforeReset;

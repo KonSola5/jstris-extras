@@ -636,13 +636,13 @@ export const initSkins = () => {
 
     GameCore.prototype.injected_initConnectedGarbage = function (garbageLine) {
       if (usingConnected) {
-        initConnectedGarbage.apply(this, arguments);
+        initConnectedGarbage.apply(this, garbageLine);
       }
     };
 
     GameCore.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {
       if (usingConnected) {
-        bumpUpConnections.apply(this, arguments);
+        bumpUpConnections.apply(this, trueHeight, amountOfLines);
       }
     };
 

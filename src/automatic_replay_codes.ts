@@ -1,9 +1,19 @@
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
+
+declare global {
+  interface Window {
+    copyReplayText: (number: number) => void;
+  }
+
+  interface Game {
+    replayCounter?: number;
+  }
+}
 
 export const initAutomaticReplayCodes = () => {
-  window.copyReplayText = function (number) {
-    var copyText = document.getElementById(`replay${number}`);
-    var copyButton = document.getElementById(`replayButton${number}`);
+  window.copyReplayText = function (number: number) {
+    const copyText = document.getElementById(`replay${number}`) as HTMLTextAreaElement;
+    const copyButton = document.getElementById(`replayButton${number}`) as HTMLButtonElement;
     navigator.clipboard
       .writeText(copyText.value)
       .then(() => {
@@ -20,9 +30,9 @@ export const initAutomaticReplayCodes = () => {
 
   const oldStartPractice = Game.prototype.startPractice;
 
-  Game.prototype.startPractice = function () {
+  Game.prototype.startPractice = function (...args) {
     //how many pieces should the replay at least have
-    let piecesPlacedCutoff = 1;
+    const piecesPlacedCutoff = 1;
 
     if (typeof this.replayCounter == "undefined") {
       this.replayCounter = 1;
@@ -30,8 +40,11 @@ export const initAutomaticReplayCodes = () => {
 
     this.Replay.getData();
 
-    if (this.GameStats.stats.BLOCKS.value > piecesPlacedCutoff && Config.settings.automaticReplayCodesEnabled) {
-      let replayHTML = `
+    if (
+      (this.GameStats.stats.BLOCKS.value as number) > piecesPlacedCutoff &&
+      Config.settings.automaticReplayCodesEnabled
+    ) {
+      const replayHTML = `
         <div style='font-size:14px;'>
             Userscript Generated Replay <b>#${this.replayCounter}</b>
         </div>
@@ -47,7 +60,7 @@ export const initAutomaticReplayCodes = () => {
       this.replayCounter++;
     }
 
-    let val = oldStartPractice.apply(this, arguments);
+    const val = oldStartPractice.apply(this, args);
 
     return val;
   };
