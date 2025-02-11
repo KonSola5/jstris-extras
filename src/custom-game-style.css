@@ -30,7 +30,9 @@
   width: 500px;
 
   display: grid;
-  grid-template-areas: "left-stage mid-stage right-stage";
+  grid-template-areas:
+  "left-stage mid-stage right-stage"
+  ".          b-stage   .          ";
 
   /* Default rules */
   float: none;
@@ -67,7 +69,8 @@
   grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr);
   grid-template-areas:
   ".          name      .          "
-  "left-stage mid-stage right-stage";
+  "left-stage mid-stage right-stage"
+  ".          b-stage   .          ";
 
   /* Default rules */
   float: none;
@@ -150,6 +153,17 @@
 /* No need for this anymore */
 .layer {
   position: static;
+}
+
+#main #bstage {
+  grid-area: b-stage;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#main #bstage > * {
+  flex: none;
 }
 
 /* Singleplayer mode selection menu */
@@ -488,6 +502,7 @@
 
 #buttonsBox {
   margin-left: 0px;
+  padding: 0px;
 }
 
 #gstats,

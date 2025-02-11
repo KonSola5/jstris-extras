@@ -15,9 +15,13 @@ export function initLayoutChanges() {
     mstage.appendChild(stage);
     main.insertBefore(mstage, main.querySelector("#rstage"));
 
+    let bstage = document.createElement("div")
+    bstage.id = "bstage"
+    main.append(bstage);
+
     let statsDiv = main.querySelector("#main > div:not([class]):not([id])");
     statsDiv.classList.add("hidden")
-    mstage.append(...statsDiv.children);
+    bstage.append(...statsDiv.children);
   });
 
   if (mains.length == 2) {

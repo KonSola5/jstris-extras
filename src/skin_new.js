@@ -759,6 +759,7 @@ export const initSkins = () => {
       this.g.redraw();
       this.g.updateQueueBox();
       this.g.redrawHoldBox();
+      this.g.playSound("linefall");
     }
   }
 
@@ -822,51 +823,6 @@ export const initSkins = () => {
         tempMatrix.forEach((row, y) => {
           row.forEach((column, x) => connectMap(this.p, x, y));
         });
-      }
-    };
-  }
-
-  if (typeof LineClearAnimator == "function") {
-    LineClearAnimator.prototype.render = function (timeDelta_ms) {
-      this.t += timeDelta_ms;
-      let alpha = Math.max(0, 1 - this.t / this.clearDelay);
-      this.g.v.clearMainCanvas();
-      for (let row = 0; row < 20; row++) {
-        if (this.clearPositions.indexOf(row) !== -1) {
-          if (this.IS_SOLID) {
-            this.g.v.drawClearLine(row, alpha);
-          } else {
-            this.g.v.setAlpha(alpha);
-            for (let column = 0; column < 10; column++) {
-              if (usingConnected) {
-                this.g.v.drawBlockConnected(
-                  column,
-                  row,
-                  this.matrix[row][column],
-                  this.g.connections[row + 1][column],
-                  0
-                );
-              } else this.g.v.drawBlock(column, row, this.matrix[row][column], 0);
-            }
-            this.g.v.setAlpha(1);
-          }
-        } else {
-          for (let column = 0; column < 10; column++) {
-            if (usingConnected) {
-              this.g.v.drawBlockConnected(
-                column,
-                row,
-                this.matrix[row][column],
-                this.g.connections[row + 1][column],
-                0
-              );
-            } else this.g.v.drawBlock(column, row, this.matrix[row][column], 0);
-          }
-        }
-      }
-      this.g.v.redrawRedBar(false);
-      if (this.t > this.clearDelay) {
-        this.finished();
       }
     };
   }

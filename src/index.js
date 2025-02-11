@@ -27,6 +27,7 @@ import { initSkins } from "./skin_new.js";
 import { initTamper } from "./tamper.js";
 import { initSidebar } from "./settingsSidebar.js";
 import { initLayoutChanges } from "./layoutChanges.js";
+import { initCustomStats } from "./stats_new.js";
 // inject style
 var styleSheet = document.createElement("style");
 styleSheet.innerText = css;
@@ -64,7 +65,8 @@ if (typeof GameCore == "function") {
     initFX();
     initKeyboardDisplay();
   }
-  initStats();
+  // initStats();
+  initCustomStats();
   initCustomSFX();
 
   // initPracticeSurvivalMode();

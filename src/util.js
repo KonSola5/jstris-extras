@@ -59,6 +59,122 @@ export function createSVG(cssClassArray, viewBox, pathArray) {
   return svg;
 }
 
+/**
+ * Contains functions shared between various element builders.
+ * @abstract
+ */
+class NodeBuilder {
+  constructor() {
+    if (this.constructor == NodeBuilder) {
+      throw new ReferenceError("Abstract classes can't be instantiated.");
+    }
+  }
+
+  /**
+   * Assigns an ID to the element.
+   * @param {string} id ID to give to the element.
+   * @returns The current instance for chaining.
+   */
+  withID(id) {
+    this.element.id = id;
+    return this;
+  }
+
+  /**
+   * Adds CSS classes to the element.
+   * @param  {...string} styles CSS classes to give to the element.
+   * @returns The current instance for chaining.
+   */
+  withStyles(...styles) {
+    this.element.classList.add(...styles);
+    return this;
+  }
+
+  /**
+   * Adds an event listener to the element.
+   * @param {string} type The type of the event.
+   * @param {EventListenerOrEventListenerObject} listener The event listener.
+   * @param {boolean | AddEventListenerOptions} [options] Options for the event.
+   * @returns The current instance for chaining.
+   */
+  addEventListener(type, listener, options) {
+    this.element.addEventListener(type, listener, options);
+    return this;
+  }
+
+  /**
+   * Appedns the element to the parent element.
+   * @param {Node} parent The parent element.
+   * @returns The current instance for chaining.
+   */
+  appendTo(parent) {
+    parent.appendChild(this.element);
+    return this;
+  }
+
+  /**
+   * Builds the element.
+   * @returns The built element.
+   */
+  build() {
+    return this.element;
+  }
+}
+
+/**
+ * Constructs new HTML elements.
+ * @template {keyof HTMLElementTagNameMap} K
+ */
+export class ElementBuilder extends NodeBuilder {
+  /** @type {HTMLElementTagNameMap[K]} */ element;
+
+  /**
+   * Constructs a new HTML element.
+   * @param {K} tagName
+   */
+  constructor(tagName) {
+    super();
+    this.element = document.createElement(tagName);
+  }
+
+  /**
+   * Adds text to the element.
+   * @param {string} textContent
+   * @returns The current instance for chaining.
+   */
+  withText(textContent) {
+    this.element.textContent = textContent;
+    return this;
+  }
+}
+
+/** Constructs new SVG elements. */
+export class SVGBuilder extends NodeBuilder {
+  element;
+  /**
+   * Constructs a new SVG element.
+   * @param {string} viewBox View box.
+   */
+  constructor(viewBox) {
+    super();
+    this.element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.element.setAttribute("viewBox", viewBox);
+  }
+
+  /**
+   * Adds a path to the SVG.
+   * @param {Object.<string, string>} pathDefinition An object containing path attributes and their values.
+   * @returns The current instance for chaining.
+   */
+  addPath(pathDefinition) {
+    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    for (const [key, value] of Object.entries(pathDefinition)) {
+      path.setAttribute(key, value);
+    }
+    this.element.appendChild(path);
+  }
+}
+
 // https://jsfiddle.net/12aueufy/1/
 var shakingElements = [];
 

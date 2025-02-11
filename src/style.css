@@ -4,6 +4,64 @@
   display: none !important;
 }
 
+.stat-box-left,
+.stat-box-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-box-left > *,
+.stat-box-right > *  {
+  flex: none;
+}
+
+.stat-box-left {
+  align-items: end;
+  text-align: right;
+}
+
+.stat-box-left {
+  align-items: begin;
+  text-align: left;
+}
+
+/* Custom stats */
+.stat {
+  font-family: 'Exo 2', sans-serif;
+  color: white;
+  display: grid;
+  width: 100%;
+  grid-template-areas:
+  "title"
+  "value";
+  user-select: none;
+}
+
+.stat .title {
+  grid-area: title;
+  font-size: 18px;
+  color: rgb(128, 128, 128);
+  border-bottom: 2px solid rgb(128, 128, 128);
+}
+
+.stat .value {
+  grid-area: value;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2px;
+  align-items: end;
+}
+
+.stat .value *:first-child {
+  font-size: 24px;
+  color: white
+}
+
+.stat .value *:not(:first-child) {
+  font-size: 18px;
+  color: #888
+}
+
 /* Sidebar */
 
 #colorPickerPopup {

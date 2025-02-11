@@ -1,86 +1,59 @@
-// // these are default values
-// var config = {
-//   FIRST_OPEN: true,
+/**
+ * @typedef {object} Config
+ * @prop {boolean} isFirstOpen
+ *
+ * @prop {boolean} lineClearAnimationEnabled
+ * @prop {number} lineClearAnimationLength
+ *
+ * @prop {boolean} lineClearShakeEnabled
+ * @prop {number} lineClearShakeStrength
+ * @prop {number} lineClearShakeLength
+ *
+ * @prop {boolean} piecePlacementAnimationEnabled
+ * @prop {number} piecePlacementAnimationOpacity
+ * @prop {number} piecePlacementAnimationLength
+ *
+ * @prop {boolean} actionTextEnabled
+ *
+ * @prop {string} backgroundURL
+ * @prop {string} customSkinURL
+ * @prop {string} customGhostSkinURL
+ * @prop {boolean} customSkinInReplays
+ *
+ * @prop {boolean} keyboardOSD
+ *
+ * @prop {boolean} opponentSFXEnabled
+ * @prop {number} opponentSFXVolumeMultiplier
+ *
+ * @prop {boolean} customSFXEnabled
+ * @prop {string} customSFX_JSON
+ * @prop {boolean} customPieceSpawnSFXEnabled
+ *
+ * @prop {boolean} statAPPEnabled
+ * @prop {boolean} statPPDEnabled
+ * @prop {boolean} statCheeseRacePiecePaceEnabled
+ * @prop {boolean} statCheeseRaceTimePaceEnabled
+ * @prop {boolean} statUltraSPPEnabled
+ * @prop {boolean} statUltraScorePaceEnabled
+ * @prop {boolean} statPCNumberEnabled
+ *
+ * @prop {boolean} automaticReplayCodesEnabled
+ * @prop {boolean} chatTimestampsEnabled
+ *
+ * @prop {string | null} toggleChatKey
+ * @prop {string | null} closeChatKey
+ * @prop {string | null} undoKey
+ *
+ * @prop {number} keyboardOSDViewportX
+ * @prop {number} keyboardOSDViewportY
+ * @prop {number} keyboardOSDWidthPx
+ * @prop {number} keyboardOSDHeightPx
+ *
+ * @prop {string} customPlusSFX_JSON
+ * @prop {boolean} thirdPartyMatchmakingEnabled
+ */
 
-//   lineClearAnimationEnabled: true,
-//   lineClearShakeEnabled: true,
-//   piecePlacementAnimationEnabled: true,
-//   actionTextEnabled: true,
-
-//   piecePlacementAnimationOpacity: 0.5,
-//   piecePlacementAnimationLength: 0.5,
-//   lineClearAnimationLength: 0.5,
-//   lineClearShakeStrength: 1,
-//   lineClearShakeLength: 1,
-
-//   backgroundURL: "",
-//   customSkinURL: "",
-//   customGhostSkinURL: "",
-//   customSkinInReplays: true,
-//   keyboardOSD: false,
-
-//   opponentSFXEnabled: true,
-//   opponentSFXVolumeMultiplier: 0.5,
-//   customPieceSpawnSFXEnabled: false,
-//   customSFXEnabled: false,
-//   customSFX_JSON: "",
-//   customPlusSFX_JSON: "",
-
-//   statAPPEnabled: false,
-//   statPPDEnabled: false,
-//   statCheeseRacePiecePaceEnabled: false,
-//   statCheeseRaceTimePaceEnabled: false,
-//   statUltraSPPEnabled: false,
-//   statUltraScorePaceEnabled: false,
-//   statPCNumberEnabled: false,
-
-//   automaticReplayCodesEnabled: false,
-//   chatTimestampsEnabled: true,
-//   SHOW_QUEUE_INFO: true,
-//   SHOW_MM_BUTTON: true,
-//   toggleChatKey: null,
-//   closeChatKey: null,
-//   SCREENSHOT_KEY: null,
-
-//   undoKey: null,
-// };
-
-// const defaultConfig = { ...config };
-
-// var listeners = [];
-
-// export const initConfig = () => {
-//   // Remove keycodes from local storage
-//   localStorage.removeItem("toggleChatKeyCODE");
-//   localStorage.removeItem("closeChatKeyCODE");
-//   localStorage.removeItem("SCREENSHOT_KEYCODE");
-//   localStorage.removeItem("undoKeyCODE");
-//   for (var i in config) {
-//     var val = JSON.parse(localStorage.getItem(i));
-//     if (val != undefined && val != null) {
-//       config[i] = val;
-//     }
-//   }
-// };
-
-// const set = function (name, val) {
-//   config[name] = val;
-//   localStorage.setItem(name, JSON.stringify(val));
-//   for (var { event, listener } of listeners) {
-//     if (event == name) listener(val);
-//   }
-// };
-
-// const reset = function (name) {
-//   set(name, defaultConfig[name]);
-// };
-
-// const onChange = (event, listener) => {
-//   listeners.push({ event, listener });
-// };
-
-// export const Config = () => ({ ...config, set, onChange, reset });
-
+/** @type {Config} */
 const defaultConfig = {
   isFirstOpen: false,
 
@@ -136,6 +109,9 @@ const defaultConfig = {
   thirdPartyMatchmakingEnabled: true,
 };
 
+/**
+ * Manages Jstris Extras configs.
+ */
 export class ConfigManager {
   constructor() {
     this.settings = structuredClone(defaultConfig);
@@ -148,6 +124,11 @@ export class ConfigManager {
     }
   }
 
+  /**
+   * Sets the given config to the desired value.
+   * @param {keyof Config} name The name of the config to set.
+   * @param {*} value The value to set.
+   */
   set(name, value) {
     this.settings[name] = value;
     localStorage.setItem(name, JSON.stringify(value));
@@ -156,6 +137,10 @@ export class ConfigManager {
     }
   }
 
+  /**
+   * Resets the given config field.
+   * @param {keyof Config} name The name of the config to reset.
+   */
   reset(name) {
     this.set(name, defaultConfig[name]);
   }
