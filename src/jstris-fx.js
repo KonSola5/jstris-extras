@@ -1,6 +1,6 @@
 import { lerp, shake, shouldRenderEffectsOnView } from "./util.js";
 import { isReplayerReversing } from "./replayManager.js";
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 // helper function
 const initGFXCanvas = (obj, refCanvas) => {
   obj.GFXCanvas = refCanvas.cloneNode(true);

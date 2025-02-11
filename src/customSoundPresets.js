@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/soundPresets.json";
 

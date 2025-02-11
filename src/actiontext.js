@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { shouldRenderEffectsOnView } from "./util.js";
 
 const DELAY = 1500; // ms

@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 
 const changeBG = (link) => {
   console.log("Changing BG to " + link);

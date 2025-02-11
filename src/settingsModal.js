@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { CUSTOM_SKIN_PRESET_ELEMENT, fetchSkinPresets } from "./customSkinPresets.js";
 import { CUSTOM_SOUND_PRESET_ELEMENT, fetchSoundPresets } from "./customSoundPresets.js";
 import { CUSTOM_PLUS_SOUND_PRESET_ELEMENT, fetchPlusSoundPresets } from "./plusSoundPresets.js";

@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { displayKey } from "./toggleChatKeyInput.js";
 
 let game = null;

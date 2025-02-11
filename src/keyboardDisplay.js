@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { createSVG, clamp } from "./util.js";
 export const initKeyboardDisplay = () => {
   const isGame = typeof Game != "undefined";

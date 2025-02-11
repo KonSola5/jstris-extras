@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { Modes } from "./util.js";
 import { getBlockSetsEX } from "./blockSetExtensions.js";
 

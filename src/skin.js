@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 let offscreenCanvas = document.createElement("canvas");
 let offscreenContext = offscreenCanvas.getContext("2d");
 offscreenCanvas.height = 32;

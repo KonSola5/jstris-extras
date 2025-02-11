@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 
 export const initAutomaticReplayCodes = () => {
   window.copyReplayText = function (number) {

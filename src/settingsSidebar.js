@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 
 export function initSidebar() {
   function openSubmenu(submenuElement) {

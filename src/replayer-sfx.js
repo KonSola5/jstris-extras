@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { loadCustomSFX } from "./sfxLoader.js";
 import { shouldRenderEffectsOnView } from "./util.js";
 

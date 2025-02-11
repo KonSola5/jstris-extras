@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 
 export const createKeyInputElement = (varName, desc) => {
   const toggleChatKey_INPUT_ELEMENT = document.createElement("div");

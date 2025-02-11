@@ -2,8 +2,8 @@
 
 import path from "path";
 import webpack from "webpack"; //to access built-in plugins
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,9 +11,19 @@ const __dirname = dirname(__filename);
 let exports = {
   mode: "development",
   context: __dirname,
-  entry: "./src/index.js",
+  entry: "./src/index.ts",
   module: {
-    rules: [{ test: /\.css$/, use: "raw-loader" }],
+    rules: [
+      { test: /\.css$/, use: "raw-loader" },
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", "..."],
   },
   plugins: [
     new webpack.DefinePlugin({

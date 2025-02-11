@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "./index.ts";
 import { Modes } from "./util.js";
 const clone = function (x) {
   return JSON.parse(JSON.stringify(x));
