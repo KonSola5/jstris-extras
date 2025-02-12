@@ -31,10 +31,10 @@ export function getBlockSetsEX() {
     S = 64,
     SE = 128;
   const ALL = 255,
-    FULL_N = NW + N + NE + W + E,
-    FULL_W = NW + N + W + SW + S,
-    FULL_E = N + NE + E + S + SE,
-    FULL_S = W + E + SW + S + SE;
+    FULL_N: number = NW + N + NE + W + E,
+    FULL_W: number = NW + N + W + SW + S,
+    FULL_E: number = N + NE + E + S + SE,
+    FULL_S: number = W + E + SW + S + SE;
 
   const bsStandard = new BlockSetEX();
   bsStandard.pieces = [

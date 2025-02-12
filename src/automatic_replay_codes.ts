@@ -22,7 +22,7 @@ export const initAutomaticReplayCodes = () => {
           copyButton.textContent = "Copy";
         }, 1000);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error(`An error occured while copying text:
       ${error.message}`);
       });

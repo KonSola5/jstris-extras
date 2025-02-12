@@ -1,5 +1,5 @@
 import { Config } from "./index.js";
-let chatListenerPresent = false;
+let chatListenerPresent: boolean = false;
 
 export const initChat = () => {
   "use strict";
@@ -28,16 +28,16 @@ export const initChat = () => {
 
   // thanks justin https://greasyfork.org/en/scripts/423192-change-chat-key
 
-  function addChatToggleEventListener(game: Game) {
+  function addChatToggleEventListener(game: Game): void {
     if (chatListenerPresent) return;
     chatListenerPresent = true;
-    document.addEventListener("keydown", (event) => {
-      const key = event.code;
+    document.addEventListener("keydown", (event: KeyboardEvent) => {
+      const key: string = event.code;
       if (key == Config.settings.toggleChatKey) {
         if (game && game.focusState !== 1) {
           // game already focused, unfocus
           game.setFocusState(1);
-          setTimeout(function () {
+          setTimeout(function (): void {
             game.Live.chatInput.focus();
           }, 0); // setTimeout to prevent the key from being typed
 
@@ -94,13 +94,13 @@ export const initChat = () => {
       n: "fine",
     },
   ];
-  const chatListener = Live.prototype.showInChat;
+  const oldShowInChat = Live.prototype.showInChat;
   Live.prototype.showInChat = function (...args) {
-    let zandria = args[1];
+    let zandria: string | HTMLDivElement | undefined = args[1];
 
     if (typeof zandria == "string") {
-      zandria = zandria.replace(/:(.*?):/g, function (match) {
-        let cEmote = null;
+      zandria = zandria.replace(/:(.*?):/g, function (match: string): string {
+        let cEmote: Emote | undefined = undefined;
         for (const emote of CUSTOM_EMOTES) {
           if (emote.n == match.split(":")[1]) {
             cEmote = emote;
@@ -114,12 +114,12 @@ export const initChat = () => {
       });
     }
     args[1] = zandria;
-    const val = chatListener.apply(this, args);
+    const val = oldShowInChat.apply(this, args);
     // Add Timestamps
-    const chatTimestampSpan = document.createElement("span");
+    const chatTimestampSpan: HTMLSpanElement = document.createElement("span");
     chatTimestampSpan.className = "chat-timestamp";
     chatTimestampSpan.textContent = "[" + new Date().toTimeString().slice(0, 8) + "] ";
-    const c = document.getElementsByClassName("chl");
+    const c: HTMLCollectionOf<Element> = document.getElementsByClassName("chl");
     c[c.length - 1].prepend(chatTimestampSpan);
 
     return val;
@@ -152,7 +152,7 @@ export const initChat = () => {
       };
     }
   };
-  EmoteSelect.prototype.initializeContainers = function () {
+  EmoteSelect.prototype.initializeContainers = function (): void {
     console.log(
       (this.groupEmotes["Jstris+"] =
         "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/emotes/freycat.webp")
@@ -167,7 +167,7 @@ export const initChat = () => {
     this.searchBar.addEventListener("input", () => {
       this.searchFunction(this.emoteList);
     });
-    this.searchElem.addEventListener("submit", (event: Event) => {
+    this.searchElem.addEventListener("submit", (event: Event): void => {
       event.preventDefault();
     });
     this.searchBar.setAttribute("type", "text");
@@ -180,7 +180,7 @@ export const initChat = () => {
     this.emotesWrapper.classList.add("emotesWrapper");
     this.optionsContainer.appendChild(this.emotesWrapper);
   };
-  ChatAutocomplete.prototype.processHint = function (currentWord) {
+  ChatAutocomplete.prototype.processHint = function (currentWord: CurrentWord): void {
     const lastWord: string = currentWord[0].toLowerCase();
     const caretPosition: number = currentWord[1];
     if (
@@ -189,15 +189,15 @@ export const initChat = () => {
     ) {
       hideElem(this.hintsElem);
     } else {
-      const prefixlessWordTemp = lastWord.substring(this.prfx.length);
-      const prefixlessWord = this.prefixInSearch ? lastWord : prefixlessWordTemp;
-      let cinque = 0;
-      const hints = typeof this.hints == "function" ? this.hints() : this.hints;
+      const prefixlessWordTemp: string = lastWord.substring(this.prfx.length);
+      const prefixlessWord: string = this.prefixInSearch ? lastWord : prefixlessWordTemp;
+      let cinque: number = 0;
+      const hints: string[] = typeof this.hints == "function" ? this.hints() : this.hints;
       this.hintsElem.textContent = "";
       const matchedHints: string[] = [];
       const tishie: string[] = [];
-      hints.forEach((hint) => {
-        const catenia = hint.toLowerCase();
+      hints.forEach((hint: string) => {
+        const catenia: string = hint.toLowerCase();
         if (catenia.startsWith(prefixlessWord)) matchedHints.push(hint);
         else {
           if (prefixlessWordTemp.length >= 2 && catenia.includes(prefixlessWordTemp)) {
@@ -218,11 +218,11 @@ export const initChat = () => {
         }
       }
       for (const matchedHint of matchedHints) {
-        const hintDiv = document.createElement("div");
+        const hintDiv: HTMLDivElement = document.createElement("div");
         if (this.hintsImg && this.hintsImg[matchedHint]) {
           hintDiv.className = "emHint";
-          const hintEmoteImage = document.createElement("img");
-          let cEmote = null;
+          const hintEmoteImage: HTMLImageElement = document.createElement("img");
+          let cEmote: Emote | undefined = undefined;
           for (const emote of CUSTOM_EMOTES) {
             if (emote.n == matchedHint.split(":")[1]) {
               cEmote = emote;
@@ -230,12 +230,12 @@ export const initChat = () => {
             }
           }
           if (cEmote) {
-            hintEmoteImage.src = cEmote.u;
+            hintEmoteImage.src = cEmote.u!;
           } else {
             hintEmoteImage.src = CDN_URL("/" + this.hintsImg[matchedHint]);
           }
           hintDiv.appendChild(hintEmoteImage);
-          const wael = document.createElement("div");
+          const wael: HTMLDivElement = document.createElement("div");
           wael.textContent = matchedHint;
           hintDiv.appendChild(wael);
         } else {
@@ -244,10 +244,10 @@ export const initChat = () => {
         hintDiv.dataset.pos = caretPosition.toString();
         hintDiv.dataset.str = matchedHint;
         hintDiv.addEventListener("click", () => {
-          const inputValue = this.inp.value;
-          const pos = parseInt(hintDiv.dataset.pos!);
-          const xila = inputValue.substring(0, pos);
-          let neng = xila.indexOf(" ");
+          const inputValue: string = this.inp.value;
+          const pos: number = parseInt(hintDiv.dataset.pos!);
+          const xila: string = inputValue.substring(0, pos);
+          let neng: number = xila.indexOf(" ");
           let marshelia;
           for (marshelia = neng + 1; -1 !== neng; ) {
             if (-1 !== (neng = xila.indexOf(" ", neng + 1))) marshelia = neng + 1;

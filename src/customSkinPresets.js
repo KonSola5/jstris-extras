@@ -5,8 +5,8 @@ export let CUSTOM_SKIN_PRESETS = [];
 export const fetchSkinPresets = () => {
   fetch(FETCH_URL, { cache: "reload" })
     .then((e) => e.json())
-    .then((j) => {
-      CUSTOM_SKIN_PRESETS = j;
+    .then((json) => {
+      CUSTOM_SKIN_PRESETS = json;
       for (let i of CUSTOM_SKIN_PRESETS) {
         let option = document.createElement("option");
         option.value = JSON.stringify(i);
