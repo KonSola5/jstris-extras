@@ -1,14 +1,20 @@
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
+
+interface Skin {
+  name: string;
+  url: string;
+  ghostUrl?: string;
+}
 
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/skinPresets.json";
-export let CUSTOM_SKIN_PRESETS = [];
+export let CUSTOM_SKIN_PRESETS: Skin[] = [];
 export const fetchSkinPresets = () => {
   fetch(FETCH_URL, { cache: "reload" })
-    .then((e) => e.json())
-    .then((json) => {
+    .then((response: Response): Promise<Skin[]> => response.json())
+    .then((json: Skin[]): void => {
       CUSTOM_SKIN_PRESETS = json;
-      for (let i of CUSTOM_SKIN_PRESETS) {
-        let option = document.createElement("option");
+      for (const i of CUSTOM_SKIN_PRESETS) {
+        const option: HTMLOptionElement = document.createElement("option");
         option.value = JSON.stringify(i);
         option.textContent = i.name;
         dropdown.appendChild(option);
@@ -16,19 +22,19 @@ export const fetchSkinPresets = () => {
     });
 };
 
-export const CUSTOM_SKIN_PRESET_ELEMENT = document.createElement("div");
+export const CUSTOM_SKIN_PRESET_ELEMENT: HTMLDivElement = document.createElement("div");
 CUSTOM_SKIN_PRESET_ELEMENT.className = "settings-inputRow";
 CUSTOM_SKIN_PRESET_ELEMENT.innerHTML += "<b>Custom skin presets</b>";
 
-const dropdown = document.createElement("select");
+const dropdown: HTMLSelectElement = document.createElement("select");
 dropdown.innerHTML += "<option>Select...</option>";
 
 dropdown.addEventListener("change", () => {
-  var { url, ghostUrl } = JSON.parse(dropdown.value);
+  const { url, ghostUrl } = JSON.parse(dropdown.value);
 
-  document.getElementById("customSkinURL").value = url || "";
+  (document.getElementById("customSkinURL") as HTMLInputElement).value = url || "";
   Config.set("customSkinURL", url || "");
-  document.getElementById("customGhostSkinURL").value = ghostUrl || "";
+  (document.getElementById("customGhostSkinURL") as HTMLInputElement).value = ghostUrl || "";
   Config.set("customGhostSkinURL", ghostUrl || "");
   dropdown.selectedIndex = 0;
 });

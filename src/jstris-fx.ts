@@ -1,9 +1,26 @@
 import { lerp, shake, shouldRenderEffectsOnView } from "./util.js";
 import { isReplayerReversing } from "./replayManager.js";
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
+
+declare global {
+  interface GameCore {
+    GFXCanvas: HTMLCanvasElement;
+    GFXQueue;
+    GFXLoop;
+    GFXctx: CanvasRenderingContext2D;
+  }
+
+  interface Replayer {
+    GFXCanvas: HTMLCanvasElement;
+    GFXQueue;
+    GFXLoop;
+    GFXctx: CanvasRenderingContext2D;
+  }
+}
+
 // helper function
-const initGFXCanvas = (obj, refCanvas) => {
-  obj.GFXCanvas = refCanvas.cloneNode(true);
+function initGFXCanvas(game: Game, refCanvas: HTMLCanvasElement) {
+  game.GFXCanvas = refCanvas.cloneNode(true) as HTMLCanvasElement;
   /*
   obj.GFXCanvas = document.createElement("canvas");
   obj.GFXCanvas.className = "layer mainLayer gfxLayer";
@@ -11,22 +28,22 @@ const initGFXCanvas = (obj, refCanvas) => {
   obj.GFXCanvas.width = refCanvas.width;
   obj.GFXCanvas.style = refCanvas.style;
   */
-  obj.GFXCanvas.id = "";
-  obj.GFXCanvas.className = "layer mainLayer gfxLayer";
-  obj.GFXctx = obj.GFXCanvas.getContext("2d");
-  obj.GFXctx.clearRect(0, 0, obj.GFXCanvas.width, obj.GFXCanvas.height);
-  refCanvas.parentNode.appendChild(obj.GFXCanvas);
-};
+  game.GFXCanvas.id = "";
+  game.GFXCanvas.className = "layer mainLayer gfxLayer";
+  game.GFXctx = game.GFXCanvas.getContext("2d")!;
+  game.GFXctx.clearRect(0, 0, game.GFXCanvas.width, game.GFXCanvas.height);
+  if (refCanvas.parentNode) refCanvas.parentNode.appendChild(game.GFXCanvas);
+}
 
 export const initFX = () => {
   "use strict";
   // where you actually inject things into the settings
 
   // -- injection below --
-  if (window.Game) {
+  if (typeof Game == "function") {
     const oldReadyGo = Game.prototype.readyGo;
-    Game.prototype.readyGo = function () {
-      let val = oldReadyGo.apply(this, arguments);
+    Game.prototype.readyGo = function (...args) {
+      const val = oldReadyGo.apply(this, args);
 
       if (!this.GFXCanvas || !this.GFXCanvas.parentNode) {
         initGFXCanvas(this, this.canvas);
@@ -36,11 +53,8 @@ export const initFX = () => {
 
       this.GFXLoop = () => {
         if (!this.GFXQueue) this.GFXQueue = [];
-
         this.GFXctx.clearRect(0, 0, this.GFXCanvas.width, this.GFXCanvas.height);
-
         this.GFXQueue = this.GFXQueue.filter((e) => e.process.call(e, this.GFXctx));
-
         if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
       };
       //  window.game = this;
@@ -49,12 +63,12 @@ export const initFX = () => {
     };
   }
 
-  if (window.SlotView) {
+  if (typeof SlotView == "function") {
     const oldOnResized = SlotView.prototype.onResized;
-    SlotView.prototype.onResized = function () {
-      oldOnResized.apply(this, arguments);
+    SlotView.prototype.onResized = function (...args) {
+      oldOnResized.apply(this, args);
 
-      if (this.g && this.g.GFXCanvas && Replayer.prototype.isPrototypeOf(this.g)) {
+      if (this.g && this.g.GFXCanvas && Object.prototype.isPrototypeOf.call(Replayer, this.g)) {
         this.g.GFXCanvas.width = this.canvas.width;
         this.g.GFXCanvas.height = this.canvas.height;
         this.g.GFXCanvas.style.top = this.canvas.style.top;
@@ -66,8 +80,8 @@ export const initFX = () => {
 
   // -- injection below --
   const oldInitReplay = Replayer.prototype.initReplay;
-  Replayer.prototype.initReplay = function () {
-    let val = oldInitReplay.apply(this, arguments);
+  Replayer.prototype.initReplay = function (...args) {
+    const val = oldInitReplay.apply(this, args);
 
     // SlotViews have replayers attached to them, don't want to double up on the canvases
     //if (SlotView.prototype.isPrototypeOf(this.v))
@@ -75,15 +89,14 @@ export const initFX = () => {
     window.replayer = this;
 
     // always clear and re-init for slotviews
-    if (window.SlotView && SlotView.prototype.isPrototypeOf(this.v)) {
+    if (window.SlotView && Object.prototype.isPrototypeOf.call(SlotView, this.v)) {
       // do not do gfx if the board is too small
-      let life = this.v.slot.gs.p.Live;
+      const life = this.v.slot.gs.p.Live;
       if (!shouldRenderEffectsOnView(this.v) && !life?.roomConfig?.mode == 2) {
         return val;
       }
-      let foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName("gfxLayer");
-
-      for (var e of foundGFXCanvases) {
+      const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName("gfxLayer");
+      for (const e of foundGFXCanvases) {
         if (e.parentNode) {
           e.parentNode.removeChild(e);
         }
@@ -97,37 +110,31 @@ export const initFX = () => {
     }
 
     this.GFXQueue = [];
-
     this.block_size = this.v.block_size;
 
     this.GFXLoop = () => {
       if (!this.GFXQueue) this.GFXQueue = [];
-
       this.GFXctx.clearRect(0, 0, this.GFXCanvas.width, this.GFXCanvas.height);
-
       this.GFXQueue = this.GFXQueue.filter((e) => e.process.call(e, this.GFXctx));
-
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     };
-
     this.v.canvas.parentNode.appendChild(this.GFXCanvas);
-
     return val;
   };
 
   const oldLineClears = GameCore.prototype.checkLineClears;
-  GameCore.prototype.checkLineClears = function () {
+  GameCore.prototype.checkLineClears = function (...args) {
     //console.log(this.GFXCanvas);
 
-    if (!this.GFXCanvas || isReplayerReversing) return oldLineClears.apply(this, arguments);
+    if (!this.GFXCanvas || isReplayerReversing) return oldLineClears.apply(this, args);
 
-    let oldAttack = this.gamedata.attack;
+    const oldAttack = this.gamedata.attack;
 
     let cleared = 0;
-    for (var row = 0; row < 20; row++) {
+    for (let row = 0; row < 20; row++) {
       let blocks = 0;
-      for (var col = 0; col < 10; col++) {
-        let block = this.matrix[row][col];
+      for (let col = 0; col < 10; col++) {
+        const block = this.matrix[row][col];
         if (9 === block) {
           // solid garbage
           break;
@@ -148,15 +155,20 @@ export const initFX = () => {
             row,
             blockSize: this.block_size,
             amountParted: 0,
-            process: function (ctx) {
+            process: function (ctx: CanvasRenderingContext2D): boolean {
               if (this.opacity <= 0) return false;
 
-              var x1 = 1;
-              var x2 = this.blockSize * 5 + this.amountParted;
-              var y = 1 + this.row * this.blockSize;
+              const x1 = 1;
+              const x2: number = this.blockSize * 5 + this.amountParted;
+              const y: number = 1 + this.row * this.blockSize;
 
               // Create gradient
-              var leftGradient = ctx.createLinearGradient(0, 0, this.blockSize * 5 - this.amountParted, 0);
+              const leftGradient: CanvasGradient = ctx.createLinearGradient(
+                0,
+                0,
+                this.blockSize * 5 - this.amountParted,
+                0
+              );
               leftGradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
               leftGradient.addColorStop(1, `rgba(255,170,0,0)`);
               // Fill with gradient
@@ -165,7 +177,12 @@ export const initFX = () => {
               ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted, this.blockSize);
 
               // Create gradient
-              var rightGradient = ctx.createLinearGradient(0, 0, this.blockSize * 5 - this.amountParted, 0);
+              const rightGradient: CanvasGradient = ctx.createLinearGradient(
+                0,
+                0,
+                this.blockSize * 5 - this.amountParted,
+                0
+              );
               rightGradient.addColorStop(0, `rgba(255,170,0,0)`);
               rightGradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
               // Fill with gradient
@@ -182,53 +199,53 @@ export const initFX = () => {
     }
     if (cleared > 0) {
       // if any line was cleared, send a shake
-      let attack = this.gamedata.attack - oldAttack;
+      const attack: number = this.gamedata.attack - oldAttack;
       if (Config.settings.lineClearShakeEnabled)
         shake(
-          this.GFXCanvas.parentNode.parentNode,
+          this.GFXCanvas.parentNode!.parentNode,
           Math.min(1 + attack * 5, 50) * Config.settings.lineClearShakeStrength,
           Config.settings.lineClearShakeLength * (1000 / 60)
         );
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     }
-    return oldLineClears.apply(this, arguments);
+    return oldLineClears.apply(this, args);
   };
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.checkLineClears = GameCore.prototype.checkLineClears;
   // placement animation
 
-
-
   const oldPlaceBlock = GameCore.prototype.placeBlock;
-  GameCore.prototype.placeBlock = function (col, row, time) {
+  GameCore.prototype.placeBlock = function (x: number, y: number, ...args): void {
     if (!this.GFXCanvas || !Config.settings.piecePlacementAnimationEnabled || isReplayerReversing)
-      return oldPlaceBlock.apply(this, arguments);
+      return oldPlaceBlock.apply(this, [x, y, ...args]);
 
     const block = this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
 
-    let val = oldPlaceBlock.apply(this, arguments);
+    oldPlaceBlock.apply(this, [x, y, ...args]);
 
     // flashes the piece once you place it
     if (Config.settings.piecePlacementAnimationLength > 0) {
       this.GFXQueue.push({
         opacity: Config.settings.piecePlacementAnimationOpacity / 100,
-        delta: Config.settings.piecePlacementAnimationOpacity / (100 * ((Config.settings.piecePlacementAnimationLength * 1000) / 60)),
-        col,
-        row,
+        delta:
+          Config.settings.piecePlacementAnimationOpacity /
+          (100 * ((Config.settings.piecePlacementAnimationLength * 1000) / 60)),
+        col: x,
+        row: y,
         blockSize: this.block_size,
         block,
-        process: function (ctx) {
+        process: function (ctx: CanvasRenderingContext2D): boolean {
           if (this.opacity <= 0) return false;
 
           ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
           this.opacity -= this.delta;
 
-          for (var i = 0; i < this.block.length; i++) {
-            for (var j = 0; j < this.block[i].length; j++) {
+          for (let i: number = 0; i < this.block.length; i++) {
+            for (let j: number = 0; j < this.block[i].length; j++) {
               if (!this.block[i][j]) continue;
 
-              var x = 1 + (this.col + j) * this.blockSize;
-              var y = 1 + (this.row + i) * this.blockSize;
+              const x: number = 1 + (this.col + j) * this.blockSize;
+              const y: number = 1 + (this.row + i) * this.blockSize;
 
               ctx.fillRect(x, y, this.blockSize, this.blockSize);
             }
@@ -238,11 +255,11 @@ export const initFX = () => {
       });
     }
 
-    var trailLeftBorder = 10;
-    var trailRightBorder = 0;
-    var trailBottom = 0;
-    for (var i = 0; i < block.length; i++) {
-      for (var j = 0; j < block[i].length; j++) {
+    let trailLeftBorder: number = 10;
+    let trailRightBorder: number = 0;
+    let trailBottom: number = 0;
+    for (let i: number = 0; i < block.length; i++) {
+      for (let j: number = 0; j < block[i].length; j++) {
         if (!block[i][j]) continue;
         trailLeftBorder = Math.max(Math.min(trailLeftBorder, j), 0);
         trailRightBorder = Math.min(Math.max(trailRightBorder, j), 10);
@@ -253,22 +270,22 @@ export const initFX = () => {
     // flashes the piece once you place it
     this.GFXQueue.push({
       opacity: 0.3,
-      col,
-      row,
+      col: x,
+      row: y,
       blockSize: this.block_size,
       trailTop: 1,
       block,
       trailLeftBorder,
       trailRightBorder,
       trailBottom,
-      process: function (ctx) {
+      process: function (ctx: CanvasRenderingContext2D): boolean {
         if (this.opacity <= 0) return false;
 
-        var { trailLeftBorder, trailRightBorder, trailBottom } = this;
+        const { trailLeftBorder, trailRightBorder, trailBottom } = this;
 
-        var row = this.row + trailBottom;
+        const row = this.row + trailBottom;
 
-        var gradient = ctx.createLinearGradient(0, 0, 0, row * this.blockSize - this.trailTop);
+        const gradient = ctx.createLinearGradient(0, 0, 0, row * this.blockSize - this.trailTop);
         gradient.addColorStop(0, `rgba(255,255,255,0)`);
         gradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
 
