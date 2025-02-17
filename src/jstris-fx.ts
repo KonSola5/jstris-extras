@@ -4,22 +4,42 @@ import { Config } from "./index.js";
 
 declare global {
   interface GameCore {
-    GFXCanvas: HTMLCanvasElement;
-    GFXQueue;
-    GFXLoop;
+    GFXCanvas: HTMLCanvasElement | null;
+    GFXQueue: GFXDefinition[];
+    GFXLoop: () => void;
     GFXctx: CanvasRenderingContext2D;
   }
 
   interface Replayer {
-    GFXCanvas: HTMLCanvasElement;
-    GFXQueue;
-    GFXLoop;
+    GFXCanvas: HTMLCanvasElement | null;
+    GFXQueue: GFXDefinition[];
+    GFXLoop: () => void;
     GFXctx: CanvasRenderingContext2D;
+  }
+
+  interface Window {
+    replayer: Replayer;
+    SlotView: SlotView;
   }
 }
 
+interface GFXDefinition {
+  opacity: number;
+  delta?: number;
+  col?: number;
+  row: number;
+  block?: number[][];
+  blockSize: number;
+  amountParted?: number;
+  trailTop?: number;
+  trailLeftBorder?: number;
+  trailRightBorder?: number;
+  trailBottom?: number;
+  process: (ctx: CanvasRenderingContext2D) => boolean;
+}
+
 // helper function
-function initGFXCanvas(game: Game, refCanvas: HTMLCanvasElement) {
+function initGFXCanvas(game: Game | Replayer, refCanvas: HTMLCanvasElement): void {
   game.GFXCanvas = refCanvas.cloneNode(true) as HTMLCanvasElement;
   /*
   obj.GFXCanvas = document.createElement("canvas");
@@ -35,7 +55,7 @@ function initGFXCanvas(game: Game, refCanvas: HTMLCanvasElement) {
   if (refCanvas.parentNode) refCanvas.parentNode.appendChild(game.GFXCanvas);
 }
 
-export const initFX = () => {
+export function initFX() {
   "use strict";
   // where you actually inject things into the settings
 
@@ -43,7 +63,7 @@ export const initFX = () => {
   if (typeof Game == "function") {
     const oldReadyGo = Game.prototype.readyGo;
     Game.prototype.readyGo = function (...args) {
-      const val = oldReadyGo.apply(this, args);
+      const val: void = oldReadyGo.apply(this, args);
 
       if (!this.GFXCanvas || !this.GFXCanvas.parentNode) {
         initGFXCanvas(this, this.canvas);
@@ -51,10 +71,12 @@ export const initFX = () => {
 
       this.GFXQueue = [];
 
-      this.GFXLoop = () => {
+      this.GFXLoop = (): void => {
         if (!this.GFXQueue) this.GFXQueue = [];
-        this.GFXctx.clearRect(0, 0, this.GFXCanvas.width, this.GFXCanvas.height);
-        this.GFXQueue = this.GFXQueue.filter((e) => e.process.call(e, this.GFXctx));
+        this.GFXctx.clearRect(0, 0, this.GFXCanvas!.width, this.GFXCanvas!.height);
+        this.GFXQueue = this.GFXQueue.filter((definition: GFXDefinition): boolean =>
+          definition.process.call(definition, this.GFXctx)
+        );
         if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
       };
       //  window.game = this;
@@ -92,7 +114,7 @@ export const initFX = () => {
     if (window.SlotView && Object.prototype.isPrototypeOf.call(SlotView, this.v)) {
       // do not do gfx if the board is too small
       const life = this.v.slot.gs.p.Live;
-      if (!shouldRenderEffectsOnView(this.v) && !life?.roomConfig?.mode == 2) {
+      if (!shouldRenderEffectsOnView(this.v) && !(life?.roomConfig?.mode == 2)) {
         return val;
       }
       const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName("gfxLayer");
@@ -104,7 +126,7 @@ export const initFX = () => {
       this.GFXCanvas = null;
     }
 
-    if (!this.GFXCanvas || !this.GFXCanvas.parentNode || !this.GFXCanvas.parentNode == this.v.canvas.parentNode) {
+    if (!this.GFXCanvas || !this.GFXCanvas.parentNode || !(this.GFXCanvas.parentNode == this.v.canvas.parentNode)) {
       initGFXCanvas(this, this.v.canvas);
       console.log("replayer initializing gfx canvas");
     }
@@ -114,11 +136,13 @@ export const initFX = () => {
 
     this.GFXLoop = () => {
       if (!this.GFXQueue) this.GFXQueue = [];
-      this.GFXctx.clearRect(0, 0, this.GFXCanvas.width, this.GFXCanvas.height);
-      this.GFXQueue = this.GFXQueue.filter((e) => e.process.call(e, this.GFXctx));
+      this.GFXctx.clearRect(0, 0, this.GFXCanvas!.width, this.GFXCanvas!.height);
+      this.GFXQueue = this.GFXQueue.filter((definition: GFXDefinition): boolean =>
+        definition.process.call(definition, this.GFXctx)
+      );
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     };
-    this.v.canvas.parentNode.appendChild(this.GFXCanvas);
+    this.v.canvas.parentNode!.appendChild(this.GFXCanvas!);
     return val;
   };
 
@@ -128,13 +152,13 @@ export const initFX = () => {
 
     if (!this.GFXCanvas || isReplayerReversing) return oldLineClears.apply(this, args);
 
-    const oldAttack = this.gamedata.attack;
+    const oldAttack: number = this.gamedata.attack;
 
-    let cleared = 0;
-    for (let row = 0; row < 20; row++) {
-      let blocks = 0;
-      for (let col = 0; col < 10; col++) {
-        const block = this.matrix[row][col];
+    let cleared: number = 0;
+    for (let row: number = 0; row < 20; row++) {
+      let blocks: number = 0;
+      for (let col: number = 0; col < 10; col++) {
+        const block: number = this.matrix[row][col];
         if (9 === block) {
           // solid garbage
           break;
@@ -159,14 +183,14 @@ export const initFX = () => {
               if (this.opacity <= 0) return false;
 
               const x1 = 1;
-              const x2: number = this.blockSize * 5 + this.amountParted;
+              const x2: number = this.blockSize * 5 + this.amountParted!;
               const y: number = 1 + this.row * this.blockSize;
 
               // Create gradient
               const leftGradient: CanvasGradient = ctx.createLinearGradient(
                 0,
                 0,
-                this.blockSize * 5 - this.amountParted,
+                this.blockSize * 5 - this.amountParted!,
                 0
               );
               leftGradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
@@ -174,23 +198,23 @@ export const initFX = () => {
               // Fill with gradient
               ctx.fillStyle = leftGradient;
 
-              ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted, this.blockSize);
+              ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
 
               // Create gradient
               const rightGradient: CanvasGradient = ctx.createLinearGradient(
                 0,
                 0,
-                this.blockSize * 5 - this.amountParted,
+                this.blockSize * 5 - this.amountParted!,
                 0
               );
               rightGradient.addColorStop(0, `rgba(255,170,0,0)`);
               rightGradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
               // Fill with gradient
               ctx.fillStyle = rightGradient;
-              ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted, this.blockSize);
+              ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
 
               this.amountParted = lerp(this.amountParted, this.blockSize * 5, 0.1);
-              this.opacity -= this.delta;
+              this.opacity -= this.delta!;
               return true;
             },
           });
@@ -219,7 +243,8 @@ export const initFX = () => {
     if (!this.GFXCanvas || !Config.settings.piecePlacementAnimationEnabled || isReplayerReversing)
       return oldPlaceBlock.apply(this, [x, y, ...args]);
 
-    const block = this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
+    const piece: number[][] =
+      this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].blocks[this.activeBlock.rot];
 
     oldPlaceBlock.apply(this, [x, y, ...args]);
 
@@ -233,18 +258,18 @@ export const initFX = () => {
         col: x,
         row: y,
         blockSize: this.block_size,
-        block,
+        block: piece,
         process: function (ctx: CanvasRenderingContext2D): boolean {
           if (this.opacity <= 0) return false;
 
           ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
-          this.opacity -= this.delta;
+          this.opacity -= this.delta!;
 
-          for (let i: number = 0; i < this.block.length; i++) {
-            for (let j: number = 0; j < this.block[i].length; j++) {
-              if (!this.block[i][j]) continue;
+          for (let i: number = 0; i < this.block!.length; i++) {
+            for (let j: number = 0; j < this.block![i].length; j++) {
+              if (!this.block![i][j]) continue;
 
-              const x: number = 1 + (this.col + j) * this.blockSize;
+              const x: number = 1 + (this.col! + j) * this.blockSize;
               const y: number = 1 + (this.row + i) * this.blockSize;
 
               ctx.fillRect(x, y, this.blockSize, this.blockSize);
@@ -258,9 +283,9 @@ export const initFX = () => {
     let trailLeftBorder: number = 10;
     let trailRightBorder: number = 0;
     let trailBottom: number = 0;
-    for (let i: number = 0; i < block.length; i++) {
-      for (let j: number = 0; j < block[i].length; j++) {
-        if (!block[i][j]) continue;
+    for (let i: number = 0; i < piece.length; i++) {
+      for (let j: number = 0; j < piece[i].length; j++) {
+        if (!piece[i][j]) continue;
         trailLeftBorder = Math.max(Math.min(trailLeftBorder, j), 0);
         trailRightBorder = Math.min(Math.max(trailRightBorder, j), 10);
         trailBottom = Math.max(trailBottom, i);
@@ -274,7 +299,7 @@ export const initFX = () => {
       row: y,
       blockSize: this.block_size,
       trailTop: 1,
-      block,
+      block: piece,
       trailLeftBorder,
       trailRightBorder,
       trailBottom,
@@ -283,22 +308,22 @@ export const initFX = () => {
 
         const { trailLeftBorder, trailRightBorder, trailBottom } = this;
 
-        const row = this.row + trailBottom;
+        const row: number = this.row + trailBottom!;
 
-        const gradient = ctx.createLinearGradient(0, 0, 0, row * this.blockSize - this.trailTop);
+        const gradient: CanvasGradient = ctx.createLinearGradient(0, 0, 0, row * this.blockSize - this.trailTop!);
         gradient.addColorStop(0, `rgba(255,255,255,0)`);
         gradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
 
         // Fill with gradient
         ctx.fillStyle = gradient;
         ctx.fillRect(
-          (this.col + trailLeftBorder) * this.blockSize,
-          this.trailTop,
-          (trailRightBorder - trailLeftBorder + 1) * this.blockSize,
-          row * this.blockSize - this.trailTop
+          (this.col! + trailLeftBorder!) * this.blockSize,
+          this.trailTop!,
+          (trailRightBorder! - trailLeftBorder! + 1) * this.blockSize,
+          row * this.blockSize - this.trailTop!
         );
 
-        const middle = (trailLeftBorder + trailRightBorder) / 2;
+        const middle: number = (trailLeftBorder! + trailRightBorder!) / 2;
 
         this.trailLeftBorder = lerp(trailLeftBorder, middle, 0.1);
         this.trailRightBorder = lerp(trailRightBorder, middle, 0.1);
@@ -314,4 +339,4 @@ export const initFX = () => {
 
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.placeBlock = GameCore.prototype.placeBlock;
-};
+}
