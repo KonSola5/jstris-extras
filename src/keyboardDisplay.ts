@@ -1,13 +1,34 @@
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
 import { createSVG, clamp } from "./util.js";
-export const initKeyboardDisplay = () => {
-  const isGame = typeof Game != "undefined";
-  const isReplayer = typeof Replayer != "undefined";
+
+declare global {
+  interface Replayer {
+    kbdActions: KeyAction[];
+    lastPtr: number;
+  }
+}
+
+interface KeyAction {
+  action: number;
+  timestamp: number;
+}
+
+interface SVGDefinition {
+  name: string;
+  viewBox: string;
+  paths: object[];
+}
+
+let set2ings: Controls;
+
+export const initKeyboardDisplay = (): void => {
+  const isGame: boolean = typeof Game != "undefined";
+  const isReplayer: boolean = typeof Replayer != "undefined";
 
   if (!isGame && !isReplayer) return;
 
   // SVGs taken from https://s.jezevec10.com/svg/dark.svg.
-  let keys = [
+  const keys: SVGDefinition[] = [
     {
       name: "move-left",
       viewBox: "0 0 120 120",
@@ -147,7 +168,7 @@ export const initKeyboardDisplay = () => {
     },
   ];
 
-  let keyboardDiv = document.createElement("div");
+  const keyboardDiv: HTMLDivElement = document.createElement("div");
   keyboardDiv.classList.add("keyboard-div");
   keyboardDiv.style.left = `${Config.settings.keyboardOSDViewportX}vw`;
   keyboardDiv.style.top = `${Config.settings.keyboardOSDViewportY}vh`;
@@ -155,7 +176,7 @@ export const initKeyboardDisplay = () => {
   keyboardDiv.style.height = `${Config.settings.keyboardOSDHeightPx}px`;
 
   if (!Config.settings.keyboardOSD) keyboardDiv.classList.add("hidden");
-  Config.onChange("keyboardOSD", (value) => {
+  Config.onChange("keyboardOSD", (value: boolean): void => {
     if (value) {
       keyboardDiv.classList.remove("hidden");
     } else {
@@ -163,44 +184,44 @@ export const initKeyboardDisplay = () => {
     }
   });
 
-  let keyboardOSD = document.createElement("div");
+  const keyboardOSD: HTMLDivElement = document.createElement("div");
   keyboardOSD.classList.add("keyboard-osd");
 
-  let resizeHandle = document.createElement("div");
+  const resizeHandle: HTMLDivElement = document.createElement("div");
   resizeHandle.classList.add("resize-handle");
-  let handleSVG = createSVG(["handle-svg"], "0 0 120 120", [
+  const handleSVG: SVGElement = createSVG(["handle-svg"], "0 0 120 120", [
     { d: "M120 57.953V0H62.047zM0 120h62.189L0 57.811z" },
     { d: "m44.61 60 17.6 17.6-32.59 32.589-17.6-17.601zm45.056-46.53 17.6 17.602-32.59 32.59-17.6-17.603z" },
   ]);
   handleSVG.setAttribute("transform", "scale(-1 1)");
   resizeHandle.append(handleSVG);
 
-  resizeHandle.addEventListener("mousedown", (event) => {
+  resizeHandle.addEventListener("mousedown", (event: MouseEvent): void => {
     event.preventDefault();
     window.addEventListener("mousemove", resize);
     window.addEventListener("mouseup", stopResizing);
   });
 
-  function resize(event) {
+  function resize(event: MouseEvent): void {
     keyboardDiv.style.width = `${Math.max(event.pageX - keyboardDiv.getBoundingClientRect().left, 150)}px`;
     keyboardDiv.style.height = `${Math.max(event.pageY - keyboardDiv.getBoundingClientRect().top, 75)}px`;
   }
 
-  function stopResizing(event) {
-    Config.set("keyboardOSDWidthPx", Math.max(event.pageX - keyboardDiv.getBoundingClientRect().left, 150))
-    Config.set("keyboardOSDHeightPx", Math.max(event.pageY - keyboardDiv.getBoundingClientRect().top, 75))
+  function stopResizing(event: MouseEvent): void {
+    Config.set("keyboardOSDWidthPx", Math.max(event.pageX - keyboardDiv.getBoundingClientRect().left, 150));
+    Config.set("keyboardOSDHeightPx", Math.max(event.pageY - keyboardDiv.getBoundingClientRect().top, 75));
     window.removeEventListener("mousemove", resize);
   }
 
-  let lastX = 0,
-    lastY = 0,
-    deltaX = 0,
-    deltaY = 0;
+  let lastX: number = 0,
+    lastY: number = 0,
+    deltaX: number = 0,
+    deltaY: number = 0;
 
   keyboardDiv.append(keyboardOSD, resizeHandle);
 
-  keyboardDiv.addEventListener("mousedown", (event) => {
-    if (!(event.target == resizeHandle || resizeHandle.contains(event.target))) {
+  keyboardDiv.addEventListener("mousedown", (event: MouseEvent) => {
+    if (!(event.target == resizeHandle || resizeHandle.contains(event.target as Node))) {
       event.preventDefault();
       lastX = event.clientX;
       lastY = event.clientY;
@@ -209,7 +230,7 @@ export const initKeyboardDisplay = () => {
     }
   });
 
-  function move(event) {
+  function move(event: MouseEvent): void {
     deltaX = event.clientX - lastX;
     deltaY = event.clientY - lastY;
     lastX = event.clientX;
@@ -225,7 +246,7 @@ export const initKeyboardDisplay = () => {
     )}vh`;
   }
 
-  function stopMoving(event) {
+  function stopMoving(/*event: MouseEvent*/): void {
     Config.set(
       "keyboardOSDViewportX",
       clamp(
@@ -241,10 +262,10 @@ export const initKeyboardDisplay = () => {
     window.removeEventListener("mousemove", move);
   }
 
-  let keyDivs = [];
+  const keyDivs: HTMLDivElement[] = [];
 
-  keys.forEach((key) => {
-    let keyDiv = document.createElement("div");
+  keys.forEach((key: SVGDefinition): void => {
+    const keyDiv: HTMLDivElement = document.createElement("div");
     keyDiv.classList.add("key", key.name);
     keyDiv.append(createSVG(["key-svg"], key.viewBox, key.paths));
     keyDivs.push(keyDiv);
@@ -254,19 +275,19 @@ export const initKeyboardDisplay = () => {
 
   document.body.appendChild(keyboardDiv);
 
-  let setKey = function (key, pressed) {
+  function setKey(key: string, pressed: boolean): void {
     for (const keyDiv of document.getElementsByClassName(`${key}`)) {
       if (pressed) keyDiv.classList.add("pressed");
       else keyDiv.classList.remove("pressed");
     }
-  };
+  }
 
   if (isGame) {
-    let oldReadyGo = Game.prototype.readyGo;
+    const oldReadyGo = Game.prototype.readyGo;
 
-    Game.prototype.readyGo = function () {
-      Game.set2ings = this.Settings.controls;
-      return oldReadyGo.apply(this, arguments);
+    Game.prototype.readyGo = function (...args) {
+      set2ings = this.Settings.controls;
+      return oldReadyGo.apply(this, args);
     };
 
     // KPS will be moved to "Custom Stats".
@@ -279,21 +300,21 @@ export const initKeyboardDisplay = () => {
       return val;
     };
     */
-    let press = function (event) {
-      if (typeof Game.set2ings == "undefined") return;
+    const press = function (event: KeyboardEvent) {
+      if (typeof set2ings == "undefined") return;
 
       // This usage of keyCode must remain, since Jstris still uses deprecated keyCodes.
-      let i = Game.set2ings.indexOf(event.keyCode);
-      if (i == -1) return;
+      const keyIndex: number = set2ings.indexOf(event.keyCode);
+      if (keyIndex == -1) return;
 
-      let key = keys[i].name;
+      const key: string = keys[keyIndex].name;
       setKey(key, event.type == "keydown");
     };
 
     document.addEventListener("keydown", press);
     document.addEventListener("keyup", press);
   } else if (isReplayer) {
-    var url = window.location.href.split("/");
+    const url: string[] = window.location.href.split("/");
 
     if (!url[2].endsWith("jstris.jezevec10.com")) return;
     if (url[3] != "replay") return;
@@ -302,8 +323,8 @@ export const initKeyboardDisplay = () => {
       return;
     }
 
-    let L;
-    let fetchURL = "https://" + url[2] + "/replay/data?id=" + url[(L = url[4] == "live") + 4] + "&type=" + (L ? 1 : 0);
+    const L: boolean = url[4] == "live";
+    const fetchURL: string = `https://${url[2]}/replay/data?id=${url[(L ? 1 : 0) + 4]}&type=${L ? 1 : 0}`;
 
     // let fetchURL = `https://${url[2]}/replay/data?id=${url[(L = url[4] == "live") + 4]}&type=${L ? 1 : 0}`;
     /*
@@ -316,50 +337,45 @@ export const initKeyboardDisplay = () => {
 
     //fetch(`https://${url[2]}/replay/data?id=${url.length == 6? (url[5] + "&live=1") : url[4]}&type=0`)
     fetch(fetchURL)
-      .then((res) => res.json())
+      .then((response: Response) => response.json())
       .then((json) => {
         if (!json.c) return;
-        let das = json.c.das;
+        const das: number = json.c.das;
 
-        Replayer.setKey = setKey;
+        const oldPlayUntilTime = Replayer.prototype.playUntilTime;
+        Replayer.prototype.playUntilTime = function (...args) {
+          function pressKey (key: string, type: number): void {
+            setKey(key, type >= 1);
 
-        let oldPlayUntilTime = Replayer.prototype.playUntilTime;
-        Replayer.prototype.playUntilTime = function () {
+            if (type == 2) {
+              setTimeout(() => setKey(key, false), das * 0.6);
+            }
+          };
           // kps.textContent = "KPS: " + (((this.getKPP() * this.placedBlocks) / this.clock) * 1000).toFixed(2);
-
-          if (this.ptr == 0) Replayer.lastPtr = -1;
+          
+          if (this.ptr == 0) this.lastPtr = -1;
 
           this.kbdActions = [];
 
           for (let i = 0; i < this.actions.length; i++) {
-            let keyAction = { action: this.actions[i].a, timestamp: this.actions[i].t };
-
-            if (keyAction.action == 2 || keyAction.action == 3) {
+            const keyAction: KeyAction = { action: this.actions[i].a, timestamp: this.actions[i].t };
+            if (keyAction.action == Actions.DAS_LEFT || keyAction.action == Actions.DAS_RIGHT) {
               keyAction.action -= 2;
-              for (let j = i - 1; j >= 0; j--) {
+              for (let j: number = i - 1; j >= 0; j--) {
                 if (this.kbdActions[j].action < 2) {
                   this.kbdActions[j].action += 2;
                   break;
                 }
               }
             }
-
             this.kbdActions.push(keyAction);
           }
 
-          let pressKey = function (key, type) {
-            Replayer.setKey(key, type >= 1);
+          const returnValue = oldPlayUntilTime.apply(this, args);
 
-            if (type == 2) {
-              setTimeout((x) => Replayer.setKey(key, 0), (das * 3) / 5);
-            }
-          };
-
-          let val = oldPlayUntilTime.apply(this, arguments);
-
-          if (this.ptr != Replayer.lastPtr && this.ptr - 1 < this.kbdActions.length) {
-            let action = this.kbdActions[this.ptr - 1].action
-            let highlight = [
+          if (this.ptr != this.lastPtr && this.ptr - 1 < this.kbdActions.length) {
+            const action: number = this.kbdActions[this.ptr - 1].action;
+            const highlightActions: ([string, number] | null)[] = [
               ["move-left", 2],
               ["move-right", 2],
               ["move-left", 1],
@@ -371,16 +387,16 @@ export const initKeyboardDisplay = () => {
               ["soft-drop", 2],
               null,
               ["hold", 2],
-            ][action];
-
+            ];
+            const highlight: [string, number] | null = highlightActions[action]
             if (highlight) {
               pressKey(...highlight);
             }
           }
 
-          Replayer.lastPtr = this.ptr;
+          this.lastPtr = this.ptr;
 
-          return val;
+          return returnValue;
         };
       });
   }

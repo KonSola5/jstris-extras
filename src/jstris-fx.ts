@@ -10,6 +10,7 @@ declare global {
     GFXctx: CanvasRenderingContext2D;
   }
 
+  // @ts-expect-error `addGarbage` breaks Liskov's substitution principle.
   interface Replayer {
     GFXCanvas: HTMLCanvasElement | null;
     GFXQueue: GFXDefinition[];
