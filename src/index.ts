@@ -28,7 +28,7 @@ import { initTamper } from "./tamper.js";
 import { initSidebar } from "./settingsSidebar.js";
 import { initLayoutChanges } from "./layoutChanges.js";
 import { initCustomStats } from "./stats_new.js";
-import { notify, playSound, setPlusSfx } from "./util.js";
+import { notify } from "./util.js";
 // inject style
 const styleSheet = document.createElement("style");
 styleSheet.innerText = css;
@@ -76,13 +76,13 @@ if (typeof Game == "function") {
   initLayout();
   initPracticeUndo();
   initPracticeFumen();
-  setPlusSfx(Config.settings.customPlusSFX_JSON);
-  const oldNewPB = GameCaption.prototype.newPB;
-  GameCaption.prototype.newPB = function (...args) {
-    playSound("PB");
-    const returnValue = oldNewPB.apply(this, args);
-    return returnValue;
-  };
+  // setPlusSfx(Config.settings.customPlusSFX_JSON);
+  // const oldNewPB = GameCaption.prototype.newPB;
+  // GameCaption.prototype.newPB = function (...args) {
+  //   playSound("PB");
+  //   const returnValue = oldNewPB.apply(this, args);
+  //   return returnValue;
+  // };
   const oldBeforeReset = Live.prototype.beforeReset;
   Live.prototype.beforeReset = function (...args) {
     if (!this.p.isTabFocused) {

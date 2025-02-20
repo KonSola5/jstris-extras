@@ -1,7 +1,3 @@
-export const shouldRenderEffectsOnView = (view) => {
-  return view.holdCanvas && view.holdCanvas.width >= 70;
-};
-
 export const lerp = (start, end, amount) => {
   return (1 - amount) * start + amount * end;
 };
@@ -331,30 +327,4 @@ export const notify = (title, body) => {
       icon: "https://jstrisplus.github.io/jstris-plus-assets/logo.png",
     });
   }
-};
-
-let plusSfx = {
-  //fallback
-  READY: "https://jstrisplus.github.io/jstris-plus-assets/sfx/ready.wav",
-  PB: "https://jstrisplus.github.io/jstris-plus-assets/sfx/personalBest.wav",
-};
-export const setPlusSfx = (sfx) => {
-  // let d = document.getElementById("customPlusSFX_JSON_err");
-  // try {
-  //   sfx = JSON.parse(sfx);
-  // } catch (e) {
-  //   if (d) {
-  //     d.textContent = "SFX json is invalid";
-  //   }
-  //   return;
-  // }
-  // d.textContent = `Loaded ${sfx.name} Jstris+ SFX`;
-  // plusSfx = sfx;
-};
-export const playSound = (id) => {
-  // if (!plusSfx[id]) {
-  //   return console.error(`unknown sfx ${id}`);
-  // }
-  // const audio = new Audio(plusSfx[id]);
-  // audio.play();
 };

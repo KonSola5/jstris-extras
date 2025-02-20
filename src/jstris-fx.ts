@@ -1,4 +1,4 @@
-import { lerp, shake, shouldRenderEffectsOnView } from "./util.js";
+import { lerp, shake } from "./util.js";
 import { isReplayerReversing } from "./replayManager.js";
 import { Config } from "./index.js";
 
@@ -18,24 +18,28 @@ declare global {
   }
 
   interface Window {
-    replayer: Replayer;
+    // replayer: Replayer;
     SlotView: SlotView;
   }
 }
 
 interface GFXDefinition {
   opacity: number;
-  delta?: number;
-  col?: number;
-  row: number;
-  block?: number[][];
   blockSize: number;
+  row: number;
+  col?: number;
+  delta?: number;
+  block?: number[][];
   amountParted?: number;
   trailTop?: number;
   trailLeftBorder?: number;
   trailRightBorder?: number;
   trailBottom?: number;
   process: (ctx: CanvasRenderingContext2D) => boolean;
+}
+
+function shouldRenderEffectsOnView(view: View): boolean {
+  return view.holdCanvas && view.holdCanvas.width >= 70;
 }
 
 // helper function
@@ -55,7 +59,7 @@ function initGFXCanvas(game: Game | Replayer, refCanvas: HTMLCanvasElement): voi
   if (refCanvas.parentNode) refCanvas.parentNode.appendChild(game.GFXCanvas);
 }
 
-export function initFX() {
+export function initFX(): void {
   "use strict";
   // where you actually inject things into the settings
 
@@ -90,7 +94,7 @@ export function initFX() {
     SlotView.prototype.onResized = function (...args) {
       oldOnResized.apply(this, args);
 
-      if (this.g && this.g.GFXCanvas && Object.prototype.isPrototypeOf.call(Replayer, this.g)) {
+      if (this.g && this.g.GFXCanvas && this.g instanceof Replayer) {
         this.g.GFXCanvas.width = this.canvas.width;
         this.g.GFXCanvas.height = this.canvas.height;
         this.g.GFXCanvas.style.top = this.canvas.style.top;
@@ -108,25 +112,27 @@ export function initFX() {
     // SlotViews have replayers attached to them, don't want to double up on the canvases
     //if (SlotView.prototype.isPrototypeOf(this.v))
     //    return;
-    window.replayer = this;
+    // window.replayer = this;
 
     // always clear and re-init for slotviews
-    if (window.SlotView && Object.prototype.isPrototypeOf.call(SlotView, this.v)) {
+    if (typeof SlotView == "function" && this.v instanceof SlotView) {
       // do not do gfx if the board is too small
-      const life = this.v.slot.gs.p.Live;
-      if (!shouldRenderEffectsOnView(this.v) && !(life?.roomConfig?.mode == 2)) {
+      const live: Live = this.v.slot.gs.p.Live;
+      if (!shouldRenderEffectsOnView(this.v) && live?.roomConfig?.m != 2) {
         return val;
       }
-      const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName("gfxLayer");
-      for (const e of foundGFXCanvases) {
-        if (e.parentNode) {
-          e.parentNode.removeChild(e);
+      const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName(
+        "gfxLayer"
+      ) as HTMLCollectionOf<HTMLCanvasElement>;
+      for (const canvas of foundGFXCanvases) {
+        if (canvas.parentNode) {
+          canvas.parentNode.removeChild(canvas);
         }
       }
       this.GFXCanvas = null;
     }
 
-    if (!this.GFXCanvas || !this.GFXCanvas.parentNode || !(this.GFXCanvas.parentNode == this.v.canvas.parentNode)) {
+    if (!this.GFXCanvas || !this.GFXCanvas.parentNode || this.GFXCanvas.parentNode != this.v.canvas.parentNode) {
       initGFXCanvas(this, this.v.canvas);
       console.log("replayer initializing gfx canvas");
     }
@@ -146,11 +152,70 @@ export function initFX() {
     return val;
   };
 
-  const oldLineClears = GameCore.prototype.checkLineClears;
+  const oldCheckLineClears = GameCore.prototype.checkLineClears;
   GameCore.prototype.checkLineClears = function (...args) {
-    //console.log(this.GFXCanvas);
+    const animateLineClear = (row: number) => {
+      if (Config.settings.lineClearAnimationEnabled && Config.settings.lineClearAnimationLength > 0) {
+        this.GFXQueue.push({
+          opacity: 1,
+          delta: 1 / ((Config.settings.lineClearAnimationLength * 1000) / 60),
+          row,
+          blockSize: this.block_size,
+          amountParted: 0,
+          process: function (ctx: CanvasRenderingContext2D): boolean {
+            if (this.opacity <= 0) return false;
 
-    if (!this.GFXCanvas || isReplayerReversing) return oldLineClears.apply(this, args);
+            const x1 = 1;
+            const x2: number = this.blockSize * 5 + this.amountParted!;
+            const y: number = 1 + this.row * this.blockSize;
+
+            // Create gradient
+            const leftGradient: CanvasGradient = ctx.createLinearGradient(
+              0,
+              0,
+              this.blockSize * 5 - this.amountParted!,
+              0
+            );
+            leftGradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
+            leftGradient.addColorStop(1, `rgba(255,170,0,0)`);
+            // Fill with gradient
+            ctx.fillStyle = leftGradient;
+
+            ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
+
+            // Create gradient
+            const rightGradient: CanvasGradient = ctx.createLinearGradient(
+              0,
+              0,
+              this.blockSize * 5 - this.amountParted!,
+              0
+            );
+            rightGradient.addColorStop(0, `rgba(255,170,0,0)`);
+            rightGradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
+            // Fill with gradient
+            ctx.fillStyle = rightGradient;
+            ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
+
+            this.amountParted = lerp(this.amountParted, this.blockSize * 5, 0.1);
+            this.opacity -= this.delta!;
+            return true;
+          },
+        });
+      }
+    };
+
+    const shakeBoard = (oldAttack: number) => {
+      const attack: number = this.gamedata.attack - oldAttack;
+      if (Config.settings.lineClearShakeEnabled)
+        shake(
+          this.GFXCanvas!.parentNode!.parentNode,
+          Math.min(1 + attack * 5, 50) * Config.settings.lineClearShakeStrength,
+          Config.settings.lineClearShakeLength * (1000 / 60)
+        );
+      if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
+    };
+
+    if (!this.GFXCanvas || isReplayerReversing) return oldCheckLineClears.apply(this, args);
 
     const oldAttack: number = this.gamedata.attack;
 
@@ -159,80 +224,16 @@ export function initFX() {
       let blocks: number = 0;
       for (let col: number = 0; col < 10; col++) {
         const block: number = this.matrix[row][col];
-        if (9 === block) {
-          // solid garbage
-          break;
-        }
-        if (0 !== block) {
-          blocks++;
-        }
+        if (block === 9) break; // solid garbage
+        if (block !== 0) blocks++;
       }
-      if (10 === blocks) {
-        // if line is full
-        cleared++; // add to cleared
-
-        // send a line clear animation on this line
-        if (Config.settings.lineClearAnimationEnabled && Config.settings.lineClearAnimationLength > 0) {
-          this.GFXQueue.push({
-            opacity: 1,
-            delta: 1 / ((Config.settings.lineClearAnimationLength * 1000) / 60),
-            row,
-            blockSize: this.block_size,
-            amountParted: 0,
-            process: function (ctx: CanvasRenderingContext2D): boolean {
-              if (this.opacity <= 0) return false;
-
-              const x1 = 1;
-              const x2: number = this.blockSize * 5 + this.amountParted!;
-              const y: number = 1 + this.row * this.blockSize;
-
-              // Create gradient
-              const leftGradient: CanvasGradient = ctx.createLinearGradient(
-                0,
-                0,
-                this.blockSize * 5 - this.amountParted!,
-                0
-              );
-              leftGradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
-              leftGradient.addColorStop(1, `rgba(255,170,0,0)`);
-              // Fill with gradient
-              ctx.fillStyle = leftGradient;
-
-              ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
-
-              // Create gradient
-              const rightGradient: CanvasGradient = ctx.createLinearGradient(
-                0,
-                0,
-                this.blockSize * 5 - this.amountParted!,
-                0
-              );
-              rightGradient.addColorStop(0, `rgba(255,170,0,0)`);
-              rightGradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
-              // Fill with gradient
-              ctx.fillStyle = rightGradient;
-              ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
-
-              this.amountParted = lerp(this.amountParted, this.blockSize * 5, 0.1);
-              this.opacity -= this.delta!;
-              return true;
-            },
-          });
-        }
+      if (blocks === 10) {
+        cleared++;
+        animateLineClear(row);
       }
     }
-    if (cleared > 0) {
-      // if any line was cleared, send a shake
-      const attack: number = this.gamedata.attack - oldAttack;
-      if (Config.settings.lineClearShakeEnabled)
-        shake(
-          this.GFXCanvas.parentNode!.parentNode,
-          Math.min(1 + attack * 5, 50) * Config.settings.lineClearShakeStrength,
-          Config.settings.lineClearShakeLength * (1000 / 60)
-        );
-      if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
-    }
-    return oldLineClears.apply(this, args);
+    if (cleared > 0) shakeBoard(oldAttack);
+    return oldCheckLineClears.apply(this, args);
   };
   // have to do this so we can properly override ReplayerCore
   Replayer.prototype.checkLineClears = GameCore.prototype.checkLineClears;

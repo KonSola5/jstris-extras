@@ -1,6 +1,4 @@
 import { Config } from "./index.ts";
-import { setPlusSfx } from "./util.js";
-
 const FETCH_URL = "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/presets/plusSoundPresets.json";
 
 export let CUSTOM_PLUS_SOUND_PRESETS = [];
@@ -28,7 +26,6 @@ dropdown.innerHTML += "<option>Select...</option>";
 dropdown.addEventListener("change", () => {
   document.getElementById("customPlusSFX_JSON").value = dropdown.value;
   Config.set("customPlusSFX_JSON", dropdown.value);
-  setPlusSfx(dropdown.value);
 
   dropdown.selectedIndex = 0;
 });
