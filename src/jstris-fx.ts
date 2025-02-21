@@ -2,28 +2,6 @@ import { lerp, shake } from "./util.js";
 import { isReplayerReversing } from "./replayManager.js";
 import { Config } from "./index.js";
 
-declare global {
-  interface GameCore {
-    GFXCanvas: HTMLCanvasElement | null;
-    GFXQueue: GFXDefinition[];
-    GFXLoop: () => void;
-    GFXctx: CanvasRenderingContext2D;
-  }
-
-  // @ts-expect-error `addGarbage` breaks Liskov's substitution principle.
-  interface Replayer {
-    GFXCanvas: HTMLCanvasElement | null;
-    GFXQueue: GFXDefinition[];
-    GFXLoop: () => void;
-    GFXctx: CanvasRenderingContext2D;
-  }
-
-  interface Window {
-    // replayer: Replayer;
-    SlotView: SlotView;
-  }
-}
-
 interface GFXDefinition {
   opacity: number;
   blockSize: number;

@@ -8,7 +8,7 @@ export function initLayoutChanges() {
     // There can be 1 or 2 divs with "main" IDs, gotta love that
     const mstage: HTMLDivElement = document.createElement("div");
     mstage.id = "mstage";
-    const holdOutOfDiv = main.querySelector("#main > .holdCanvas");
+    const holdOutOfDiv: Element | null = main.querySelector("#main > .holdCanvas");
     const stage = main.querySelector("#stage") as HTMLDivElement;
     if (holdOutOfDiv) {
       const lstage: HTMLDivElement = document.createElement("div");

@@ -1,20 +1,37 @@
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
 import { Modes } from "./util.js";
-const clone = function (x) {
-  return JSON.parse(JSON.stringify(x));
-};
+
+function clone<T>(object: T): T {
+  return JSON.parse(JSON.stringify(object));
+}
 export class SaveState {
   /**
    * Creates a SaveState out of the given Game (all attributes are deep copies)
    */
-  constructor(game) {
+  matrix: number[][];
+  deadline: number[];
+  activeBlock: Block;
+  blockInHold: Block | null;
+  queue?: Block[];
+  combo: number;
+  placedBlocks: number;
+  totalFinesse: number;
+  totalKeyPresses: number;
+  incomingGarbage: [garbageInSegment: number, timestamp: number][];
+  redBar: number;
+  gamedata: GameData;
+  b2b: boolean;
+  connections?: number[][];
+
+
+  constructor(game: Game) {
     this.matrix = clone(game.matrix);
     this.deadline = clone(game.deadline);
     this.activeBlock = clone(game.activeBlock);
     this.blockInHold = clone(game.blockInHold);
     if (game.connections) this.connections = clone(game.connections);
 
-    this.b2b = game.b2b;
+    this.b2b = game.isBack2Back;
     this.combo = game.comboCounter;
 
     // save stat-related fields. might need to add a few more?
@@ -24,10 +41,7 @@ export class SaveState {
     this.incomingGarbage = clone(game.incomingGarbage);
     this.redBar = game.redBar;
 
-    this.gamedata = {};
-    for (const [key, value] of Object.entries(game.gamedata)) {
-      this.gamedata[key] = value;
-    }
+    this.gamedata = clone(game.gamedata);
   }
 }
 export const initPracticeUndo = () => {
@@ -38,7 +52,7 @@ export const initPracticeUndo = () => {
    * To be run before each hard drop.
    */
   Game.prototype.addSaveState = function () {
-    if (this.pmode !== 2) return;
+    if (this.pmode !== Modes.PRACTICE) return;
 
     this.saveStates.push(new SaveState(this));
     if (this.saveStates.length > MaxSaveStates) this.saveStates.shift();
@@ -48,7 +62,7 @@ export const initPracticeUndo = () => {
    * Rewinds to the last save state and removes it from the stack. If no states available, prints a message to the in-game chat.
    */
   Game.prototype.undoToSaveState = function () {
-    if (this.pmode !== 2) return;
+    if (this.pmode !== Modes.PRACTICE) return;
     if (this.saveStates.length === 0) {
       this.Live.showInChat("Jstris Extras", "Can't undo any further!");
       return;
@@ -57,10 +71,10 @@ export const initPracticeUndo = () => {
       this.fumenPages.pop();
     }
     this.Replay.invalidFromUndo = true;
-    let lastState = this.saveStates.pop();
+    const lastState: SaveState = this.saveStates.pop()!;
     this.loadSaveState(lastState);
   };
-  Game.prototype.loadSaveState = function (lastState) {
+  Game.prototype.loadSaveState = function (lastState: SaveState) {
     this.matrix = lastState.matrix;
     if (lastState.connections) this.connections = lastState.connections;
     this.deadline = lastState.deadline;
@@ -68,7 +82,7 @@ export const initPracticeUndo = () => {
     this.comboCounter = lastState.combo;
 
     this.loadSeedAndPieces(
-      this.Replay.config.seed,
+      this.Replay.config.seed!,
       this.conf[0].rnd,
       lastState.placedBlocks,
       lastState.activeBlock,
@@ -101,33 +115,33 @@ export const initPracticeUndo = () => {
   };
 
   /**
-   * Sets the seed, queue, active block, and held block based on the parameters
-   * @param {int} seed
-   * @param {int} rngType
-   * @param {int} placedBlockCount
-   * @param {Block} activeBlock
-   * @param {Block} heldBlock
-   */
-  Game.prototype.loadSeedAndPieces = function (seed, rngType, placedBlockCount, activeBlock, heldBlock) {
+   * Sets the seed, queue, active block, and held block based on the parameters. */
+  Game.prototype.loadSeedAndPieces = function (
+    seed: string,
+    randomizer: number,
+    placedPieceCount: number,
+    activePiece: Block,
+    holdPiece: Block | null
+  ) {
     // recreate rng's state at game start (from seed stored in replay)
     this.Replay.config.seed = seed;
     this.blockRNG = alea(seed);
     this.RNG = alea(seed);
-    this.initRandomizer(rngType);
+    this.initRandomizer(randomizer);
 
     // to get the rng to the right state, roll for each previously generated block
     // +1 for current piece and +1 for hold, because those are saved separately
-    let rollCount = placedBlockCount + 1;
-    if (heldBlock != null) rollCount += 1;
-    for (let i = 0; i < rollCount; i++) {
+    let rollCount: number = placedPieceCount + 1;
+    if (holdPiece != null) rollCount += 1;
+    for (let i: number = 0; i < rollCount; i++) {
       this.getRandomizerBlock(); // result is ignored but rng is adjusted
     }
 
     // generate queue from new rng, and set active and held block from save state
     this.queue = [];
     this.generateQueue();
-    this.activeBlock = activeBlock;
-    this.blockInHold = heldBlock;
+    this.activeBlock = activePiece;
+    this.blockInHold = holdPiece;
   };
 
   /**
@@ -140,22 +154,22 @@ export const initPracticeUndo = () => {
 
   // call `addSaveState` before each hard drop
   const oldBeforeHardDrop = Game.prototype.beforeHardDrop;
-  Game.prototype.beforeHardDrop = function () {
-    if (this.pmode === 2) this.addSaveState();
+  Game.prototype.beforeHardDrop = function (...args) {
+    if (this.pmode === Modes.PRACTICE) this.addSaveState();
 
-    return oldBeforeHardDrop.apply(this, arguments);
+    return oldBeforeHardDrop.apply(this, args);
   };
 
   // add `initSaveStates` to generatePracticeQueue
-  let keyListenerInjected = false;
+  let keyListenerInjected: boolean = false;
   const oldGeneratePracticeQueue = Game.prototype.generatePracticeQueue;
-  Game.prototype.generatePracticeQueue = function () {
-    if (this.pmode === 2) {
+  Game.prototype.generatePracticeQueue = function (...args) {
+    if (this.pmode === Modes.PRACTICE) {
       this.initSaveStates();
       if (!keyListenerInjected) {
         document.addEventListener(
           "keydown",
-          (keyEvent) => {
+          (keyEvent: KeyboardEvent) => {
             if (this.focusState === 0) {
               if (keyEvent.code === Config.settings.undoKey) {
                 this.undoToSaveState();
@@ -168,12 +182,12 @@ export const initPracticeUndo = () => {
       keyListenerInjected = true;
     }
 
-    return oldGeneratePracticeQueue.apply(this, arguments);
+    return oldGeneratePracticeQueue.apply(this, args);
   };
 
   // neatly tell the user that replays don't work with undos or fumen/snapshot imports
   const oldUploadError = Replay.prototype.uploadError;
-  Replay.prototype.uploadError = function (live, err) {
+  Replay.prototype.uploadError = function (live, message) {
     if (this.invalidFromSnapshot) {
       live.showInChat("Jstris Extras", "Can't generate replay for game with Fumen or snapshot import!");
       return;
@@ -182,6 +196,6 @@ export const initPracticeUndo = () => {
       live.showInChat("Jstris Extras", "Can't generate replay for game with undos!");
       return;
     }
-    return oldUploadError.apply(this, arguments);
+    return oldUploadError.apply(this, [live, message]);
   };
 };

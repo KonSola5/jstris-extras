@@ -11,7 +11,7 @@ export default [
   ...tseslint.configs.recommended,
   {
     rules: {
-      "no-undef": "off",
+      "no-undef": "off"
     },
   },
 ];

@@ -1,10 +1,17 @@
-import { encoder, decoder, Field } from "tetris-fumen";
+import { encoder, decoder, Field, EncodePage, Pages } from "tetris-fumen";
+// import { SaveState } from "./practiceUndo.js";
+import { PieceType, RotationType } from "tetris-fumen/lib/defines.js";
 import { SaveState } from "./practiceUndo.js";
-const clone = function (x) {
-  return JSON.parse(JSON.stringify(x));
-};
+import { SnapshotPlus } from "./global-typings.js";
+import { Modes } from "./util.js";
 
-const reverseMatrix = [
+
+/** Creates a deep clone of an object. */
+function clone<T>(x: T): T {
+  return JSON.parse(JSON.stringify(x));
+}
+
+const reverseMatrix: string[] = [
   "_",
   "Z",
   "L",
@@ -30,7 +37,7 @@ const reverseMatrix = [
   "S",
   "Z",
 ];
-const jstrisToCenterX = [
+const jstrisToCenterX: number[][] = [
   [1, 2, 2, 1],
   [1, 1, 2, 2],
   [1, 1, 1, 1],
@@ -39,7 +46,7 @@ const jstrisToCenterX = [
   [1, 1, 1, 1],
   [1, 1, 1, 1],
 ];
-const jstrisToCenterY = [
+const jstrisToCenterY: number[][] = [
   [1, 1, 2, 2],
   [2, 1, 1, 2],
   [2, 2, 2, 2],
@@ -48,67 +55,69 @@ const jstrisToCenterY = [
   [2, 2, 2, 2],
   [2, 2, 2, 2],
 ];
-const pIndex = ["I", "O", "T", "L", "J", "S", "Z"];
-const rIndex = ["spawn", "right", "reverse", "left"];
+const pIndex: PieceType[] = ["I", "O", "T", "L", "J", "S", "Z"];
+const rIndex: RotationType[] = ["spawn", "right", "reverse", "left"];
 const quizFilter = new RegExp("[^" + "IOTLJSZ" + "]", "g");
 
-function downloadText(filename, text) {
-  var element = document.createElement("a");
-  element.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
-  element.setAttribute("download", filename);
+function downloadText(filename: string, text: string): void {
+  const anchor: HTMLAnchorElement = document.createElement("a");
+  anchor.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(text));
+  anchor.setAttribute("download", filename);
 
-  element.style.display = "none";
-  document.body.appendChild(element);
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
 
-  element.click();
+  anchor.click();
 
-  document.body.removeChild(element);
+  document.body.removeChild(anchor);
 }
 
-const generateFumenQueue = function (lim = null) {
+function generateFumenQueue(this: Game | Replayer, lim: number | null = null) {
   if (!lim) lim = this.queue.length;
-  let bs = this.blockSets[this.activeBlock.set];
+  const pieceSet = this.blockSets[this.activeBlock.set];
   lim = Math.min(lim, this.queue.length);
-  let r1 = "";
+  let activePieceName: string = "";
   if (this.activeBlock) {
-    r1 = bs.blocks[this.activeBlock.id].name;
+    activePieceName = pieceSet.blocks[this.activeBlock.id].name;
   }
-  let r2 = "";
+  let holdPieceName: string = "";
   if (this.blockInHold) {
-    r2 = bs.blocks[this.blockInHold.id].name;
+    holdPieceName = pieceSet.blocks[this.blockInHold.id].name;
   }
-  let qq = `#Q=[${r2}](${r1})`;
-  for (let i = 0; i < lim; i++) {
-    qq += bs.blocks[this.queue[i].id].name;
+  let quiz: string = `#Q=[${holdPieceName}](${activePieceName})`;
+  for (let i: number = 0; i < lim; i++) {
+    quiz += pieceSet.blocks[this.queue[i].id].name;
   }
-  return qq;
-};
-const generateFumenMatrix = function () {
+  return quiz;
+}
+
+function generateFumenMatrix(this: Game | Replayer): string {
   let fieldStr = "";
-  for (let i in this.deadline) {
-    fieldStr += reverseMatrix[this.deadline[i]];
+  for (const block in this.deadline) {
+    fieldStr += reverseMatrix[this.deadline[block]];
   }
-  for (let row in this.matrix) {
-    for (let col in this.matrix[row]) {
-      fieldStr += reverseMatrix[this.matrix[row][col]];
+  for (const row in this.matrix) {
+    for (const column in this.matrix[row]) {
+      fieldStr += reverseMatrix[this.matrix[row][column]];
     }
   }
   return fieldStr;
-};
+}
 export const initPracticeFumen = () => {
   const oldRestart = Game.prototype.restart;
-  Game.prototype.restart = function () {
+  Game.prototype.restart = function (...args) {
     const urlParams = new URLSearchParams(window.location.search);
     const snapshot = urlParams.get("snapshotPlus");
 
     if (this.pmode === 2 && snapshot != null) {
-      let val = oldRestart.apply(this, arguments);
-      let game = LZString.decompressFromEncodedURIComponent(snapshot);
-      game = JSON.parse(game);
+      const returnValue: void = oldRestart.apply(this, args);
+      const decompressedGame = LZString.decompressFromEncodedURIComponent(snapshot);
+      const game: SnapshotPlus = JSON.parse(decompressedGame || "null");
+      if (!game) return returnValue;
       console.log(game);
 
-      let heldBlock = game.holdID == null ? null : new Block(game.holdID);
-      this.loadSeedAndPieces(game.seed, game.rnd, game.placedBlocks, new Block(game.activeBlockID), heldBlock);
+      const holdPiece: Block | null = game.holdID == null ? null : new Block(game.holdID);
+      this.loadSeedAndPieces(game.seed, game.rnd, game.placedBlocks, new Block(game.activeBlockID), holdPiece);
 
       this.matrix = clone(game.matrix);
       this.deadline = clone(game.deadline);
@@ -116,24 +125,24 @@ export const initPracticeFumen = () => {
       this.updateGhostPiece(true);
       this.redrawAll();
       this.invalidFromSnapshot = true;
-      return val;
+      return returnValue;
     } else {
       this.fumenPages = null;
       if (this.pmode === 2) this.fumenPages = [];
-      return oldRestart.apply(this, arguments);
+      return oldRestart.apply(this, args);
     }
   };
   Game.prototype.generateFumenQueue = generateFumenQueue;
   Game.prototype.generateFumenMatrix = generateFumenMatrix;
-  const onGarbageAdded = Game.prototype.addGarbage;
-  Game.prototype.addGarbage = function () {
+  const oldAddGarbage = Game.prototype.addGarbage;
+  Game.prototype.addGarbage = function (...args) {
     this.fumenMatrixRoll = true; //matrix modulated, need to update fumen matrix
-    return onGarbageAdded.apply(this, arguments);
+    return oldAddGarbage.apply(this, args);
   };
   const oldBeforeHardDrop = Game.prototype.beforeHardDrop;
 
-  Game.prototype.beforeHardDrop = function () {
-    let returnValue = oldBeforeHardDrop.apply(this, arguments);
+  Game.prototype.beforeHardDrop = function (...args) {
+    const returnValue = oldBeforeHardDrop.apply(this, args);
     if (!this.fumenPages) return returnValue;
 
     if (this.altBlocks) {
@@ -141,11 +150,11 @@ export const initPracticeFumen = () => {
       return;
     }
     if (this.activeBlock.set == 0) {
-      let x = jstrisToCenterX[this.activeBlock.id][this.activeBlock.rot] + this.activeBlock.pos.x;
-      let y = 19 - (jstrisToCenterY[this.activeBlock.id][this.activeBlock.rot] + this.ghostPiece.pos.y);
-      let msg = {
+      const x: number = jstrisToCenterX[this.activeBlock.id][this.activeBlock.rot] + this.activeBlock.pos.x;
+      const y: number = 19 - (jstrisToCenterY[this.activeBlock.id][this.activeBlock.rot] + this.ghostPiece.pos.y);
+      const msg: EncodePage = {
         operation: {
-          type: this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].name,
+          type: this.blockSets[this.activeBlock.set].blocks[this.activeBlock.id].name as PieceType,
           rotation: rIndex[this.activeBlock.rot],
           x: x,
           y: y,
@@ -156,7 +165,7 @@ export const initPracticeFumen = () => {
         this.fumenMatrixRoll = false;
       }
       msg.comment = this.generateFumenQueue();
-      msg.flags = { quiz: true };
+      // msg.flags = { quiz: true };
       this.fumenPages.push(msg);
     }
     //   console.log(encoder.encode(this.fumenPages))
@@ -165,9 +174,9 @@ export const initPracticeFumen = () => {
 
   const chatListener = Live.prototype.sendChat;
   Live.prototype.sendChat = function (rawmsg) {
-    var msg = "string" != typeof rawmsg ? this.chatInput.value.replace(/"/g, '\\"') : rawmsg;
+    const msg = "string" != typeof rawmsg ? this.chatInput.value.replace(/"/g, '\\"') : rawmsg;
     if (msg == "/fumen") {
-      if (this.p.pmode != 2) {
+      if (this.p.pmode != Modes.PRACTICE) {
         this.showInChat("Jstris Extras", "Live Fumen export is only supported in Practice mode.");
         this.chatInput.value = "";
         return;
@@ -177,8 +186,8 @@ export const initPracticeFumen = () => {
         this.chatInput.value = "";
         return;
       }
-      let fumen = encoder.encode(this.p.fumenPages);
-      var coderro = `
+      const fumen: string = encoder.encode(this.p.fumenPages);
+      const coderro = `
             <span class='wFirstLine'><span class='wTitle'>!${i18n.warning2}!</span><b>${i18n.repFail}"</b>(<em>Jstris+ Fumen Export</em>)</span>
             <p>Fumen code dumped into the chat.</p>
             <a href="https://harddrop.com/fumen/?${fumen}" target="_blank">Link</a>
@@ -188,23 +197,25 @@ export const initPracticeFumen = () => {
       this.chatInput.value = "";
       return;
     } else if ("/fumen" === msg.substring(0, 6)) {
-      if (this.p.pmode != 2) {
+      if (this.p.pmode != Modes.PRACTICE) {
         this.showInChat("Jstris Extras", "Fumen import is only supported in Practice mode.");
         this.chatInput.value = "";
         return;
       }
-      let pages = null;
+      let pages: Pages | null = null;
       try {
         pages = decoder.decode(msg.substring(5));
       } catch (error) {
         console.log(error);
-        this.showInChat("Jstris Extras", error.message);
-        this.chatInput.value = "";
+        if (error instanceof Error) {
+          this.showInChat("Jstris Extras", error.message);
+          this.chatInput.value = "";
+        }
         return;
       }
-      let gamestates = loadFumen(pages);
+      const gamestates: SaveState = loadFumen(pages);
       this.p.loadSaveState(gamestates);
-      for (let i = this.p.queue.length; i < 7; i++) {
+      for (let i: number = this.p.queue.length; i < 7; i++) {
         this.p.refillQueue();
       }
       this.p.redrawAll();
@@ -220,26 +231,22 @@ export const initPracticeFumen = () => {
   };
 };
 export const initReplayerSnapshot = () => {
-  let repControls = document.getElementById("repControls");
-  let skipButton = document.createElement("button");
+  const repControls = document.getElementById("repControls") as HTMLDivElement;
+  const skipButton: HTMLButtonElement = document.createElement("button");
   skipButton.className = "replay-btn";
   skipButton.textContent = "snapshot";
-  let fumenButton = document.createElement("button");
+  const fumenButton: HTMLButtonElement = document.createElement("button");
   fumenButton.className = "replay-btn";
   fumenButton.textContent = "fumen";
-  let pcButton = document.createElement("button");
+  const pcButton: HTMLButtonElement = document.createElement("button");
   pcButton.className = "replay-btn";
   pcButton.textContent = "pc solver";
-  let wellRow1 = document.createElement("div");
+  const wellRow1: HTMLDivElement = document.createElement("div");
   wellRow1.className = "replay-btn-group";
-  let injected = false;
-  const lR = ReplayController.prototype.loadReplay;
-  ReplayController.prototype.loadReplay = function () {
+  let injected: boolean = false;
+  const oldLoadReplay = ReplayController.prototype.loadReplay;
+  ReplayController.prototype.loadReplay = function (...args) {
     if (!injected && this.g.length == 1) {
-      //  let well = document.createElement("div")
-      //  well.className = 'well'
-
-      //    well.appendChild(wellRow1)
       Replayer.prototype.generateFumenQueue = generateFumenQueue.bind(this.g[0]);
       Replayer.prototype.generateFumenMatrix = generateFumenMatrix.bind(this.g[0]);
       repControls.appendChild(wellRow1);
@@ -247,18 +254,18 @@ export const initReplayerSnapshot = () => {
       wellRow1.appendChild(fumenButton);
 
       skipButton.onclick = () => {
-        let code = this.g[0].snapshotPlus();
+        const code = this.g[0].snapshotPlus();
         window.open(`https://jstris.jezevec10.com/?play=2&snapshotPlus=${code}`, "_blank");
       };
       pcButton.onclick = () => {
-        let code = this.g[0].snapshotFumen();
+        const code = this.g[0].snapshotFumen();
         window.open(
           `https://wirelyre.github.io/tetra-tools/pc-solver.html?fumen=${encodeURIComponent(code)}`,
           "_blank"
         );
       };
       fumenButton.onclick = () => {
-        let rep = document.getElementById("rep0").value;
+        const rep: string = (document.getElementById("rep0") as HTMLTextAreaElement).value;
         fumenButton.disabled = true;
         fumenButton.textContent = "loading";
         fetch(`https://fumen.tstman.net/jstris`, {
@@ -269,7 +276,7 @@ export const initReplayerSnapshot = () => {
           },
           body: `replay=${rep}`,
         })
-          .then((response) => response.json())
+          .then((response: Response) => response.json())
           .then((data) => {
             navigator.clipboard
               .writeText(data.fumen)
@@ -281,21 +288,21 @@ export const initReplayerSnapshot = () => {
               })
               .finally(() => {
                 if (data.fumen.length < 8168) {
-                  let newWin = window.open(`https://harddrop.com/fumen/?${data.fumen}`, "_blank");
+                  const newWin: Window | null = window.open(`https://harddrop.com/fumen/?${data.fumen}`, "_blank");
                 }
-                let textArea = document.createElement("textarea");
+                const textArea: HTMLTextAreaElement = document.createElement("textarea");
                 textArea.className = "repArea";
                 textArea.rows = 1;
                 textArea.textContent = data.fumen;
-                let dlButton = document.createElement("button");
+                const dlButton: HTMLButtonElement = document.createElement("button");
                 dlButton.textContent = "download";
                 dlButton.className = "replay-btn";
                 dlButton.onclick = () => {
                   downloadText("jstrisFumen.txt", data.fumen);
                 };
-                let openButton = document.createElement("button");
+                const openButton: HTMLButtonElement = document.createElement("button");
                 openButton.textContent = "open";
-                let fumenLink = `https://harddrop.com/fumen/?${data.fumen}`;
+                let fumenLink: string = `https://harddrop.com/fumen/?${data.fumen}`;
                 if (data.fumen.length >= 8168) {
                   alert("Fumen code is too long for URL, you'll need to paste the code in manually.");
                   fumenLink = `https://harddrop.com/fumen/?`;
@@ -313,11 +320,11 @@ export const initReplayerSnapshot = () => {
       };
       injected = true;
     }
-    let val = lR.apply(this, arguments);
-    if (this.g[0].pmode == 8) {
+    const returnValue = oldLoadReplay.apply(this, args);
+    if (this.g[0].pmode == Modes.PC_MODE) {
       wellRow1.appendChild(pcButton);
     }
-    return val;
+    return returnValue;
   };
   Replayer.prototype.snapshotFumen = function () {
     /*
@@ -327,28 +334,28 @@ export const initReplayerSnapshot = () => {
            let msg = {
                operation: { type: this.blockSets[ss.set].blocks[ss.id].name, rotation: rIndex[ss.rot], x: x, y: y }
            }*/
-    let msg = {};
-    let fieldStr = this.generateFumenMatrix().substring(170);
-    let airCount = fieldStr.split("_").length - 1;
+    const msg: EncodePage = {};
+    const fieldStr = this.generateFumenMatrix().substring(170);
+    const airCount = fieldStr.split("_").length - 1;
     msg.field = Field.create(fieldStr);
     msg.comment = this.generateFumenQueue().replace(quizFilter, "");
     msg.comment = msg.comment.substring(0, Math.floor(airCount / 4) + 1);
     console.log(msg);
-    let code = encoder.encode([msg]);
+    const code = encoder.encode([msg]);
     console.log(code);
     return code;
   };
   Replayer.prototype.snapshotPlus = function () {
-    let matrix = clone(this.matrix);
-    let deadline = clone(this.deadline);
-    let placedBlocks = this.placedBlocks;
-    let seed = this.r.c.seed;
-    let activeBlockID = this.activeBlock.id;
+    const matrix = clone(this.matrix);
+    const deadline = clone(this.deadline);
+    const placedBlocks = this.placedBlocks;
+    const seed = this.r.c.seed;
+    const activeBlockID = this.activeBlock.id;
     let holdID = null;
     if (this.blockInHold) {
       holdID = this.blockInHold.id;
     }
-    let rnd = this.R.rnd;
+    const rnd = this.R.rnd;
     return LZString.compressToEncodedURIComponent(
       JSON.stringify({
         matrix,
@@ -362,50 +369,52 @@ export const initReplayerSnapshot = () => {
     );
   };
 };
-export const loadFumen = (pages) => {
+export function loadFumen(pages: Pages) {
   const page = pages[pages.length - 1];
   const field = page.field;
-  let matrix = Array(20)
-    .fill()
+  const matrix = Array(20)
+    .fill(undefined)
     .map(() => Array(10).fill(0));
-  let deadline = Array(10).fill(0);
+  const deadline = Array(10).fill(0);
   let activeBlock = new Block(0);
-  let hold = null,
-    queue = [];
+  let hold: Block | null = null;
+  const queue: Block[] = [];
   if (page.flags.quiz) {
-    let match = /^#Q=\[([LOJSTZI]?)\]?\(([LOJSTZI]?)\)([LOJSTZI]*)$/.exec(page.comment);
+    const match = /^#Q=\[([LOJSTZI]?)\]?\(([LOJSTZI]?)\)([LOJSTZI]*)$/.exec(page.comment);
     console.log(match);
-    if (match[1]) {
-      hold = new Block(pIndex.indexOf(match[1]));
-    }
-    if (match[2]) {
-      activeBlock = new Block(pIndex.indexOf(match[2]));
-    }
-    if (match[3]) {
-      for (let char of match[3]) {
-        queue.push(new Block(pIndex.indexOf(char)));
+    if (match) {
+      if (match[1]) {
+        hold = new Block(pIndex.indexOf(match[1] as PieceType));
+      }
+      if (match[2]) {
+        activeBlock = new Block(pIndex.indexOf(match[2] as PieceType));
+      }
+      if (match[3]) {
+        for (const char of match[3]) {
+          queue.push(new Block(pIndex.indexOf(char as PieceType)));
+        }
       }
     }
   }
 
   for (let x = 0; x < 10; x++) {
     for (let y = 0; y < 20; y++) {
-      let v = reverseMatrix.indexOf(field.at(x, y));
+      const v = reverseMatrix.indexOf(field.at(x, y));
       if (v > 0) matrix[19 - y][x] = v;
     }
   }
   for (let x = 0; x < 10; x++) {
-    let v = reverseMatrix.indexOf(field.at(x, 20));
+    const v = reverseMatrix.indexOf(field.at(x, 20));
     if (v > 0) deadline[x] = v;
   }
-  let game = {
+  const game: SaveState = {
     matrix: matrix,
     deadline: deadline,
     activeBlock: activeBlock,
     blockInHold: hold,
     queue: queue,
-    b2b: 0,
     combo: 0,
+    b2b: false,
     placedBlocks: 0,
     totalFinesse: 0,
     totalKeyPresses: 0,
@@ -435,4 +444,4 @@ export const loadFumen = (pages) => {
     },
   };
   return game;
-};
+}

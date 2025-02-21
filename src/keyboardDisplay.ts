@@ -1,17 +1,6 @@
+import { KeyAction } from "./global-typings.js";
 import { Config } from "./index.js";
 import { createSVG, clamp } from "./util.js";
-
-declare global {
-  interface Replayer {
-    kbdActions: KeyAction[];
-    lastPtr: number;
-  }
-}
-
-interface KeyAction {
-  action: number;
-  timestamp: number;
-}
 
 interface SVGDefinition {
   name: string;

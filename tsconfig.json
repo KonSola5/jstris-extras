@@ -5,8 +5,9 @@
     "strict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
+    "moduleResolution": "nodenext",
     
-    "module": "ES6",
+    "module": "NodeNext",
     "target": "ES6",
     "jsx": "react",
     "allowJs": true,

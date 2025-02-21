@@ -1,15 +1,5 @@
 import { Config } from "./index.js";
 
-declare global {
-  interface Window {
-    copyReplayText: (number: number) => void;
-  }
-
-  interface Game {
-    replayCounter?: number;
-  }
-}
-
 export const initAutomaticReplayCodes = () => {
   window.copyReplayText = function (number: number) {
     const copyText = document.getElementById(`replay${number}`) as HTMLTextAreaElement;
