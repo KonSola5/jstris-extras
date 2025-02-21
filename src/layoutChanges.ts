@@ -1,57 +1,61 @@
+interface IconSelection {
+  [number: string]: string;
+}
+
 export function initLayoutChanges() {
-  let mains = document.querySelectorAll("#main");
-  mains.forEach((main) => {
+  const mains = document.querySelectorAll("#main") as NodeListOf<HTMLDivElement>;
+  mains.forEach((main: HTMLDivElement) => {
     // There can be 1 or 2 divs with "main" IDs, gotta love that
-    let mstage = document.createElement("div");
+    const mstage: HTMLDivElement = document.createElement("div");
     mstage.id = "mstage";
-    let holdOutOfDiv = main.querySelector("#main > .holdCanvas")
-    let stage = main.querySelector("#stage");
+    const holdOutOfDiv = main.querySelector("#main > .holdCanvas");
+    const stage = main.querySelector("#stage") as HTMLDivElement;
     if (holdOutOfDiv) {
-      let lstage = document.createElement("div");
-      lstage.classList.add("lstage")
+      const lstage: HTMLDivElement = document.createElement("div");
+      lstage.classList.add("lstage");
       lstage.appendChild(holdOutOfDiv);
-      main.insertBefore(lstage, stage)
+      main.insertBefore(lstage, stage);
     }
     mstage.appendChild(stage);
     main.insertBefore(mstage, main.querySelector("#rstage"));
 
-    let bstage = document.createElement("div")
-    bstage.id = "bstage"
+    const bstage: HTMLDivElement = document.createElement("div");
+    bstage.id = "bstage";
     main.append(bstage);
 
-    let statsDiv = main.querySelector("#main > div:not([class]):not([id])");
-    statsDiv.classList.add("hidden")
+    const statsDiv = main.querySelector("#main > div:not([class]):not([id])") as HTMLDivElement;
+    statsDiv.classList.add("hidden");
     bstage.append(...statsDiv.children);
   });
 
   if (mains.length == 2) {
-    let twoBoards = document.createElement("div");
-    twoBoards.classList.add("two-boards")
-    document.getElementById("replayerGameFrame").prepend(twoBoards);
+    const twoBoards: HTMLDivElement = document.createElement("div");
+    twoBoards.classList.add("two-boards");
+    (document.getElementById("replayerGameFrame") as HTMLDivElement).prepend(twoBoards);
     twoBoards.append(...mains);
   }
 
-  let emoteSelector = document.querySelector(".chatInputC .emSel");
+  const emoteSelector = document.querySelector(".chatInputC .emSel") as SVGElement;
   if (emoteSelector) emoteSelector.classList.add("hidden");
 
-  let speedChart = document.querySelector("#speedChart");
-  if (speedChart) speedChart.parentElement.classList.add("stack");
+  const speedChart = document.querySelector("#speedChart") as HTMLCanvasElement;
+  if (speedChart) (speedChart.parentElement as HTMLDivElement).classList.add("stack");
 
-  window.showElem = function (element) {
+  window.showElem = function (element: HTMLElement) {
     if (element) {
       element.classList.remove("hidden");
       element.style.removeProperty("display");
     }
   };
 
-  window.hideElem = function (element) {
+  window.hideElem = function (element: HTMLElement) {
     if (element) {
       element.classList.add("hidden");
       element.style.removeProperty("display");
     }
   };
 
-  window.toggleElem = function (element) {
+  window.toggleElem = function (element: HTMLElement) {
     if (element.style.display == "none") element.classList.add("hidden");
     element.style.removeProperty("display");
     if (element.classList.contains("hidden")) {
@@ -63,23 +67,25 @@ export function initLayoutChanges() {
     }
   };
 
-  function getSVGSymbol(svgSrc, symbolToUse, CSSClasses) {
-    let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  function getSVGSymbol(svgSrc: string, symbolToUse: string, CSSClasses: string): SVGSVGElement {
+    const svg: SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.classList.add(...CSSClasses.split(" "));
-    let use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+    const use: SVGUseElement = document.createElementNS("http://www.w3.org/2000/svg", "use");
     use.setAttribute("href", `/svg/${symbolToUse}.svg#${svgSrc}`);
     svg.append(use);
     return svg;
   }
 
-  /**
-   *
-   * @param {string} clientName
-   * @param {number} clientType
-   * @param {Client} client
-   */
-  function getAuthorizedNameLinkElement(clientName, clientType, client) {
-    let link = document.createElement("a");
+  function isKey<T extends object>(object: T, key: PropertyKey): key is keyof T {
+    return key in object;
+  }
+
+  function getAuthorizedNameLinkElement(
+    clientName: string,
+    clientType: number,
+    client: { color: string | null; icon: number | null; bold: boolean }
+  ): HTMLAnchorElement {
+    const link: HTMLAnchorElement = document.createElement("a");
     link.href = `/u/${clientName}`;
     link.classList.add("ut");
     let icon;
@@ -104,7 +110,7 @@ export function initLayoutChanges() {
       }
       case clientType >= 110 && clientType <= 118: {
         icon = new Image();
-        let iconSelection = {
+        const iconSelection: IconSelection = {
           110: "gstr", // Star
           111: "jsT", // Jstris logo
           112: "blt", // T piece
@@ -123,7 +129,7 @@ export function initLayoutChanges() {
       }
       case clientType >= 1000 && clientType <= 2000: {
         clientType -= 1000;
-        let iconToChoose =
+        const iconToChoose: string =
           String.fromCharCode(65 + ((992 & clientType) >> 5)) + String.fromCharCode(65 + (31 & clientType));
         icon = new Image();
         icon.src = `https://jstris.jezevec10.com/vendor/countries/flags/${iconToChoose}.png`;
@@ -132,7 +138,7 @@ export function initLayoutChanges() {
         link.title = "Jstris Supporter";
         break;
       }
-      case clientType == 999 && client?.icon: {
+      case (clientType == 999 && client?.icon) as boolean: {
         icon = new Image();
         icon.src = CDN_URL(`/res/oe/${client.icon}.svg`);
         icon.classList.add("nameIcon_oe");
@@ -165,8 +171,8 @@ export function initLayoutChanges() {
         this.queueCan.style.top =
           `${this.gs.nameHeight}px`;
       this.holdCan.style.left = "0px";
-      var holdBlockSize = 0.8 * this.gs.holdQueueBlockSize;
-      var offsetLeft = 4 * this.gs.holdQueueBlockSize + holdBlockSize;
+      const holdBlockSize: number = 0.8 * this.gs.holdQueueBlockSize;
+      const offsetLeft: number = 4 * this.gs.holdQueueBlockSize + holdBlockSize;
       this.name.style.left = `${offsetLeft}px`;
       this.pCan.style.left = this.bgCan.style.left = `${offsetLeft}px`;
       this.queueCan.style.left = `${offsetLeft + this.pCan.width + holdBlockSize}px`;
@@ -174,10 +180,11 @@ export function initLayoutChanges() {
         this.stats.init();
         this.stats.statsDiv.style.left = `${offsetLeft}px`;
         this.slotDiv.append(this.stats.statsDiv);
-        let totalWidth = 1.1 * this.stats.statsDiv.childNodes[0].clientWidth;
-        let shouldDisplayWinCounter =
+        const totalWidth: number = 1.1 * (this.stats.statsDiv.childNodes[0] as HTMLDivElement).clientWidth;
+        const shouldDisplayWinCounter: boolean =
           2 * totalWidth < 0.85 * this.gs.matrixWidth || totalWidth > 0.6 * this.gs.matrixWidth;
-        this.stats.winCounter.style.display = shouldDisplayWinCounter ? null : "none";
+        if (shouldDisplayWinCounter) this.stats.winCounter.style.removeProperty("display");
+        else this.stats.winCounter.style.display = "none";
       } else {
         this.stats.disable();
       }
@@ -194,135 +201,156 @@ export function initLayoutChanges() {
   }
 
   if (typeof RoomInfo !== "undefined") {
-    /** @param {RoomDetails2} roomDetails */
-    RoomInfo.prototype.displayLimit = function (roomDetails) {
-      if (roomDetails.l === null) return void hideElem(this.rdParts.limit);
-      let limit = this.rdParts.limit;
+    RoomInfo.prototype.displayLimit = function (roomDetails: RoomDetails) {
+      if (!roomDetails.l) {
+        hideElem(this.rdParts.limit);
+        return;
+      }
+      const limit: HTMLDivElement = this.rdParts.limit;
       limit.replaceChildren();
-      let isEligible = roomDetails.l.r;
-      let limits = roomDetails.l.l;
-      let currentStats = roomDetails.l.s || {};
+      const roomJoinLimits = roomDetails.l;
+      const isEligible: boolean | undefined = roomJoinLimits.r;
+      const limits: Limits | undefined = roomJoinLimits.l;
+      const currentStats: CurrentStats = roomJoinLimits.s || ({} as CurrentStats);
       this.rdParts.limit.classList.remove("hidden");
       // this.rdParts.limit.style.display = "flex";
-      let limitInfoDiv = this.createElement("div", ["rdLimitInf"], null);
+      const limitInfoDiv: HTMLDivElement = this.createElement("div", ["rdLimitInf"], null);
       if (isEligible) {
         limit.classList.add("rdOK");
         limit.classList.remove("rdF");
         limit.append(getSVGSymbol("s-unlocked", "dark", "lIcn"));
-        let header = document.createElement("h1");
+        const header: HTMLHeadingElement = document.createElement("h1");
         header.textContent = i18n.joinPossible;
         limitInfoDiv.append(header);
       } else {
         limit.classList.add("rdF");
         limit.classList.remove("rdOK");
         limit.append(getSVGSymbol("s-locked", "dark", "lIcn"));
-        let header = document.createElement("h1");
+        const header: HTMLHeadingElement = document.createElement("h1");
         header.textContent = i18n.notEligible;
         limitInfoDiv.append(header);
       }
-      let getFormattedRange = (min = 0, max = "\u221E") => `⟨${min}, ${max}⟩`;
-      let getEligibilityChar = function (current, min, max) {
-        if (current) {
-          if (
-            (!min && !max) ||
-            (!min && current <= max) ||
-            (!max && current >= min) ||
-            (current <= max && current >= min)
-          )
-            return "✓";
-          else return "✗";
-        }
+      const getFormattedRange = (min: number | string | null = 0, max: number | string | null = "\u221E"): string =>
+        `⟨${min}, ${max}⟩`;
+      const getEligibilityChar = function (current: number, min: number | null, max: number | null) {
+        if (!max) max = Number.MAX_SAFE_INTEGER;
+        if (!min) min = 0;
+        if (
+          (!min && !max) ||
+          (!min && current <= max) ||
+          (!max && current >= min) ||
+          (current <= max && current >= min)
+        )
+          return "✓";
+        else return "✗";
       };
-      let descList = document.createElement("dl");
-      let descs = [];
-      for (let currentLimit in limits) {
-        let descTerm = document.createElement("dt");
-        descTerm.textContent = `${this.LIMIT_NAMES[currentLimit].n}: ${getFormattedRange(...limits[currentLimit])}`;
-        let currentStat = currentStats[currentLimit];
-        let unit = this.LIMIT_NAMES[currentLimit].u;
-        let descDetails = document.createElement("dd");
-        let eligibilityChar = getEligibilityChar(currentStats[currentLimit], ...limits[currentLimit]);
-        let currentStatFormatted = currentStat ? `${currentStat} ${unit}` : "None";
-        descDetails.textContent = `${eligibilityChar} ${currentStatFormatted}`;
-        descs.push(descTerm, descDetails);
+      const descList: HTMLDListElement = document.createElement("dl");
+      const descs: HTMLElement[] = [];
+      if (limits) {
+        for (const currentLimit in limits) {
+          if (isKey(limits, currentLimit)) {
+            const descTerm: HTMLElement = document.createElement("dt");
+            const minMaxRange: [min: number | null, max: number | null] = limits[currentLimit]!;
+            descTerm.textContent = `${this.LIMIT_NAMES[currentLimit].n}: ${getFormattedRange(...minMaxRange)}`;
+            const currentStat = currentStats[currentLimit];
+            const unit: string = this.LIMIT_NAMES[currentLimit].u;
+            const descDetails: HTMLElement = document.createElement("dd");
+            const eligibilityChar: "✓" | "✗" = getEligibilityChar(currentStats[currentLimit], ...minMaxRange);
+            const currentStatFormatted: string = currentStat ? `${currentStat} ${unit}` : "None";
+            descDetails.textContent = `${eligibilityChar} ${currentStatFormatted}`;
+            descs.push(descTerm, descDetails);
+          }
+        }
       }
+
       descList.append(...descs);
       limitInfoDiv.append(descList);
       limit.append(limitInfoDiv);
     };
 
-    /** @param {RoomDetails2} roomDetails */
-    RoomInfo.prototype.displayConfig = function (roomDetails) {
-      let done = 0;
-      let settingsContent = this.rdParts.settingsContent;
+    RoomInfo.prototype.displayConfig = function (roomDetails: RoomDetails) {
+      let done: number = 0;
+      const settingsContent: HTMLDivElement = this.rdParts.settingsContent;
       settingsContent.replaceChildren();
-      for (let setting in roomDetails.s) {
-        if (!(setting in this.CONF_NAMES)) {
+      for (const setting in roomDetails.s) {
+        if (isKey(this.CONF_NAMES, setting)) {
+          const currentSetting = this.CONF_NAMES[setting] as string | { n: string; v?: (string | null)[]; u?: string };
+          let settingName: string;
+          if (typeof currentSetting == "object") {
+            settingName = currentSetting.n;
+          } else if (typeof currentSetting == "string") {
+            settingName = currentSetting;
+          } else throw new Error("Setting name is neither a string nor an object.");
+          let value: string = "";
+          // let name: string;
+          let bulletPoint: string = "• " + settingName;
+          if (typeof roomDetails.s[setting] == "boolean") {
+            value = this.ON_OFF[roomDetails.s[setting] ? 1 : 0];
+          } else {
+            if (!Array.isArray(roomDetails.s[setting])) {
+              if (typeof currentSetting == "object" && "v" in currentSetting) {
+                const modifiedSetting = roomDetails.s[setting]!;
+                if (typeof modifiedSetting == "number") {
+                  let arrayValue = currentSetting.v?.[modifiedSetting];
+                  if (!arrayValue) {
+                    continue;
+                  }
+                  arrayValue = arrayValue || "?";
+                  value = arrayValue;
+                }
+              } else {
+                value = String(roomDetails.s[setting]);
+              }
+              if (typeof currentSetting == "object" && "u" in currentSetting) {
+                value += currentSetting.u;
+              }
+            }
+          }
+          let configValueSpan;
+          if (value) {
+            bulletPoint += ": ";
+            configValueSpan = document.createElement("span");
+            configValueSpan.textContent = value;
+            configValueSpan.classList.add("confVal");
+          }
+          const rdItem: HTMLDivElement = this.createElement("div", ["rdItem"], settingsContent);
+          rdItem.textContent = bulletPoint;
+          if (configValueSpan) rdItem.insertAdjacentElement("beforeend", configValueSpan);
+          ++done;
+        } else {
           continue;
         }
-        let isObject = typeof this.CONF_NAMES[setting] == "object";
-        let value = "";
-        let bulletPoint = "• " + (isObject ? this.CONF_NAMES[setting].n : this.CONF_NAMES[setting]);
-        if (typeof roomDetails.s[setting] == "boolean") {
-          value = this.ON_OFF[roomDetails.s[setting] + 0];
-        } else {
-          if (isObject && "v" in this.CONF_NAMES[setting]) {
-            let arrayValue = this.CONF_NAMES[setting].v[roomDetails.s[setting]];
-            if (!arrayValue) {
-              continue;
-            }
-            arrayValue = arrayValue || "?";
-            value = arrayValue;
-          } else {
-            value = roomDetails.s[setting];
-          }
-          if (isObject && "u" in this.CONF_NAMES[setting]) {
-            value += this.CONF_NAMES[setting].u;
-          }
-        }
-        let configValueSpan;
-        if (value) {
-          bulletPoint += ": ";
-          configValueSpan = document.createElement("span");
-          configValueSpan.textContent = value;
-          configValueSpan.classList.add("confVal");
-        }
-        let rdItem = this.createElement("div", ["rdItem"], settingsContent);
-        rdItem.textContent = bulletPoint;
-        if (configValueSpan) rdItem.insertAdjacentElement("beforeend", configValueSpan);
-        ++done;
       }
       if (done) {
         showElem(this.rdParts.settings);
       }
     };
 
-    /** @param {RoomDetails2} roomDetails */
-    RoomInfo.prototype.displayPlayers = function (roomDetails) {
+    RoomInfo.prototype.displayPlayers = function (roomDetails: RoomDetails) {
       this.rdParts.content.classList.remove("hidden");
-      let countedPlayers = 0;
+      let countedPlayers: number = 0;
       roomDetails.p.p.forEach((item, i) => {
-        if (!item.hasOwnProperty("ti")) roomDetails.p.p[i].ti = 0;
+        if (!Object.prototype.hasOwnProperty.call(item, "ti")) roomDetails.p.p[i].ti = 0;
       });
       roomDetails.p.p.sort((player1, player2) => {
         if (player1.type && !player2.type) return -1;
         else if (!player1.type && player2.type) return 1;
         else if (player1.type && player2.type && player1.ti != player2.ti) {
-          if (player1.ti > player2.ti) return -1;
+          if (player1.ti! > player2.ti!) return -1;
           else return 1;
         } else return player1.n.localeCompare(player2.n);
       });
-      let nodesToAdd = [];
-      let lastPlayerName = null;
-      for (let player of roomDetails.p.p) {
+      const nodesToAdd: HTMLElement[] = [];
+      let lastPlayerName: string | null = null;
+      for (const player of roomDetails.p.p) {
         if (lastPlayerName !== null && lastPlayerName === player.n) {
           continue;
         }
-        let playerType = player.type || 0;
-        let supporterStyle = {
+        const playerType: number = player.type || 0;
+        const supporterStyle = {
           color: player.col || null,
           icon: player.icn || null,
-          bold: player.ti >= 2,
+          bold: (player.ti || 0) >= 2,
         };
         nodesToAdd.push(getAuthorizedNameLinkElement(player.n, playerType, supporterStyle));
         countedPlayers++;
@@ -332,25 +360,25 @@ export function initLayoutChanges() {
         }
       }
       if (roomDetails.p.c > 21) {
-        let span = document.createElement("span");
+        const span: HTMLSpanElement = document.createElement("span");
         span.classList.add("pInfo");
         span.textContent = `+${trans(i18n.cntMore, { cnt: roomDetails.p.c - 21 })}`;
         nodesToAdd.push(span);
         countedPlayers++;
       } else if (roomDetails.p.g) {
-        let span = document.createElement("span");
+        const span: HTMLSpanElement = document.createElement("span");
         span.classList.add("pInfo");
         span.textContent = `+${trans(i18n.cntGuests, { cnt: roomDetails.p.g })}`;
         nodesToAdd.push(span);
         countedPlayers++;
       } else if (roomDetails.p.c + roomDetails.p.s === 0) {
-        let span = document.createElement("span");
+        const span: HTMLSpanElement = document.createElement("span");
         span.classList.add("pInfo");
         span.textContent = i18n.noPlayers;
         nodesToAdd.push(span);
       }
       if (roomDetails.p.s && countedPlayers < 22) {
-        let span = document.createElement("span");
+        const span: HTMLSpanElement = document.createElement("span");
         span.classList.add("pInfo");
         span.textContent = `+${trans(i18n.cntSpec, { cnt: roomDetails.p.s })}`;
         nodesToAdd.push(span);
@@ -360,8 +388,8 @@ export function initLayoutChanges() {
     };
 
     RoomInfo.prototype.displayRoomDetail = function (id) {
-      if (this.roomDetailBox.dataset.id === id && !this.roomDetailBox.classList.contains("hidden")) {
-        var roomDetails = this.roomDetails[id];
+      if (this.roomDetailBox!.dataset.id === id && !this.roomDetailBox!.classList.contains("hidden")) {
+        const roomDetails = this.roomDetails[id];
         hideElem(this.rdParts.spinner);
         this.displayPlayers(roomDetails);
         this.displayConfig(roomDetails);
@@ -375,33 +403,39 @@ export function initLayoutChanges() {
   if (typeof GameCaption !== "undefined") {
     /* Game Captions */
     GameCaption.prototype.create = function () {
-      let caption = document.createElement("div");
+      const caption: HTMLDivElement = document.createElement("div");
       this.parent.appendChild(caption);
       caption.classList.add("gCapt");
       return caption;
     };
-    GameCaption.prototype.hide = function (captionType) {
+    GameCaption.prototype.hide = function (captionType: number) {
       if (!captionType) {
-        for (let caption in this.captions) this.captions[caption].classList.add("hidden");
-      } else if (captionType in this.captions) {
-        this.captions[captionType].classList.add("hidden");
+        for (const caption in this.captions) {
+          if (isKey(this.captions, caption)) this.captions[caption]!.classList.add("hidden");
+        }
+      } else {
+        const captionString: string = String(captionType);
+        if (isKey(this.captions, captionString)) this.captions[captionString]!.classList.add("hidden");
       }
     };
-    GameCaption.prototype.hideExcept = function (captionType) {
-      for (let caption in this.captions)
-        if (caption != captionType) {
-          this.captions[caption].classList.add("hidden");
+    GameCaption.prototype.hideExcept = function (captionType: number) {
+      for (const caption in this.captions) {
+        if (isKey(this.captions, caption)) {
+          if (Number(caption) != captionType) {
+            this.captions[caption]!.classList.add("hidden");
+          }
         }
+      }
     };
     GameCaption.prototype.spectatorMode = function () {
       this.hide();
       if (this.SPECTATOR_MODE in this.captions) {
-        this.captions[this.SPECTATOR_MODE].classList.remove("hidden");
+        this.captions[this.SPECTATOR_MODE]!.classList.remove("hidden");
       } else {
-        let spectatorCaption = (this.captions[this.SPECTATOR_MODE] = this.create());
+        const spectatorCaption: HTMLDivElement = (this.captions[this.SPECTATOR_MODE] = this.create());
         spectatorCaption.classList.add("spectator-mode");
-        let specMode = document.createElement("div");
-        let endSpec = document.createElement("div");
+        const specMode: HTMLDivElement = document.createElement("div");
+        const endSpec: HTMLDivElement = document.createElement("div");
         specMode.textContent = i18n.specMode;
         specMode.classList.add("spec-mode");
         endSpec.textContent = i18n.endSpec;
@@ -409,18 +443,18 @@ export function initLayoutChanges() {
         spectatorCaption.append(specMode, endSpec);
       }
     };
-    GameCaption.prototype.outOfFocus = function (topOffset) {
-      if (this.GAME_PLACE in this.captions && !this.captions[this.GAME_PLACE].classList.contains("hidden")) {
+    GameCaption.prototype.outOfFocus = function (/*topOffset*/) {
+      if (this.GAME_PLACE in this.captions && !this.captions[this.GAME_PLACE]!.classList.contains("hidden")) {
         return;
       }
       if (this.OUT_OF_FOCUS in this.captions) {
-        this.captions[this.OUT_OF_FOCUS].classList.remove("hidden");
+        this.captions[this.OUT_OF_FOCUS]!.classList.remove("hidden");
         return;
       }
-      let outOfFocusCaption = (this.captions[this.OUT_OF_FOCUS] = this.create());
+      const outOfFocusCaption: HTMLDivElement = (this.captions[this.OUT_OF_FOCUS] = this.create());
       outOfFocusCaption.classList.add("out-of-focus");
-      let notFocused = document.createElement("div");
-      let clickToFocus = document.createElement("div");
+      const notFocused: HTMLDivElement = document.createElement("div");
+      const clickToFocus: HTMLDivElement = document.createElement("div");
       notFocused.textContent = i18n.notFocused;
       notFocused.classList.add("not-focused");
       clickToFocus.textContent = i18n.clickToFocus;
@@ -431,38 +465,38 @@ export function initLayoutChanges() {
       let readyGoCaption;
       this.hideExcept(this.MODE_INFO);
       if (this.READY_GO in this.captions) {
-        this.captions[this.READY_GO].classList.remove("hidden");
+        this.captions[this.READY_GO]!.classList.remove("hidden");
       } else {
         (readyGoCaption = this.captions[this.READY_GO] = this.create()).classList.add("ready-go");
       }
-      (readyGoCaption = this.captions[this.READY_GO]).textContent = "";
-      var readyOrGo = document.createElement("div");
+      (readyGoCaption = this.captions[this.READY_GO])!.textContent = "";
+      const readyOrGo: HTMLDivElement = document.createElement("div");
       readyOrGo.classList.add("ready-or-go");
       readyOrGo.textContent = state === 0 ? i18n.ready : i18n.go;
-      readyGoCaption.appendChild(readyOrGo);
+      readyGoCaption!.appendChild(readyOrGo);
     };
-    GameCaption.prototype.modeInfo = function (text, mode) {
+    GameCaption.prototype.modeInfo = function (text: string, mode) {
       if (text) {
         let modeInfoCaption;
         if (this.MODE_INFO in this.captions) {
-          this.captions[this.MODE_INFO].classList.remove("hidden");
+          this.captions[this.MODE_INFO]!.classList.remove("hidden");
         } else {
           (modeInfoCaption = this.captions[this.MODE_INFO] = this.create()).classList.add("mode-info");
         }
-        (modeInfoCaption = this.captions[this.MODE_INFO]).textContent = "";
+        (modeInfoCaption = this.captions[this.MODE_INFO])!.textContent = "";
         if (mode.t == 0) {
-          let task = document.createElement("div");
+          const task = document.createElement("div");
           task.classList.add("task");
           task.textContent = "TASK:";
-          modeInfoCaption.appendChild(task);
+          modeInfoCaption!.appendChild(task);
         }
-        let taskDesc = document.createElement("div");
+        const taskDesc: HTMLDivElement = document.createElement("div");
         taskDesc.classList.add("task-desc");
         taskDesc.textContent = text;
-        modeInfoCaption.appendChild(taskDesc);
+        modeInfoCaption!.appendChild(taskDesc);
         if (mode.t == 1) {
-          modeInfoCaption.classList.add("fading", "transitionCaption");
-          this._fadeOut(modeInfoCaption, 4000);
+          modeInfoCaption!.classList.add("fading", "transitionCaption");
+          this._fadeOut(modeInfoCaption!, 4000);
         }
       } else {
         this.hide(this.MODE_INFO);
@@ -472,17 +506,17 @@ export function initLayoutChanges() {
       let modeCompleteCaption;
       this.hide();
       if (this.MODE_COMPLETE in this.captions) {
-        this.captions[this.MODE_COMPLETE].classList.remove("hidden");
+        this.captions[this.MODE_COMPLETE]!.classList.remove("hidden");
       } else {
         (modeCompleteCaption = this.captions[this.MODE_COMPLETE] = this.create()).classList.add("mode-complete");
       }
-      (modeCompleteCaption = this.captions[this.MODE_COMPLETE]).textContent = "";
-      let completedText = document.createElement("div");
+      (modeCompleteCaption = this.captions[this.MODE_COMPLETE])!.textContent = "";
+      const completedText: HTMLDivElement = document.createElement("div");
       completedText.classList.add("completed-text");
       if (isPlaylistEnd) {
         if (isPlaylistEnd == 1) completedText.textContent = "✔ All done! Nice.";
       } else completedText.textContent = "✔ Completed";
-      modeCompleteCaption.appendChild(completedText);
+      modeCompleteCaption!.appendChild(completedText);
       completedText.classList.add("fadeInTop");
     };
     // Paused caption is unique, as it does not display on board. Leaving it unchanged.
@@ -490,68 +524,69 @@ export function initLayoutChanges() {
       let mapLoadingCaption;
       this.hide();
       if (this.MAP_LOADING in this.captions) {
-        this.captions[this.MAP_LOADING].classList.remove("hidden");
+        this.captions[this.MAP_LOADING]!.classList.remove("hidden");
       } else {
         (mapLoadingCaption = this.captions[this.MAP_LOADING] = this.create()).classList.add("map-loading");
       }
-      (mapLoadingCaption = this.captions[this.MAP_LOADING]).textContent = "";
-      let spinner = document.createElement("img");
+      (mapLoadingCaption = this.captions[this.MAP_LOADING])!.textContent = "";
+      const spinner: HTMLImageElement = document.createElement("img");
       spinner.src = CDN_URL("/res/svg/spinWhite.svg");
       spinner.classList.add("spinner");
-      mapLoadingCaption.appendChild(spinner);
-      let loadingText = document.createElement("div");
+      mapLoadingCaption!.appendChild(spinner);
+      const loadingText: HTMLDivElement = document.createElement("div");
       loadingText.classList.add("loading-text");
       loadingText.textContent = isUsermode ? "Custom mode loading" : i18n.mapLoading;
-      mapLoadingCaption.appendChild(loadingText);
+      mapLoadingCaption!.appendChild(loadingText);
     };
     // Usermode buttons are also special, why are they in the Game**Caption** class though?
-    GameCaption.prototype.gamePlace = function (game) {
+    GameCaption.prototype.gamePlace = function (game: Game) {
       let gamePlaceCaption;
       this.hide(this.OUT_OF_FOCUS);
       this.hide(this.SPEED_LIMIT);
       if (this.GAME_PLACE in this.captions) {
-        this.captions[this.GAME_PLACE].classList.remove("hidden");
-        this.captions[this.GAME_PLACE].textContent = "";
+        this.captions[this.GAME_PLACE]!.classList.remove("hidden");
+        this.captions[this.GAME_PLACE]!.textContent = "";
       } else {
         (gamePlaceCaption = this.captions[this.GAME_PLACE] = this.create()).classList.add("game-place");
       }
       gamePlaceCaption = this.captions[this.GAME_PLACE];
-      let place = document.createElement("div");
-      let instructions = document.createElement("div");
-      place.textContent = game.getPlaceColor(game.place).str;
-      place.dataset.place = game.place;
+      const place: HTMLDivElement = document.createElement("div");
+      const instructions: HTMLDivElement = document.createElement("div");
+      place.textContent = game.getPlaceColor(game.place!).str;
+      place.dataset.place = String(game.place);
       place.classList.add("place");
-      instructions.dataset.gameOngoing = game.Live.LiveGameRunning;
+      instructions.dataset.gameOngoing = String(game.Live.LiveGameRunning);
       instructions.classList.add("instructions");
       if (game.Live.LiveGameRunning) {
         instructions.textContent = i18n.waitNext;
       } else {
         instructions.textContent = i18n.pressStart;
       }
-      gamePlaceCaption.append(place, instructions);
+      gamePlaceCaption!.append(place, instructions);
     };
     GameCaption.prototype.speedWarning = function (PPSLimit) {
-      if (!(this.GAME_PLACE in this.captions) || this.captions[this.GAME_PLACE].classList.contains("hidden")) {
+      if (!(this.GAME_PLACE in this.captions) || this.captions[this.GAME_PLACE]!.classList.contains("hidden")) {
         let speedLimitCaption;
         if (this.SPEED_LIMIT in this.captions) {
-          this.captions[this.SPEED_LIMIT].classList.remove("hidden");
+          this.captions[this.SPEED_LIMIT]!.classList.remove("hidden");
         } else {
           (speedLimitCaption = this.captions[this.SPEED_LIMIT] = this.create()).classList.add(
             "speed-warning",
             "transitionCaption"
           );
-          let slowDown = document.createElement("div");
+          const slowDown: HTMLDivElement = document.createElement("div");
           slowDown.classList.add("slow-down");
           slowDown.textContent = i18n.slowDown;
-          let speedLimit = document.createElement("div");
+          const speedLimit: HTMLDivElement = document.createElement("div");
           speedLimit.id = "slSubT";
           speedLimit.classList.add("speed-limit");
-          let b = document.createElement("b");
+          const b: HTMLElement = document.createElement("b");
           speedLimit.append(`${i18n.speedLimitIs} `, b, " PPS");
           speedLimitCaption.append(slowDown, speedLimit);
         }
-        (speedLimitCaption = this.captions[this.SPEED_LIMIT]).querySelector("#slSubT > b").textContent =
-          PPSLimit.toFixed(1);
+        (
+          (speedLimitCaption = this.captions[this.SPEED_LIMIT]!).querySelector("#slSubT > b") as HTMLDivElement
+        ).textContent = PPSLimit.toFixed(1);
         if (this.speedTimout) {
           window.clearTimeout(this.speedTimout);
         }
@@ -562,32 +597,33 @@ export function initLayoutChanges() {
       let PBcaption;
       this.hide();
       if (this.NEW_PERSONAL_BEST in this.captions) {
-        this.captions[this.NEW_PERSONAL_BEST].classList.remove("hidden");
+        this.captions[this.NEW_PERSONAL_BEST]!.classList.remove("hidden");
       } else {
         (PBcaption = this.captions[this.NEW_PERSONAL_BEST] = this.create()).classList.add("pb", "transitionCaption");
-        let time = document.createElement("div");
+        const time = document.createElement("div");
         time.classList.add("time");
-        let yourNewPB = document.createElement("div");
+        const yourNewPB: HTMLDivElement = document.createElement("div");
         yourNewPB.classList.add("your-new-pb");
         yourNewPB.textContent = i18n.newPB;
-        let improvement = document.createElement("div");
+        const improvement: HTMLDivElement = document.createElement("div");
         improvement.id = "slSubT";
         improvement.classList.add("improvement");
-        let modeInfo = document.createElement("div");
+        const modeInfo: HTMLDivElement = document.createElement("div");
         modeInfo.classList.add("gCapt", "mode-info");
         PBcaption.append(time, yourNewPB, improvement, modeInfo);
       }
       PBcaption = this.captions[this.NEW_PERSONAL_BEST];
-      let [time, yourNewPB, improvement, modeInfo] = PBcaption.children;
+      if (!PBcaption) throw new Error("PB caption is null!");
+      const [time /*yourNewPB*/, , improvement, modeInfo] = PBcaption.children as HTMLCollectionOf<HTMLDivElement>;
       if (PBinfo === true) {
-        PBcaption.dataset.firstGame = true;
+        PBcaption.dataset.firstGame = String(true);
         improvement.textContent = i18n.firstPB;
         hideElem(time);
         hideElem(modeInfo);
       } else if (PBinfo) {
-        PBcaption.dataset.firstGame = false;
-        time.textContent = PBinfo.newS;
-        let replacements = {
+        PBcaption.dataset.firstGame = String(false);
+        time.textContent = String(PBinfo.newS);
+        const replacements = {
           prevPB: "<b>" + PBinfo.prevS + "</b>",
           prevAgo: "<b>" + PBinfo.days + " " + i18n.daysAgo + "</b>",
           PBdiff: "<b>" + PBinfo.diffS + "</b>",
@@ -598,20 +634,22 @@ export function initLayoutChanges() {
         showElem(modeInfo);
       }
     };
-    GameCaption.prototype.loading = function (captionText, imageType = 0) {
+    GameCaption.prototype.loading = function (captionText: string, imageType = 0) {
       let loadingCaption;
       this.hide();
       if (this.LOADING in this.captions) {
-        this.captions[this.LOADING].classList.remove("hidden");
-        if (this.captions[this.LOADING].style) {
-          this.captions[this.LOADING].classList.add("loading");
-          this.captions[this.LOADING].removeAttribute("style");
+        this.captions[this.LOADING]!.classList.remove("hidden");
+        if (this.captions[this.LOADING]!.style) {
+          this.captions[this.LOADING]!.classList.add("loading");
+          this.captions[this.LOADING]!.removeAttribute("style");
         }
       } else {
         (loadingCaption = this.captions[this.LOADING] = this.create()).classList.add("loading");
       }
-      (loadingCaption = this.captions[this.LOADING]).textContent = "";
-      let image = document.createElement("img");
+      loadingCaption = this.captions[this.LOADING];
+      if (!loadingCaption) throw new Error("Loading caption is null!");
+      loadingCaption.textContent = "";
+      const image: HTMLImageElement = document.createElement("img");
       switch (imageType) {
         case 1: {
           image.src = CDN_URL("/res/svg/cancel.svg");
@@ -628,20 +666,20 @@ export function initLayoutChanges() {
       }
       image.classList.add("image");
       loadingCaption.appendChild(image);
-      let loadingText = document.createElement("div");
+      const loadingText: HTMLDivElement = document.createElement("div");
       loadingText.classList.add("loading-text");
       loadingText.innerHTML = captionText; // One caption uses <br> in it, so innerHTML must remain.
       loadingCaption.appendChild(loadingText);
     };
     GameCaption.prototype.liveRaceFinished = function () {
       if (this.RACE_FINISHED in this.captions) {
-        this.captions[this.RACE_FINISHED].classList.remove("hidden");
-        return void this._fadeOut(this.captions[this.RACE_FINISHED], 5000, 3, 0.85);
+        this.captions[this.RACE_FINISHED]!.classList.remove("hidden");
+        return void this._fadeOut(this.captions[this.RACE_FINISHED]!, 5000, 3, 0.85);
       }
-      let raceFinishedCaption = (this.captions[this.RACE_FINISHED] = this.create());
+      const raceFinishedCaption: HTMLDivElement = (this.captions[this.RACE_FINISHED] = this.create());
       raceFinishedCaption.classList.add("race-finished");
-      let raceFinishedText = document.createElement("div");
-      let raceFinishedInfo = document.createElement("div");
+      const raceFinishedText: HTMLDivElement = document.createElement("div");
+      const raceFinishedInfo: HTMLDivElement = document.createElement("div");
       raceFinishedText.textContent = i18n.raceFin;
       raceFinishedText.classList.add("race-finished-text");
       raceFinishedInfo.textContent = i18n.raceFinInfo;
@@ -650,21 +688,21 @@ export function initLayoutChanges() {
       this._fadeOut(raceFinishedCaption, 5000, 3, 0.85);
     };
     GameCaption.prototype.gameWarning = function (warningTitle, warningDescription, options) {
-      let fadeTimer_ms = 3000;
+      let fadeTimer_ms: number = 3000;
       if (options?.fade_after) fadeTimer_ms = options.fade_after;
       if (!warningDescription) warningDescription = "";
       if (this.GAME_WARNING in this.captions) {
-        this.captions[this.GAME_WARNING].classList.remove("hidden");
-        this.captions[this.GAME_WARNING].children[0].textContent = warningTitle;
-        this.captions[this.GAME_WARNING].children[1].textContent = warningDescription;
-        return void this._fadeOut(this.captions[this.GAME_WARNING], fadeTimer_ms, 2, 0.85);
+        this.captions[this.GAME_WARNING]!.classList.remove("hidden");
+        this.captions[this.GAME_WARNING]!.children[0].textContent = warningTitle;
+        this.captions[this.GAME_WARNING]!.children[1].textContent = warningDescription;
+        return void this._fadeOut(this.captions[this.GAME_WARNING]!, fadeTimer_ms, 2, 0.85);
       }
-      let warningCaption = (this.captions[this.GAME_WARNING] = this.create());
+      const warningCaption: HTMLDivElement = (this.captions[this.GAME_WARNING] = this.create());
       warningCaption.classList.add("warning", "transitionCaption");
-      let warningTitleDiv = document.createElement("div");
+      const warningTitleDiv: HTMLDivElement = document.createElement("div");
       warningTitleDiv.classList.add("title");
       warningTitleDiv.textContent = warningTitle;
-      let warningDescriptionDiv = document.createElement("div");
+      const warningDescriptionDiv: HTMLDivElement = document.createElement("div");
       warningDescriptionDiv.id = "slSubT";
       warningDescriptionDiv.classList.add("description");
       warningDescriptionDiv.textContent = warningDescription;
@@ -674,10 +712,10 @@ export function initLayoutChanges() {
   }
 
   if (typeof StatLine !== "undefined") {
-    StatLine.prototype.enable = function () {
+    StatLine.prototype.enable = function (): StatLine {
       this.enabled = true;
       this.label.classList.remove("hidden");
-      this.label.style.display = null;
+      this.label.style.removeProperty("display");
       return this;
     };
   }
