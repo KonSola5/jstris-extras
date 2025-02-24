@@ -8,7 +8,7 @@ interface SVGDefinition {
   paths: object[];
 }
 
-let set2ings: Controls;
+let set2ings: Jstris.Controls;
 
 export const initKeyboardDisplay = (): void => {
   const isGame: boolean = typeof Game != "undefined";
@@ -333,22 +333,22 @@ export const initKeyboardDisplay = (): void => {
 
         const oldPlayUntilTime = Replayer.prototype.playUntilTime;
         Replayer.prototype.playUntilTime = function (...args) {
-          function pressKey (key: string, type: number): void {
+          function pressKey(key: string, type: number): void {
             setKey(key, type >= 1);
 
             if (type == 2) {
               setTimeout(() => setKey(key, false), das * 0.6);
             }
-          };
+          }
           // kps.textContent = "KPS: " + (((this.getKPP() * this.placedBlocks) / this.clock) * 1000).toFixed(2);
-          
+
           if (this.ptr == 0) this.lastPtr = -1;
 
           this.kbdActions = [];
 
           for (let i = 0; i < this.actions.length; i++) {
             const keyAction: KeyAction = { action: this.actions[i].a, timestamp: this.actions[i].t };
-            if (keyAction.action == Actions.DAS_LEFT || keyAction.action == Actions.DAS_RIGHT) {
+            if (keyAction.action == Jstris.Actions.DAS_LEFT || keyAction.action == Jstris.Actions.DAS_RIGHT) {
               keyAction.action -= 2;
               for (let j: number = i - 1; j >= 0; j--) {
                 if (this.kbdActions[j].action < 2) {
@@ -377,7 +377,7 @@ export const initKeyboardDisplay = (): void => {
               null,
               ["hold", 2],
             ];
-            const highlight: [string, number] | null = highlightActions[action]
+            const highlight: [string, number] | null = highlightActions[action];
             if (highlight) {
               pressKey(...highlight);
             }

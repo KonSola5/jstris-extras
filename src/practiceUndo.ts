@@ -1,3 +1,4 @@
+import { ConnectionsMatrix } from "./global-typings.js";
 import { Config } from "./index.js";
 import { Modes } from "./util.js";
 
@@ -8,8 +9,8 @@ export class SaveState {
   /**
    * Creates a SaveState out of the given Game (all attributes are deep copies)
    */
-  matrix: number[][];
-  deadline: number[];
+  matrix: Jstris.Matrix;
+  deadline: Jstris.MatrixRow;
   activeBlock: Block;
   blockInHold: Block | null;
   queue?: Block[];
@@ -19,10 +20,9 @@ export class SaveState {
   totalKeyPresses: number;
   incomingGarbage: [garbageInSegment: number, timestamp: number][];
   redBar: number;
-  gamedata: GameData;
+  gamedata: Jstris.GameData;
   b2b: boolean;
-  connections?: number[][];
-
+  connections?: ConnectionsMatrix;
 
   constructor(game: Game) {
     this.matrix = clone(game.matrix);

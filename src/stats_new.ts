@@ -1,40 +1,44 @@
-class StatsManager2 {
-  /**
-   * @typedef {object} Stats
-   * @prop {Stat} CLOCK
-   * @prop {Stat} SCORE
-   * @prop {Stat} LINES
-   * @prop {Stat} ATTACK
-   * @prop {Stat} RECV
-   * @prop {Stat} FINESSE
-   * @prop {Stat} PPS
-   * @prop {Stat} KPP
-   * @prop {Stat} APM
-   * @prop {Stat} BLOCKS
-   * @prop {Stat} VS
-   * @prop {Stat} WASTE
-   * @prop {Stat} HOLD
-   */
+// TODO
 
-  /** @type {Stats} */
-  stats = {};
-  /** @type {Game} */
-  game;
-  jstrisExtras = true;
-  /** @param {Ctx2DView | WebGLView} view */
-  constructor(view) {
+declare interface Stats {
+CLOCK?: Stat
+SCORE?: Stat
+LINES?: Stat
+ATTACK?: Stat
+RECV?: Stat
+FINESSE?: Stat
+PPS?: Stat
+KPP?: Stat
+APM?: Stat
+BLOCKS?: Stat
+VS?: Stat
+WASTE?: Stat
+HOLD?: Stat
+HOLDPERCENT?: Stat
+PIECES_AND_PPS?: Stat
+}
+class StatsManager2 { // eslint-disable-line
+  stats: Stats = {}
+  game: Game;
+  jstrisExtras: boolean = true;
+  statBoxLeft: HTMLDivElement;
+  statBoxRight: HTMLDivElement;
+  statsLeft: string[] = [];
+  statsRight: string[] = [];
+
+  constructor(view: Ctx2DView | WebGLView) {
     this.game = view.g;
-    let statBoxLeft = document.querySelector("#main .stat-box-left");
+    let statBoxLeft: HTMLDivElement = document.querySelector("#main .stat-box-left") as HTMLDivElement;
     if (!statBoxLeft) {
       statBoxLeft = document.createElement("div");
       statBoxLeft.classList.add("stat-box-left");
-      document.querySelector("#main .lstage").append(statBoxLeft);
+      (document.querySelector("#main .lstage") as HTMLDivElement).append(statBoxLeft);
     }
-    let statBoxRight = document.querySelector("#main .stat-box-right");
+    let statBoxRight: HTMLDivElement = document.querySelector("#main .stat-box-right") as HTMLDivElement;
     if (!statBoxRight) {
       statBoxRight = document.createElement("div");
       statBoxRight.classList.add("stat-box-right");
-      document.querySelector("#main #rInfoBox").append(statBoxRight);
+      (document.querySelector("#main #rInfoBox") as HTMLDivElement).append(statBoxRight);
     }
     this.statBoxLeft = statBoxLeft;
     this.statBoxRight = statBoxRight;
@@ -42,19 +46,18 @@ class StatsManager2 {
     this.initDefault();
   }
 
-  /** @param {Ctx2DView | WebGLView} view */
-  setView(view) {
+  setView(view: Ctx2DView | WebGLView): void {
     this.game = view.g;
   }
 
-  adjustToGameMode() {
+  adjustToGameMode(): void {
     this.resetAll();
     this.applyShownStats();
   }
 
-  initDefault() {
+  initDefault(): void {
     // Vanilla stats
-    this.stats.CLOCK = new Stat({ name: i18n.roundTime, stats:[{initialValue: "0.00"}] });
+    this.stats.CLOCK = new Stat({ name: i18n.roundTime, stats:[{initialValue: 0}] });
     this.stats.SCORE = new Stat({ name: i18n.score, stats: [{initialValue: 0}] });
     this.stats.LINES = new Stat({ name: "Lines", stats: [{initialValue: 0}] });
     this.stats.ATTACK = new Stat({ name: i18n.attack, stats: [{initialValue: 0}] });
@@ -78,20 +81,20 @@ class StatsManager2 {
     ]})
   }
 
-  applyShownStats(shown) {
-    let defaultStatss = {
-      /* Live      */ 0: ["CLOCK", "ATTACK", "RECV", "PPS", "APM"],
-      /* Sprint    */ 1: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Practice  */ 2: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Cheese    */ 3: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Survival  */ 4: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Ultra     */ 5: ["SCORE", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Maps      */ 6: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* TSD20     */ 7: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* PCMode    */ 8: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
-      /* Usermodes */ 9: ["CLOCK", "LINES", "FINESSE", "PPS", "KPP", "BLOCKS"],
-    };
-    let defaultStats = {
+  applyShownStats(/*shown?: number*/): void {
+    // let defaultStatsa = {
+    //   /* Live      */ 0: ["CLOCK", "ATTACK", "RECV", "PPS", "APM"],
+    //   /* Sprint    */ 1: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Practice  */ 2: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Cheese    */ 3: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Survival  */ 4: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Ultra     */ 5: ["SCORE", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Maps      */ 6: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* TSD20     */ 7: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* PCMode    */ 8: ["CLOCK", "ATTACK", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    //   /* Usermodes */ 9: ["CLOCK", "LINES", "FINESSE", "PPS", "KPP", "BLOCKS"],
+    // };
+    const defaultStats = {
       0: {
         left: ["ATTACK", "RECV", "PPS", "APM"],
         right: ["CLOCK"],
@@ -133,63 +136,60 @@ class StatsManager2 {
         right: [],
       },
     };
-
-    this.statsLeft = defaultStats[this.game.isPmode(false)].left;
-    this.statsRight = defaultStats[this.game.isPmode(false)].right;
+    const currentMode = this.game.isPmode(false) as keyof typeof defaultStats
+    this.statsLeft = defaultStats[currentMode].left;
+    this.statsRight = defaultStats[currentMode].right;
     this.statBoxLeft.replaceChildren();
-    this.statsLeft.forEach((statName) => {
-      this.statBoxLeft.appendChild(this.stats[statName].statBox);
+    this.statsLeft.forEach((statName: string): void => {
+      this.statBoxLeft.appendChild(this.stats[statName as keyof Stats]!.statBox);
     });
     this.statBoxRight.replaceChildren();
-    this.statsRight.forEach((statName) => {
-      this.statBoxRight.appendChild(this.stats[statName].statBox);
+    this.statsRight.forEach((statName: string): void => {
+      this.statBoxRight.appendChild(this.stats[statName as keyof Stats]!.statBox);
     });
   }
 
-  get(stat) {
-    return this.stats[stat];
+  get(stat: string): Stat | undefined {
+    return this.stats[stat as keyof Stats];
   }
 
   render() {
-    this.statsLeft.forEach((statName) => {
-      this.stats[statName].update();
+    this.statsLeft.forEach((statName: string): void => {
+      this.stats[statName as keyof Stats]!.update();
     });
-    this.statsRight.forEach((statName) => {
-      this.stats[statName].update();
+    this.statsRight.forEach((statName: string): void => {
+      this.stats[statName as keyof Stats]!.update();
     });
   }
 
-  reorder() {}
+  reorder(): void {}
 
-  resetAll() {
-    Object.values(this.stats).forEach((stat) => {
+  resetAll(): void {
+    Object.values(this.stats).forEach((stat: Stat): void => {
       stat.reset();
     });
   }
 }
 
+interface StatDefinition {
+  initialValue: number;
+  unit?: string;
+}
+
+interface StatSettings {
+  name: string,
+  stats: StatDefinition[]
+}
+
 class Stat {
-  /**
-   * @typedef {object} StatDefinition
-   * @prop {any} initialValue Initial value of the stat.
-   * @prop {string?} unit Unit for the stat.
-   */
+  statBox: HTMLDivElement;
+  statTitle: HTMLSpanElement;
+  statValueBox: HTMLDivElement;
+  statValues: HTMLElement[] = [];
+  values: number[] = [];
+  initialValues: number[] = [];
 
-  /**
-   * @typedef {object} StatSettings
-   * @prop {string} name Name of the stat.
-   * @prop {StatDefinition[]} stats Defines stats within the stat.
-   */
-  statBox;
-  statTitle;
-  statValueBox;
-  statValues = [];
-  name;
-  values = [];
-  initialValues = [];
-
-  /** @param {StatSettings} settings  */
-  constructor(settings) {
+  constructor(settings: StatSettings) {
     this.statBox = document.createElement("div");
     this.statBox.classList.add("stat");
     this.statTitle = document.createElement("span");
@@ -199,10 +199,10 @@ class Stat {
     this.statValueBox.classList.add("value");
     this.statBox.append(this.statTitle, this.statValueBox);
 
-    settings.stats.forEach((stat, i) => {
+    settings.stats.forEach((stat: StatDefinition, i: number) => {
       if (i !== 0) this.statValueBox.append("|")
       this.statValues.push(document.createElement("span"));
-      this.statValues[i].textContent = stat.initialValue;
+      this.statValues[i].textContent = String(stat.initialValue);
       this.statValueBox.append(this.statValues[i]);
       if (stat.unit) this.statBox.append(stat.unit)
 
@@ -211,22 +211,22 @@ class Stat {
     })
   }
 
-  set(...values) {
+  set(...values: number[]): void {
     this.values = values;
   }
 
-  get() {
+  get(): number | number[] {
     if (this.values.length == 1) return this.values[0];
     else return this.values;
   }
 
-  reset() {
+  reset(): void {
     this.values = this.initialValues.slice();
   }
 
-  update() {
-    this.values.forEach((value, i) => {
-      this.statValues[i].textContent = value;
+  update(): void {
+    this.values.forEach((value: number, i: number) => {
+      this.statValues[i].textContent = String(value);
     })
   }
 }

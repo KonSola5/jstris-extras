@@ -7,8 +7,8 @@ import { initFX } from "./jstris-fx.js";
 import { initChat } from "./chat.js";
 import { ConfigManager } from "./config.js";
 
-import css from "./style.css";
-import customGameCSS from "./custom-game-style.css";
+import css from "./css/style.css";
+import customGameCSS from "./css/custom-game-style.css";
 //import { initModal } from "./settingsModal.js";
 import { initLayout } from "./layout.js";
 //import { initStats } from "./stats.js";

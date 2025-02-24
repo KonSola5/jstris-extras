@@ -201,7 +201,7 @@ export function initLayoutChanges() {
   }
 
   if (typeof RoomInfo !== "undefined") {
-    RoomInfo.prototype.displayLimit = function (roomDetails: RoomDetails) {
+    RoomInfo.prototype.displayLimit = function (roomDetails: Jstris.RoomDetails) {
       if (!roomDetails.l) {
         hideElem(this.rdParts.limit);
         return;
@@ -210,8 +210,8 @@ export function initLayoutChanges() {
       limit.replaceChildren();
       const roomJoinLimits = roomDetails.l;
       const isEligible: boolean | undefined = roomJoinLimits.r;
-      const limits: Limits | undefined = roomJoinLimits.l;
-      const currentStats: CurrentStats = roomJoinLimits.s || ({} as CurrentStats);
+      const limits: Jstris.Limits | undefined = roomJoinLimits.l;
+      const currentStats: Jstris.CurrentStats = roomJoinLimits.s || ({} as Jstris.CurrentStats);
       this.rdParts.limit.classList.remove("hidden");
       // this.rdParts.limit.style.display = "flex";
       const limitInfoDiv: HTMLDivElement = this.createElement("div", ["rdLimitInf"], null);
@@ -268,7 +268,7 @@ export function initLayoutChanges() {
       limit.append(limitInfoDiv);
     };
 
-    RoomInfo.prototype.displayConfig = function (roomDetails: RoomDetails) {
+    RoomInfo.prototype.displayConfig = function (roomDetails: Jstris.RoomDetails) {
       let done: number = 0;
       const settingsContent: HTMLDivElement = this.rdParts.settingsContent;
       settingsContent.replaceChildren();
@@ -326,7 +326,7 @@ export function initLayoutChanges() {
       }
     };
 
-    RoomInfo.prototype.displayPlayers = function (roomDetails: RoomDetails) {
+    RoomInfo.prototype.displayPlayers = function (roomDetails: Jstris.RoomDetails) {
       this.rdParts.content.classList.remove("hidden");
       let countedPlayers: number = 0;
       roomDetails.p.p.forEach((item, i) => {

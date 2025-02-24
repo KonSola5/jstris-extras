@@ -1,6 +1,7 @@
-import { Config } from "./index.ts";
+import { Config } from "./index.js";
 import { Modes } from "./util.js";
 import { getBlockSetsEX } from "./blockSetExtensions.js";
+import { ConnectionsMatrix } from "./global-typings.js";
 
 export const initSkins = () => {
   let customSkinSize = 32;
@@ -8,7 +9,7 @@ export const initSkins = () => {
   let usingConnected = false;
   let usingGhostConnected = false;
 
-  function loadCustomSkin(url, ghost = false) {
+  function loadCustomSkin(url: string, ghost: boolean = false): void {
     // if not allowing force replay skin, don't load custom skin
     if (location.href.includes("replay") && !Config.settings.customSkinInReplays) {
       return;
@@ -29,32 +30,32 @@ export const initSkins = () => {
     - any combination of connected/animated/tintable skins.
 
     */
-    let img = new Image();
+    const img = new Image();
     console.log(url, ghost);
-    img.onload = (event) => {
-      let height = img.height;
-      let width = img.width;
-      let ratio = width / height;
+    img.onload = () => {
+      const height = img.height;
+      const width = img.width;
+      const ratio = width / height;
       switch (true) {
         case ratio == 9 && !ghost: // Normal skin
           customSkinSize = height;
           usingConnected = false;
-          if (window.loadSkin) loadSkin(url, customSkinSize);
+          loadSkin?.(url, customSkinSize);
           break;
         case ratio == (6 * 9) / 8 && !ghost: // Jstris Extras connected skin
           usingConnected = true;
           customSkinSize = width / (6 * 9);
-          if (window.loadSkin) loadSkin(url, customSkinSize);
+          loadSkin?.(url, customSkinSize);
           break;
         case ratio == 7 && ghost: // Normal ghost skin
           usingGhostConnected = false;
           customGhostSkinSize = height;
-          if (window.loadGhostSkin) loadGhostSkin(url, height);
+          loadGhostSkin?.(url, height);
           break;
         case ratio == (6 * 7) / 8 && ghost: // Jstris Extras ghost skin
           usingGhostConnected = true;
           customGhostSkinSize = width / (6 * 7);
-          if (window.loadSkin) loadGhostSkin(url, width / (6 * 7));
+          loadGhostSkin?.(url, width / (6 * 7));
           break;
         default:
           break;
@@ -64,7 +65,7 @@ export const initSkins = () => {
   }
   window.loadCustomSkin = loadCustomSkin;
 
-  function getConnection(connection) {
+  function getConnection(connection: number): [x: number, y: number] {
     const tileLookup = {
       0: [3, 3],
       2: [3, 2],
@@ -113,25 +114,24 @@ export const initSkins = () => {
       251: [3, 6],
       254: [5, 6],
       255: [1, 1],
-    };
+    } satisfies Record<number, [number, number]>;
 
     // Return the unused tile if it doesn't exist in the lookup table above.
     // It should not appear, if it appears, it's a bug.
-    return tileLookup[connection] ?? [4, 5];
+    return tileLookup[connection as keyof typeof tileLookup] ?? [4, 5];
   }
 
-  /** @param {Game} game @param {number} x @param {number} y */
-  function connectMap(game, x, y) {
+  function connectMap(game: Game, x: number, y: number): void {
     // Shallow copies, so mutating arrays inside of the arrays will mutate the original arrays
-    let tempMatrix = [game.deadline].concat(game.matrix);
+    const tempMatrix: number[][] = [game.deadline].concat(game.matrix);
 
-    let blockColor = tempMatrix[y][x];
-    if (blockColor === 0) game.connections[y][x] = 0;
+    const blockColor: number = tempMatrix[y][x];
+    if (blockColor === 0) game.connections![y][x] = 0;
     // Bitmask
-    let cardinalsFound = 0;
+    let cardinalsFound: number = 0;
     // prettier-ignore
     const NORTH = 1, EAST = 2, SOUTH = 4, WEST = 8;
-    let connectionValue = 0;
+    let connectionValue: number = 0;
     if (tempMatrix[y - 1]?.[x] === blockColor) {
       connectionValue += 2;
       cardinalsFound += NORTH;
@@ -160,28 +160,13 @@ export const initSkins = () => {
     if ((cardinalsFound & (SOUTH + WEST)) == SOUTH + WEST) {
       if (tempMatrix[y + 1]?.[x - 1] === blockColor) connectionValue += 32;
     }
-    game.connections[y][x] = connectionValue;
-  }
-
-  /**
-   * @param {(x: number, y: number, neighbor: number) => void} callbackFn
-   * @param {Game} thisArg
-   */
-  function forEachNeighbor(x, y, callbackFn, thisArg) {
-    callbackFn(x - 1, y + 1, 1);
-    callbackFn(x, y + 1, 2);
-    callbackFn(x + 1, y + 1, 4);
-    callbackFn(x - 1, y, 8);
-    callbackFn(x + 1, y, 16);
-    callbackFn(x - 1, y - 1, 32);
-    callbackFn(x, y - 1, 64);
-    callbackFn(x - 1, y - 1, 128);
+    game.connections![y][x] = connectionValue;
   }
 
   // WebGL connected skin init
-  if (window.WebGLView) {
-    let oldRedrawMatrix = WebGLView.prototype.redrawMatrix;
-    WebGLView.prototype.redrawMatrix = function () {
+  if (typeof WebGLView == "function") {
+    const oldRedrawMatrix = WebGLView.prototype.redrawMatrix;
+    WebGLView.prototype.redrawMatrix = function (...args) {
       if (usingConnected) {
         this.clearMainCanvas();
         if (this.g.isInvisibleSkin) {
@@ -190,30 +175,36 @@ export const initSkins = () => {
         this.g.redrawMatrixConnected();
         return;
       }
-      return oldRedrawMatrix.apply(this, arguments);
+      return oldRedrawMatrix.apply(this, args);
     };
-    let oldInitRenderer = WebGLView.prototype.initRenderer;
-    WebGLView.prototype.initRenderer = function () {
-      let returnValue = oldInitRenderer.apply(this, arguments);
+    const oldInitRenderer = WebGLView.prototype.initRenderer;
+    WebGLView.prototype.initRenderer = function (...args) {
+      const returnValue = oldInitRenderer.apply(this, args);
       this.setBlendConnected();
       return returnValue;
     };
 
     WebGLView.prototype.setBlendConnected = function () {
-      for (let ctx of this.ctxs) {
-        let gl = ctx.gl;
+      for (const ctx of this.ctxs) {
+        const gl: WebGLRenderingContext = ctx.gl;
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
     };
 
-    WebGLView.prototype.drawBlockConnected = function (x, y, blockID, connection, ctxKind) {
+    WebGLView.prototype.drawBlockConnected = function (
+      x: number,
+      y: number,
+      blockID: number,
+      connection: number,
+      ctxKind: number
+    ) {
       if (blockID) {
-        let skin = this.g.skins[this.g.skinId];
-        let scale = this.g.drawScale * this.g.block_size;
-        let ctx = this.ctxs[ctxKind],
+        const skin = this.g.skins[this.g.skinId];
+        const scale = this.g.drawScale * this.g.block_size;
+        const ctx = this.ctxs[ctxKind],
           texture = ctx.textureInfos[0];
-        let [offsetX, offsetY] = getConnection(connection);
+        const [offsetX, offsetY] = getConnection(connection);
 
         this.drawImage(
           ctx,
@@ -233,16 +224,16 @@ export const initSkins = () => {
     };
 
     WebGLView.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
-      let skinSize = this.g.skins[this.g.skinId].w;
-      var mainCtx = this.ctxs[0];
+      const skinSize = this.g.skins[this.g.skinId].w;
+      const mainCtx = this.ctxs[0];
       if (this.g.ghostSkinId === 0) {
         mainCtx.gl.uniform1f(mainCtx.globalAlpha, 0.5);
         this.drawBlockConnected(x, y, blockID, connection, 0);
         mainCtx.gl.uniform1f(mainCtx.globalAlpha, 1);
       } else {
-        var scale = this.g.drawScale * this.g.block_size;
-        var texture = mainCtx.textureInfos[1];
-        let [offsetX, offsetY] = getConnection(connection);
+        const scale = this.g.drawScale * this.g.block_size;
+        const texture = mainCtx.textureInfos[1];
+        const [offsetX, offsetY] = getConnection(connection);
         this.drawImage(
           mainCtx,
           texture.texture,
@@ -266,9 +257,9 @@ export const initSkins = () => {
 
   // 2D canvas connected skin init
 
-  if (window.Ctx2DView) {
-    let oldRedrawMatrix = Ctx2DView.prototype.redrawMatrix;
-    Ctx2DView.prototype.redrawMatrix = function () {
+  if (typeof Ctx2DView == "function") {
+    const oldRedrawMatrix = Ctx2DView.prototype.redrawMatrix;
+    Ctx2DView.prototype.redrawMatrix = function (...args) {
       if (usingConnected) {
         this.clearMainCanvas();
         if (this.g.isInvisibleSkin) {
@@ -277,14 +268,14 @@ export const initSkins = () => {
         this.g.redrawMatrixConnected();
         return;
       }
-      return oldRedrawMatrix.apply(this, arguments);
+      return oldRedrawMatrix.apply(this, args);
     };
 
     Ctx2DView.prototype.drawBlockConnected = function (x, y, blockID, connection) {
       if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
-        var scale = this.g.drawScale * this.g.block_size;
+        const scale = this.g.drawScale * this.g.block_size;
         if (this.g.skinId) {
-          let [offsetX, offsetY] = getConnection(connection);
+          const [offsetX, offsetY] = getConnection(connection);
           this.ctx.drawImage(
             this.g.tex,
             (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.g.skinId].w,
@@ -297,7 +288,7 @@ export const initSkins = () => {
             scale
           );
         } else {
-          var mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+          const mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
           this.drawRectangle(this.ctx, x * this.g.block_size, y * this.g.block_size, scale, scale, mono);
         }
       }
@@ -305,8 +296,8 @@ export const initSkins = () => {
 
     Ctx2DView.prototype.drawGhostBlockConnected = function (x, y, pieceID, connection) {
       if (x >= 0 && y >= 0 && x < 10 && y < 20) {
-        let scale = this.g.drawScale * this.g.block_size;
-        let [offsetX, offsetY] = getConnection(connection);
+        const scale = this.g.drawScale * this.g.block_size;
+        const [offsetX, offsetY] = getConnection(connection);
         if (0 === this.g.ghostSkinId) {
           this.ctx.globalAlpha = 0.5;
           if (this.g.skinId > 0) {
@@ -326,7 +317,7 @@ export const initSkins = () => {
           }
           this.ctx.globalAlpha = 1;
         } else {
-          let ghostSkin = this.g.ghostSkins[this.g.ghostSkinId];
+          const ghostSkin = this.g.ghostSkins[this.g.ghostSkinId];
           this.ctx.drawImage(
             this.g.ghostTex,
             (6 * (this.g.coffset[pieceID] - 2) + offsetX) * ghostSkin.w,
@@ -343,9 +334,9 @@ export const initSkins = () => {
     };
 
     Ctx2DView.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind, drawScale) {
-      var ctx = ctxKind === this.HOLD ? this.hctx : this.qctx;
+      const ctx = ctxKind === this.HOLD ? this.hctx : this.qctx;
       if (this.g.skinId === 0) {
-        var mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+        const mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
         this.drawRectangle(
           ctx,
           x * this.g.block_size,
@@ -355,7 +346,7 @@ export const initSkins = () => {
           mono
         );
       } else {
-        let [offsetX, offsetY] = getConnection(connection);
+        const [offsetX, offsetY] = getConnection(connection);
         ctx.drawImage(
           this.g.tex,
           (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.g.skinId].w,
@@ -376,10 +367,10 @@ export const initSkins = () => {
     if (!game.blockSetsEX) {
       game.blockSetsEX = getBlockSetsEX();
     }
-    let currentBlockSet = game.blockSets[game.activeBlock.set];
-    let currentBlockSetEX = game.blockSetsEX[game.activeBlock.set];
-    let pieceToDraw = currentBlockSet.blocks[game.activeBlock.id].blocks[game.activeBlock.rot];
-    let pieceBBSize = pieceToDraw.length; // Piece bounding box size
+    const currentBlockSet = game.blockSets[game.activeBlock.set];
+    const currentBlockSetEX = game.blockSetsEX[game.activeBlock.set];
+    const pieceToDraw = currentBlockSet.blocks[game.activeBlock.id].blocks[game.activeBlock.rot];
+    const pieceBBSize = pieceToDraw.length; // Piece bounding box size
 
     if (game.hasGhost() && !game.gameEnded) {
       for (let i = 0; i < pieceBBSize; i++) {
@@ -438,22 +429,21 @@ export const initSkins = () => {
       (game.ISGAME || (!game.v.redrawBlocked && game.v.QueueHoldEnabled)) &&
       (game.v.clearHoldCanvas(), null !== game.blockInHold)
     ) {
-      let piecePreview = game.blockSets[game.blockInHold.set].previewAs;
-      let piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs.pieces[game.blockInHold.id];
-      let pieceInInitialState = piecePreview.blocks[game.blockInHold.id].blocks[0];
-      let block_color = piecePreview.blocks[game.blockInHold.id].color;
-      let pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
-      let pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      let pieceMatrixHeight = pieceInInitialState.length;
-      let pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp
+      const piecePreview = game.blockSets[game.blockInHold.set].previewAs;
+      const piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs.pieces[game.blockInHold.id];
+      const pieceInInitialState = piecePreview.blocks[game.blockInHold.id].blocks[0];
+      const block_color = piecePreview.blocks[game.blockInHold.id].color;
+      const pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
+      const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
+      const pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp
         ? piecePreview.blocks[game.blockInHold.id].xp
         : piecePreviewEX.xpOverride; // xp = horizontal span
-      let pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
+      const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
 
-      let hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
-      let vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
+      const hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
+      const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
           if (pieceInInitialState[j][k] > 0) {
@@ -481,7 +471,7 @@ export const initSkins = () => {
   }
 
   /** @param {Game | Replayer} game */
-  function updateQueueBoxConnected(game) {
+  function updateQueueBoxConnected(game: Game | Replayer) {
     // Contains Better NEXT, need to split it up somehow
     if (!game.blockSetsEX) {
       game.blockSetsEX = getBlockSetsEX();
@@ -504,23 +494,22 @@ export const initSkins = () => {
         }
         game.ModeManager.addStaticQueueToQueue();
       }
-      let piece = game.queue[i];
-      let piecePreview = game.blockSets[piece.set].previewAs;
-      let pieceInInitialState = piecePreview.blocks[piece.id].blocks[0];
-      let connections = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
-      let xpOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
-      let ypOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
-      let block_color = piecePreview.blocks[piece.id].color;
-      let pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
-      let pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      let pieceMatrixHeight = pieceInInitialState.length;
-      let pieceWidthSpan = piecePreview.blocks[piece.id].xp ? piecePreview.blocks[piece.id].xp : xpOverride; // xp = horizontal span
-      let pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
+      const piece = game.queue[i];
+      const piecePreview = game.blockSets[piece.set].previewAs;
+      const pieceInInitialState = piecePreview.blocks[piece.id].blocks[0];
+      const connections = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
+      const xpOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
+      const ypOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
+      const block_color = piecePreview.blocks[piece.id].color;
+      const pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
+      const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
+      const pieceWidthSpan = piecePreview.blocks[piece.id].xp ? piecePreview.blocks[piece.id].xp : xpOverride; // xp = horizontal span
+      const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
 
-      let hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
-      let vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
+      const hOffset = (4 * (1 / game.drawScale) - pieceWidth) / 2;
+      const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
           if (pieceInInitialState[j][k] > 0) {
@@ -548,7 +537,7 @@ export const initSkins = () => {
     }
   }
 
-  function initConnectedGarbage(garbageLine) {
+  function initConnectedGarbage(this: GameCore | Replayer, garbageLine: MatrixRow) {
     this.garbageConnections = [214, 255, 255, 255, 255, 255, 255, 255, 255, 107];
     garbageLine.forEach((block, i) => {
       if (block == 0) {
@@ -559,31 +548,33 @@ export const initSkins = () => {
     });
   }
 
-  function bumpUpConnections(trueHeight, amountOfLines) {
-    for (let i = 0; i < trueHeight + 1; i++) {
-      let scannedHeight = trueHeight - i;
-      if (scannedHeight < amountOfLines) {
-        let connectionsToAdd = this.garbageConnections.slice();
-        if (scannedHeight === 0) {
-          connectionsToAdd = connectionsToAdd.map((connection) => {
-            return (connection &= ~224); // Slice all the "down" connections
-          });
+  function bumpUpConnections(this: GameCore | Replayer, trueHeight: number, amountOfLines: number) {
+    if (this.connections) {
+      for (let i = 0; i < trueHeight + 1; i++) {
+        const scannedHeight = trueHeight - i;
+        if (scannedHeight < amountOfLines) {
+          let connectionsToAdd = this.garbageConnections.slice();
+          if (scannedHeight === 0) {
+            connectionsToAdd = connectionsToAdd.map((connection) => {
+              return (connection &= ~224); // Slice all the "down" connections
+            });
+          }
+          if (scannedHeight === amountOfLines - 1) {
+            connectionsToAdd = connectionsToAdd.map((connection) => {
+              return (connection &= ~7); // Slice all the "up" connections
+            });
+          }
+          this.connections[i] = connectionsToAdd.slice() as MatrixRow;
+        } else {
+          this.connections[i] = this.connections[i + amountOfLines].slice() as MatrixRow;
         }
-        if (scannedHeight === amountOfLines - 1) {
-          connectionsToAdd = connectionsToAdd.map((connection) => {
-            return (connection &= ~7); // Slice all the "up" connections
-          });
-        }
-        this.connections[i] = connectionsToAdd.slice();
-      } else {
-        this.connections[i] = this.connections[i + amountOfLines].slice();
       }
     }
   }
 
   if (typeof GameCore == "function") {
     GameCore.prototype.injected_placeBlock = function (y, i, x, j) {
-      if (usingConnected) {
+      if (usingConnected && this.connections) {
         if (!this.blockSetsEX) {
           this.blockSetsEX = getBlockSetsEX();
         }
@@ -593,7 +584,7 @@ export const initSkins = () => {
     };
 
     GameCore.prototype.injected_beforePlaceBlockInDeadline = function (y, i, x, j) {
-      if (usingConnected) {
+      if (usingConnected && this.connections) {
         if (!this.blockSetsEX) {
           this.blockSetsEX = getBlockSetsEX();
         }
@@ -605,20 +596,22 @@ export const initSkins = () => {
     };
 
     GameCore.prototype.injected_clearHiddenRow1 = function () {
-      this.connections[0] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      for (let j = 0; j < 10; j++) {
-        this.connections[1][j] &= ~7; // Cut all the "up" connections
+      if (this.connections) {
+        this.connections[0] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        for (let j = 0; j < 10; j++) {
+          this.connections[1][j] &= ~7; // Cut all the "up" connections
+        }
       }
     };
 
     GameCore.prototype.injected_moveLinesDown = function (i) {
-      if (usingConnected) {
+      if (usingConnected && this.connections) {
         this.connections[i + 1] = this.connections[i];
       }
     };
 
     GameCore.prototype.injected_afterLinesMoved = function (row) {
-      if (usingConnected) {
+      if (usingConnected && this.connections) {
         this.connections[1] = this.connections[0];
         this.connections[0] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         if (row < 19) {
@@ -636,48 +629,53 @@ export const initSkins = () => {
 
     GameCore.prototype.injected_initConnectedGarbage = function (garbageLine) {
       if (usingConnected) {
-        initConnectedGarbage.apply(this, garbageLine);
+        initConnectedGarbage.apply(this, [garbageLine]);
       }
     };
 
     GameCore.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {
       if (usingConnected) {
-        bumpUpConnections.apply(this, trueHeight, amountOfLines);
+        bumpUpConnections.apply(this, [trueHeight, amountOfLines]);
       }
     };
 
-    let oldClearMatrix = GameCore.prototype.clearMatrix;
+    const oldClearMatrix = GameCore.prototype.clearMatrix;
     GameCore.prototype.clearMatrix = function () {
       oldClearMatrix.call(this);
       if (usingConnected) {
         if (!this.connections) {
-          this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+          this.connections = Array.from({ length: 21 }).map(() =>
+            Array.from({ length: 10 }).fill(0)
+          ) as ConnectionsMatrix;
         }
         this.connections.forEach((row, i) => {
           row.forEach((column, j) => {
-            this.connections[i][j] = 0;
+            this.connections![i][j] = 0;
           });
         });
       }
     };
 
     // Since addSolidGarbage always adds 1 solid line at a time, a wrapper can be used.
-    let oldAddSolidGarbage = GameCore.prototype.addSolidGarbage;
+    const oldAddSolidGarbage = GameCore.prototype.addSolidGarbage;
     GameCore.prototype.addSolidGarbage = function () {
       oldAddSolidGarbage.apply(this);
-      if (usingConnected) {
-        let solidGarbageRowConnections = [16, 24, 24, 24, 24, 24, 24, 24, 24, 8];
+      if (usingConnected && this.connections) {
+        const solidGarbageRowConnections = [16, 24, 24, 24, 24, 24, 24, 24, 24, 8];
         for (let i = 0; i < this.connections.length; i++) {
-          this.connections[i] =
-            this.connections.length - i > 1 ? this.connections[i + 1].slice(0) : solidGarbageRowConnections.slice(0);
+          if (this.connections.length - i > 1) {
+            this.connections[i] = this.connections[i + 1].slice(0) as MatrixRow;
+          } else {
+            this.connections[i] = solidGarbageRowConnections.slice(0) as MatrixRow;
+          }
         }
       }
     };
   }
 
-  function redrawMatrixConnected(game) {
+  function redrawMatrixConnected(game: Game | Replayer) {
     if (!game.connections) {
-      game.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+      game.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
     }
     for (let row = 0; row < 20; row++) {
       for (let column = 0; column < 10; column++) {
@@ -693,27 +691,14 @@ export const initSkins = () => {
   }
 
   class LineClearAnimatorConnected {
-    /** @type {Game} */
-    g;
-    /** @type {number[][]} */
-    connections;
-    /** @type {number[][]} */
-    matrix;
-    /** @type {number[]} */
-    clearPositions;
-    /** @type {number} */
-    clearDelay;
-    /** @type {number} */
-    t;
-    /** @type {boolean} */
-    IS_SOLID;
-    /**
-     * @param {number[][]} matrixCopy
-     * @param {number[][]} connectionsCopy
-     * @param {number[]} linesToClear
-     * @param {Game} game
-     */
-    constructor(matrixCopy, connectionsCopy, linesToClear, game) {
+    g: Game;
+    connections: FixedArray<MatrixRow, 21>;
+    matrix: Matrix;
+    clearPositions: number[];
+    clearDelay: number;
+    t: number;
+    IS_SOLID: boolean;
+    constructor(matrixCopy: Matrix, connectionsCopy: FixedArray<MatrixRow, 21>, linesToClear: number[], game: Game) {
       this.g = game;
       this.connections = connectionsCopy;
       this.matrix = matrixCopy;
@@ -723,9 +708,9 @@ export const initSkins = () => {
       this.IS_SOLID = true;
     }
 
-    render(timeDelta_ms) {
+    render(timeDelta_ms: number) {
       this.t += timeDelta_ms;
-      let alpha = Math.max(0, 1 - this.t / this.clearDelay);
+      const alpha = Math.max(0, 1 - this.t / this.clearDelay);
       this.g.v.clearMainCanvas();
       this.matrix.forEach((row, i) => {
         if (this.clearPositions.indexOf(i) !== -1) {
@@ -765,29 +750,29 @@ export const initSkins = () => {
 
   // Connected skins in game
 
-  if (window.Game) {
-    let oldDrawGhostAndCurrent = Game.prototype.drawGhostAndCurrent;
+  if (typeof Game == "function") {
+    const oldDrawGhostAndCurrent = Game.prototype.drawGhostAndCurrent;
     Game.prototype.drawGhostAndCurrent = function () {
       if (usingConnected || usingGhostConnected) {
         return drawGhostAndCurrentConnected(this);
       } else {
-        return oldDrawGhostAndCurrent.apply(this, arguments);
+        return oldDrawGhostAndCurrent.apply(this);
       }
     };
-    let oldRedrawHoldBox = Game.prototype.redrawHoldBox;
+    const oldRedrawHoldBox = Game.prototype.redrawHoldBox;
     Game.prototype.redrawHoldBox = function () {
       if (usingConnected) {
         return redrawHoldBoxConnected(this);
       } else {
-        return oldRedrawHoldBox.apply(this, arguments);
+        return oldRedrawHoldBox.apply(this);
       }
     };
-    let oldUpdateQueueBox = Game.prototype.updateQueueBox;
+    const oldUpdateQueueBox = Game.prototype.updateQueueBox;
     Game.prototype.updateQueueBox = function () {
       if (usingConnected) {
         return updateQueueBoxConnected(this);
       } else {
-        return oldUpdateQueueBox.apply(this, arguments);
+        return oldUpdateQueueBox.apply(this);
       }
     };
     Game.prototype.redrawMatrixConnected = function () {
@@ -796,10 +781,10 @@ export const initSkins = () => {
 
     Game.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+        this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
         if (this.pmode === Modes.MAPS) {
-          let tempMatrix = [this.deadline].concat(this.matrix);
+          const tempMatrix = [this.deadline].concat(this.matrix);
           tempMatrix.forEach((row, y) => {
             row.forEach((column, x) => connectMap(this, x, y));
           });
@@ -817,9 +802,9 @@ export const initSkins = () => {
   if (typeof ModeManager === "function") {
     ModeManager.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.p.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+        this.p.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
-        let tempMatrix = [this.p.deadline].concat(this.p.matrix);
+        const tempMatrix = [this.p.deadline].concat(this.p.matrix);
         tempMatrix.forEach((row, y) => {
           row.forEach((column, x) => connectMap(this.p, x, y));
         });
@@ -829,29 +814,29 @@ export const initSkins = () => {
 
   // Connected skins in Replayer
 
-  if (window.Replayer && location.href.includes("replay")) {
-    let oldDrawGhostAndCurrent = Replayer.prototype.drawGhostAndCurrent;
-    Replayer.prototype.drawGhostAndCurrent = function () {
-      if (usingConnected || usingGhostConnected) {
-        return drawGhostAndCurrentConnected(this);
-      } else {
-        return oldDrawGhostAndCurrent.apply(this, arguments);
-      }
-    };
-    let oldRedrawHoldBox = Replayer.prototype.redrawHoldBox;
+  if (typeof Replayer == "function" && location.href.includes("replay")) {
+    // const oldDrawGhostAndCurrent = Replayer.prototype.drawGhostAndCurrent;
+    // Replayer.prototype.drawGhostAndCurrent = function () {
+    //   if (usingConnected || usingGhostConnected) {
+    //     return drawGhostAndCurrentConnected(this);
+    //   } else {
+    //     return oldDrawGhostAndCurrent.apply(this, arguments);
+    //   }
+    // };
+    const oldRedrawHoldBox = Replayer.prototype.redrawHoldBox;
     Replayer.prototype.redrawHoldBox = function () {
       if (usingConnected) {
         return redrawHoldBoxConnected(this);
       } else {
-        return oldRedrawHoldBox.apply(this, arguments);
+        return oldRedrawHoldBox.apply(this);
       }
     };
-    let oldUpdateQueueBox = Replayer.prototype.updateQueueBox;
+    const oldUpdateQueueBox = Replayer.prototype.updateQueueBox;
     Replayer.prototype.updateQueueBox = function () {
       if (usingConnected) {
         return updateQueueBoxConnected(this);
       } else {
-        return oldUpdateQueueBox.apply(this, arguments);
+        return oldUpdateQueueBox.apply(this);
       }
     };
     Replayer.prototype.redrawMatrixConnected = function () {
@@ -860,28 +845,28 @@ export const initSkins = () => {
 
     Replayer.prototype.injected_initConnectedGarbage = function (garbageLine) {
       if (usingConnected) {
-        initConnectedGarbage.apply(this, arguments);
+        initConnectedGarbage.apply(this, [garbageLine]);
       }
     };
 
     Replayer.prototype.injected_bumpUpConnections = function (trueHeight, amountOfLines) {
       if (usingConnected) {
-        bumpUpConnections.apply(this, arguments);
+        bumpUpConnections.apply(this, [trueHeight, amountOfLines]);
       }
     };
 
     // Connected skins in, umm, replay too actually
 
-    if (window.View) {
+    if (typeof View == "function") {
       if (!location.href.includes("export")) {
         // This draws blocks in HOLD and NEXT queues
         View.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind, drawScale = 1) {
-          let ctx = ctxKind === this.HOLD ? this.hctx : this.qctx;
+          const ctx = ctxKind === this.HOLD ? this.hctx : this.qctx;
           if (0 === this.skinId) {
-            var mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+            const mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
             this.drawRectangle(ctx, x * this.block_size, y * this.block_size, this.block_size, this.block_size, mono);
           } else {
-            let [offsetX, offsetY] = getConnection(connection);
+            const [offsetX, offsetY] = getConnection(connection);
             ctx.drawImage(
               this.tex, // image
               (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w, // sx
@@ -895,32 +880,33 @@ export const initSkins = () => {
             );
           }
         };
-        let oldRedraw = View.prototype.redraw;
-        View.prototype.redraw = function () {
+        const oldRedraw = View.prototype.redraw;
+        View.prototype.redraw = function (...args) {
           if (usingConnected) {
             if (!this.redrawBlocked) {
               if ((this.clearMainCanvas(), !this.g.isInvisibleSkin)) this.g.redrawMatrixConnected();
-              this.drawGhostAndCurrent(),
-                this.g.redBar &&
-                  this.drawRectangle(
-                    this.ctx,
-                    240,
-                    (20 - this.g.redBar) * this.block_size,
-                    8,
-                    this.g.redBar * this.block_size,
-                    "#FF270F"
-                  );
+              this.drawGhostAndCurrent();
+              if (this.g.redBar) {
+                this.drawRectangle(
+                  this.ctx,
+                  240,
+                  (20 - this.g.redBar) * this.block_size,
+                  8,
+                  this.g.redBar * this.block_size,
+                  "#FF270F"
+                );
+              }
             }
             return;
           }
-          return oldRedraw.apply(this, arguments);
+          return oldRedraw.apply(this, args);
         };
 
         // This draws the active piece and blocks on the matrix
         View.prototype.drawBlockConnected = function (x, y, blockID, connection) {
           if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
-            let scale = this.drawScale * this.block_size;
-            let [offsetX, offsetY] = getConnection(connection);
+            const scale = this.drawScale * this.block_size;
+            const [offsetX, offsetY] = getConnection(connection);
             this.ctx.drawImage(
               this.tex, // image
               (6 * this.g.coffset[blockID] + offsetX) * this.g.skins[this.skinId].w, // sx
@@ -937,8 +923,8 @@ export const initSkins = () => {
 
         View.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
           if (x >= 0 && y >= 0 && x < 10 && y < 20) {
-            let scale = this.drawScale * this.block_size;
-            let [offsetX, offsetY] = getConnection(connection);
+            const scale = this.drawScale * this.block_size;
+            const [offsetX, offsetY] = getConnection(connection);
             if (this.ghostSkinId === 0) {
               this.ctx.globalAlpha = 0.5;
               if (this.skinId > 0) {
@@ -954,76 +940,87 @@ export const initSkins = () => {
                   scale
                 );
               } else {
-                this.drawBlockConnected(x, y, blockID);
+                this.drawBlockConnected(x, y, blockID, connection);
               }
               this.ctx.globalAlpha = 1;
             } else {
-              var ghostSkin = this.ghostSkins[this.ghostSkinId];
-              this.ctx.drawImage(
-                this.ghostTex,
-                (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
-                offsetY * ghostSkin.w,
-                ghostSkin.w,
-                ghostSkin.w,
-                x * this.block_size,
-                y * this.block_size,
-                scale,
-                scale
-              );
+              // const ghostSkin = this.ghostSkins[this.ghostSkinId];
+              // this.ctx.drawImage(
+              //   this.ghostTex,
+              //   (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
+              //   offsetY * ghostSkin.w,
+              //   ghostSkin.w,
+              //   ghostSkin.w,
+              //   x * this.block_size,
+              //   y * this.block_size,
+              //   scale,
+              //   scale
+              // );
             }
           }
         };
 
-        let oldViewDrawGhostAndCurrent = View.prototype.drawGhostAndCurrent;
+        const oldViewDrawGhostAndCurrent = View.prototype.drawGhostAndCurrent;
         View.prototype.drawGhostAndCurrent = function () {
           if (usingConnected) {
             if (!this.g.blockSetsEX) {
               this.g.blockSetsEX = getBlockSetsEX();
             }
-            let currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
-            let currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
-            let pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
-            let pieceLength = pieceToDraw.length;
+            const currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
+            const currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
+            const pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
+            const pieceLength = pieceToDraw.length;
             if (this.ghostEnabled)
               for (let i = 0; i < pieceLength; i++)
                 for (let j = 0; j < pieceLength; j++)
-                  pieceToDraw[i][j] > 0 &&
+                  if (pieceToDraw[i][j] > 0) {
                     this.drawGhostBlockConnected(
                       this.g.ghostPiece.pos.x + j,
                       this.g.ghostPiece.pos.y + i,
                       currentBlockSet.blocks[this.g.activeBlock.id].color,
                       currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
                     );
+                  }
             for (let i = 0; i < pieceLength; i++)
               for (let j = 0; j < pieceLength; j++)
-                pieceToDraw[i][j] > 0 &&
+                if (pieceToDraw[i][j] > 0) {
                   this.drawBlockConnected(
                     this.g.activeBlock.pos.x + j,
                     this.g.activeBlock.pos.y + i,
                     currentBlockSet.blocks[this.g.activeBlock.id].color,
                     currentBlockSetEX.pieces[this.g.activeBlock.id].connections[this.g.activeBlock.rot][i][j]
                   );
+                }
           } else oldViewDrawGhostAndCurrent.call(this);
         };
       } else {
         // things to do with export
-        View.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind, scale = 1) {
-          let blockSize = this.block_size;
-          let ctx = this.ctx;
-          if (
-            (ctxKind === this.HOLD
-              ? ((this.drawOffsetTop = this.AP.HLD.T),
-                (this.drawOffsetLeft = this.AP.HLD.L),
-                (this.block_size = this.AP.HLD.BS))
-              : ((this.drawOffsetTop = this.AP.QUE.T),
-                (this.drawOffsetLeft = this.AP.QUE.L),
-                (this.block_size = this.AP.QUE.BS)),
-            0 === this.skinId)
-          ) {
-            var color = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+        // Jstris uses `View` for both the replayer view and the export view.
+        // There is no way to call both of them by the name "View", so export view gets this cursed cast.
+        (View as unknown as typeof ExportView).prototype.drawBlockOnCanvasConnected = function (
+          x: number,
+          y: number,
+          blockID: number,
+          connection: number,
+          ctxKind: number,
+          scale: number = 1
+        ) {
+          const blockSize = this.block_size;
+          const ctx = this.ctx;
+          if (ctxKind === this.HOLD) {
+            this.drawOffsetTop = this.AP.HLD.T;
+            this.drawOffsetLeft = this.AP.HLD.L;
+            this.block_size = this.AP.HLD.BS;
+          } else {
+            this.drawOffsetTop = this.AP.QUE.T;
+            this.drawOffsetLeft = this.AP.QUE.L;
+            this.block_size = this.AP.QUE.BS;
+          }
+          if (0 === this.skinId) {
+            const color = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
             this.drawRectangle(ctx, x * this.block_size, y * this.block_size, this.block_size, this.block_size, color);
           } else {
-            let [offsetX, offsetY] = getConnection(connection);
+            const [offsetX, offsetY] = getConnection(connection);
             this.drawImage(
               ctx,
               this.tex,
@@ -1041,10 +1038,10 @@ export const initSkins = () => {
           this.block_size = blockSize;
         };
 
-        View.prototype.drawBlockConnected = function (x, y, blockID, connection) {
+        (View as unknown as typeof ExportView).prototype.drawBlockConnected = function (x, y, blockID, connection) {
           if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
-            let scale = this.drawScale * this.BS;
-            let [offsetX, offsetY] = getConnection(connection);
+            const scale = this.drawScale * this.BS;
+            const [offsetX, offsetY] = getConnection(connection);
             if (this.skinId) {
               this.drawImage(
                 this.ctx,
@@ -1059,16 +1056,21 @@ export const initSkins = () => {
                 scale
               );
             } else {
-              let mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
+              const mono = this.g.monochromeSkin && blockID <= 7 ? this.g.monochromeSkin : this.g.colors[blockID];
               this.drawRectangle(this.ctx, x * this.BS, y * this.BS, scale, scale, mono);
             }
           }
         };
 
-        View.prototype.drawGhostBlockConnected = function (x, y, blockID, connection) {
+        (View as unknown as typeof ExportView).prototype.drawGhostBlockConnected = function (
+          x,
+          y,
+          blockID,
+          connection
+        ) {
           if (x >= 0 && y >= 0 && x < 10 && y < 20) {
-            let scale = this.drawScale * this.BS;
-            let [offsetX, offsetY] = getConnection(connection);
+            const scale = this.drawScale * this.BS;
+            const [offsetX, offsetY] = getConnection(connection);
             if (this.ghostSkinId === 0) {
               this.ctx.globalAlpha = 0.5;
               if (this.skinId > 0) {
@@ -1089,7 +1091,7 @@ export const initSkins = () => {
               }
               this.ctx.globalAlpha = 1;
             } else {
-              var ghostSkin = this.ghostSkins[this.ghostSkinId];
+              const ghostSkin = this.ghostSkins[this.ghostSkinId];
               this.drawImage(
                 this.ctx,
                 this.ghostTex,
@@ -1105,14 +1107,14 @@ export const initSkins = () => {
             }
           }
         };
-        View.prototype.drawGhostAndCurrentConnected = function () {
+        (View as unknown as typeof ExportView).prototype.drawGhostAndCurrentConnected = function () {
           if (!this.g.blockSetsEX) {
             this.g.blockSetsEX = getBlockSetsEX();
           }
-          let currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
-          let currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
-          let pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
-          let pieceLength = pieceToDraw.length;
+          const currentBlockSet = this.g.blockSets[this.g.activeBlock.set];
+          const currentBlockSetEX = this.g.blockSetsEX[this.g.activeBlock.set];
+          const pieceToDraw = currentBlockSet.blocks[this.g.activeBlock.id].blocks[this.g.activeBlock.rot];
+          const pieceLength = pieceToDraw.length;
           if (this.ghostEnabled) {
             for (let i = 0; i < pieceLength; i++) {
               for (let j = 0; j < pieceLength; j++) {
@@ -1141,8 +1143,8 @@ export const initSkins = () => {
           }
         };
 
-        let oldDrawMainStage = View.prototype.drawMainStage;
-        View.prototype.drawMainStage = function () {
+        const oldDrawMainStage = (View as unknown as typeof ExportView).prototype.drawMainStage;
+        (View as unknown as typeof ExportView).prototype.drawMainStage = function () {
           if (usingConnected) {
             if (!this.g.connections) {
               this.g.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
@@ -1150,35 +1152,36 @@ export const initSkins = () => {
             this.drawOffsetTop = this.AP.STG.T;
             this.drawOffsetLeft = this.AP.STG.L;
             if (!this.g.isInvisibleSkin) {
-              for (var y = 0; y < 20; y++) {
-                for (var x = 0; x < 10; x++) {
+              for (let y = 0; y < 20; y++) {
+                for (let x = 0; x < 10; x++) {
                   this.drawBlockConnected(x, y, this.g.matrix[y][x], this.g.connections[y + 1][x]);
                 }
               }
             }
-            this.drawGhostAndCurrentConnected(),
-              this.g.redBar &&
-                this.drawRectangle(
-                  this.ctx,
-                  this.AP.STG.W,
-                  (20 - this.g.redBar) * this.BS,
-                  8,
-                  this.g.redBar * this.BS,
-                  "#FF270F"
-                );
+            this.drawGhostAndCurrentConnected();
+            if (this.g.redBar) {
+              this.drawRectangle(
+                this.ctx,
+                this.AP.STG.W,
+                (20 - this.g.redBar) * this.BS,
+                8,
+                this.g.redBar * this.BS,
+                "#FF270F"
+              );
+            }
           } else oldDrawMainStage.call(this);
         };
       }
     }
   }
   // Remaining skin init
-  let skinLoaded = false;
-  let game = null;
+  let skinLoaded: boolean = false;
+  let game: Game | null = null;
   if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
 
   if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
 
-  if (typeof window.Live == "function") {
+  if (typeof Live == "function") {
     Config.onChange("customSkinURL", (val) => {
       if (val) loadCustomSkin(val);
       else {
@@ -1193,9 +1196,9 @@ export const initSkins = () => {
       }
     });
 
-    let oldOnCIDassigned = Live.prototype.onCIDassigned;
-    Live.prototype.onCIDassigned = function () {
-      let returnValue = oldOnCIDassigned.apply(this, arguments);
+    const oldOnCIDassigned = Live.prototype.onCIDassigned;
+    Live.prototype.onCIDassigned = function (...args) {
+      const returnValue = oldOnCIDassigned.apply(this, args);
       if (!skinLoaded) {
         game = this.p;
         skinLoaded = true;
@@ -1206,11 +1209,11 @@ export const initSkins = () => {
     };
   }
 
-  if (typeof window.View == "function" && typeof window.Live != "function") {
+  if (typeof View == "function" && typeof Live != "function") {
     // Force skin on replayers
-    let oldOnReady = View.prototype.onReady;
-    View.prototype.onReady = function () {
-      let returnValue = oldOnReady.apply(this, arguments);
+    const oldOnReady = View.prototype.onReady;
+    View.prototype.onReady = function (...args) {
+      const returnValue = oldOnReady.apply(this, args);
       if (Config.settings.customSkinInReplays && Config.settings.customSkinURL) {
         this.tex.crossOrigin = "anonymous";
         this.skinId = 1;
@@ -1222,11 +1225,11 @@ export const initSkins = () => {
     };
   }
 
-  if (typeof window.Game == "function") {
-    let oldChangeSkin = Game.prototype.changeSkin;
-    Game.prototype.changeSkin = function () {
-      let returnValue = oldChangeSkin.apply(this, arguments);
-      let url = this.skins[arguments[0]].data;
+  if (typeof Game == "function") {
+    const oldChangeSkin = Game.prototype.changeSkin;
+    Game.prototype.changeSkin = function (skinIndex: number) {
+      const returnValue = oldChangeSkin.apply(this, [skinIndex]);
+      const url = this.skins[skinIndex].data;
       if (url == "resetRegular") {
         usingConnected = false;
         oldChangeSkin.apply(this, [0]);

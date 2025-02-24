@@ -5,7 +5,6 @@ import { SaveState } from "./practiceUndo.js";
 import { SnapshotPlus } from "./global-typings.js";
 import { Modes } from "./util.js";
 
-
 /** Creates a deep clone of an object. */
 function clone<T>(x: T): T {
   return JSON.parse(JSON.stringify(x));
@@ -288,7 +287,7 @@ export const initReplayerSnapshot = () => {
               })
               .finally(() => {
                 if (data.fumen.length < 8168) {
-                  const newWin: Window | null = window.open(`https://harddrop.com/fumen/?${data.fumen}`, "_blank");
+                  window.open(`https://harddrop.com/fumen/?${data.fumen}`, "_blank");
                 }
                 const textArea: HTMLTextAreaElement = document.createElement("textarea");
                 textArea.className = "repArea";
@@ -374,8 +373,8 @@ export function loadFumen(pages: Pages) {
   const field = page.field;
   const matrix = Array(20)
     .fill(undefined)
-    .map(() => Array(10).fill(0));
-  const deadline = Array(10).fill(0);
+    .map(() => Array(10).fill(0)) as Jstris.Matrix;
+  const deadline = Array(10).fill(0) as Jstris.MatrixRow;
   let activeBlock = new Block(0);
   let hold: Block | null = null;
   const queue: Block[] = [];

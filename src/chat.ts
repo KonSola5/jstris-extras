@@ -100,7 +100,7 @@ export const initChat = () => {
 
     if (typeof zandria == "string") {
       zandria = zandria.replace(/:(.*?):/g, function (match: string): string {
-        let cEmote: Emote | undefined = undefined;
+        let cEmote: Jstris.Emote | undefined = undefined;
         for (const emote of CUSTOM_EMOTES) {
           if (emote.n == match.split(":")[1]) {
             cEmote = emote;
@@ -139,7 +139,7 @@ export const initChat = () => {
       request.onerror = request.onabort = function () {};
       request.onload = () => {
         if (request.status === 200) {
-          let emoteList: EmoteList = JSON.parse(request.responseText);
+          let emoteList: Jstris.EmoteList = JSON.parse(request.responseText);
           for (const emote of CUSTOM_EMOTES) {
             emoteList.unshift(emote);
           }
@@ -180,7 +180,7 @@ export const initChat = () => {
     this.emotesWrapper.classList.add("emotesWrapper");
     this.optionsContainer.appendChild(this.emotesWrapper);
   };
-  ChatAutocomplete.prototype.processHint = function (currentWord: CurrentWord): void {
+  ChatAutocomplete.prototype.processHint = function (currentWord: Jstris.CurrentWord): void {
     const lastWord: string = currentWord[0].toLowerCase();
     const caretPosition: number = currentWord[1];
     if (
@@ -222,7 +222,7 @@ export const initChat = () => {
         if (this.hintsImg && this.hintsImg[matchedHint]) {
           hintDiv.className = "emHint";
           const hintEmoteImage: HTMLImageElement = document.createElement("img");
-          let cEmote: Emote | undefined = undefined;
+          let cEmote: Jstris.Emote | undefined = undefined;
           for (const emote of CUSTOM_EMOTES) {
             if (emote.n == matchedHint.split(":")[1]) {
               cEmote = emote;

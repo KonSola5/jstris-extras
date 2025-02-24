@@ -4,24 +4,26 @@
 
 interface PieceDefinition {
   name: string;
-  connections: [number[][], number[][], number[][], number[][]]
-  xpOverride?: [number, number]
-  ypOverride?: [number, number]
-  centerX?: [number, number]
-  centerY?: [number, number]
+  connections: [number[][], number[][], number[][], number[][]];
+  xpOverride?: [number, number];
+  ypOverride?: [number, number];
+  centerX?: [number, number];
+  centerY?: [number, number];
 }
 
-export function getBlockSetsEX() {
-  class BlockSetEX {
-    name: string;
-    pieces: PieceDefinition[];
-    previewAs?: BlockSetEX;
-    constructor() {
-      this.name = "";
-      this.pieces = [];
-    }
+class BlockSetEX {
+  name: string;
+  pieces: PieceDefinition[];
+  previewAs?: BlockSetEX;
+  constructor() {
+    this.name = "";
+    this.pieces = [];
   }
+}
 
+export type BlockSetsEX = BlockSetEX[];
+
+export function getBlockSetsEX(): BlockSetsEX {
   const NW = 1,
     N = 2,
     NE = 4,
