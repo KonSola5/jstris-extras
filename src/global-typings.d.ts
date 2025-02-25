@@ -54,6 +54,7 @@ declare global {
     ): void;
     drawBlockConnected(x: number, y: number, blockID: number, connection: number): void;
     drawGhostBlockConnected(x: number, y: number, blockID: number, connection: number): void;
+    drawGhostAndCurrentConnected(): void;
   }
 
   interface GameCore {

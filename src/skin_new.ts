@@ -363,7 +363,7 @@ export const initSkins = () => {
   }
 
   /** @param {Game} game */
-  function drawGhostAndCurrentConnected(game) {
+  function drawGhostAndCurrentConnected(game: Game) {
     if (!game.blockSetsEX) {
       game.blockSetsEX = getBlockSetsEX();
     }
@@ -419,8 +419,7 @@ export const initSkins = () => {
     game.drawScale = 1;
   }
 
-  /** @param {Game | Replayer} game */
-  function redrawHoldBoxConnected(game) {
+  function redrawHoldBoxConnected(game: Game | Replayer) {
     if (!game.blockSetsEX) {
       game.blockSetsEX = getBlockSetsEX();
     }
@@ -430,7 +429,7 @@ export const initSkins = () => {
       (game.v.clearHoldCanvas(), null !== game.blockInHold)
     ) {
       const piecePreview = game.blockSets[game.blockInHold.set].previewAs;
-      const piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs.pieces[game.blockInHold.id];
+      const piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs!.pieces[game.blockInHold.id];
       const pieceInInitialState = piecePreview.blocks[game.blockInHold.id].blocks[0];
       const block_color = piecePreview.blocks[game.blockInHold.id].color;
       const pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
@@ -456,7 +455,11 @@ export const initSkins = () => {
               game.drawScale
             );
 
-            if (game.blockInHold.item && pieceInInitialState[j][k] === game.blockInHold.item) {
+            if (
+              game.blockInHold.item &&
+              pieceInInitialState[j][k] === game.blockInHold.item &&
+              !(game.v instanceof View)
+            ) {
               game.v.drawBrickOverlayOnCanvas(
                 game.drawScale * (k - pieceWidthSpan[0] + hOffset),
                 game.drawScale * (j - pieceHeightSpan[0] + vOffset),
@@ -470,7 +473,6 @@ export const initSkins = () => {
     }
   }
 
-  /** @param {Game | Replayer} game */
   function updateQueueBoxConnected(game: Game | Replayer) {
     // Contains Better NEXT, need to split it up somehow
     if (!game.blockSetsEX) {
@@ -497,13 +499,13 @@ export const initSkins = () => {
       const piece = game.queue[i];
       const piecePreview = game.blockSets[piece.set].previewAs;
       const pieceInInitialState = piecePreview.blocks[piece.id].blocks[0];
-      const connections = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].connections;
-      const xpOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].xpOverride;
-      const ypOverride = game.blockSetsEX[piece.set].previewAs.pieces[piece.id].ypOverride;
+      const connections = game.blockSetsEX[piece.set].previewAs!.pieces[piece.id].connections;
+      const xpOverride = game.blockSetsEX[piece.set].previewAs!.pieces[piece.id].xpOverride;
+      const ypOverride = game.blockSetsEX[piece.set].previewAs!.pieces[piece.id].ypOverride;
       const block_color = piecePreview.blocks[piece.id].color;
       const pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
       const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      const pieceWidthSpan = piecePreview.blocks[piece.id].xp ? piecePreview.blocks[piece.id].xp : xpOverride; // xp = horizontal span
+      const pieceWidthSpan = piecePreview.blocks[piece.id].xp || xpOverride; // xp = horizontal span
       const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
@@ -522,7 +524,7 @@ export const initSkins = () => {
               game.drawScale
             );
 
-            if (piece.item && pieceInInitialState[j][k] === piece.item) {
+            if (piece.item && pieceInInitialState[j][k] === piece.item && !(game.v instanceof View)) {
               game.v.drawBrickOverlayOnCanvas(
                 game.drawScale * (k - pieceWidthSpan[0] + hOffset),
                 game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
@@ -537,7 +539,7 @@ export const initSkins = () => {
     }
   }
 
-  function initConnectedGarbage(this: GameCore | Replayer, garbageLine: MatrixRow) {
+  function initConnectedGarbage(this: GameCore | Replayer, garbageLine: Jstris.MatrixRow) {
     this.garbageConnections = [214, 255, 255, 255, 255, 255, 255, 255, 255, 107];
     garbageLine.forEach((block, i) => {
       if (block == 0) {
@@ -564,9 +566,9 @@ export const initSkins = () => {
               return (connection &= ~7); // Slice all the "up" connections
             });
           }
-          this.connections[i] = connectionsToAdd.slice() as MatrixRow;
+          this.connections[i] = connectionsToAdd.slice() as Jstris.MatrixRow;
         } else {
-          this.connections[i] = this.connections[i + amountOfLines].slice() as MatrixRow;
+          this.connections[i] = this.connections[i + amountOfLines].slice() as Jstris.MatrixRow;
         }
       }
     }
@@ -664,9 +666,9 @@ export const initSkins = () => {
         const solidGarbageRowConnections = [16, 24, 24, 24, 24, 24, 24, 24, 24, 8];
         for (let i = 0; i < this.connections.length; i++) {
           if (this.connections.length - i > 1) {
-            this.connections[i] = this.connections[i + 1].slice(0) as MatrixRow;
+            this.connections[i] = this.connections[i + 1].slice(0) as Jstris.MatrixRow;
           } else {
-            this.connections[i] = solidGarbageRowConnections.slice(0) as MatrixRow;
+            this.connections[i] = solidGarbageRowConnections.slice(0) as Jstris.MatrixRow;
           }
         }
       }
@@ -692,13 +694,18 @@ export const initSkins = () => {
 
   class LineClearAnimatorConnected {
     g: Game;
-    connections: FixedArray<MatrixRow, 21>;
-    matrix: Matrix;
+    connections: FixedArray<Jstris.MatrixRow, 21>;
+    matrix: Jstris.Matrix;
     clearPositions: number[];
     clearDelay: number;
     t: number;
     IS_SOLID: boolean;
-    constructor(matrixCopy: Matrix, connectionsCopy: FixedArray<MatrixRow, 21>, linesToClear: number[], game: Game) {
+    constructor(
+      matrixCopy: Jstris.Matrix,
+      connectionsCopy: FixedArray<Jstris.MatrixRow, 21>,
+      linesToClear: number[],
+      game: Game
+    ) {
       this.g = game;
       this.connections = connectionsCopy;
       this.matrix = matrixCopy;
@@ -781,7 +788,9 @@ export const initSkins = () => {
 
     Game.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
+        this.connections = Array.from({ length: 21 }).map(() =>
+          Array.from({ length: 10 }).fill(0)
+        ) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
         if (this.pmode === Modes.MAPS) {
           const tempMatrix = [this.deadline].concat(this.matrix);
@@ -802,7 +811,9 @@ export const initSkins = () => {
   if (typeof ModeManager === "function") {
     ModeManager.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.p.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
+        this.p.connections = Array.from({ length: 21 }).map(() =>
+          Array.from({ length: 10 }).fill(0)
+        ) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
         const tempMatrix = [this.p.deadline].concat(this.p.matrix);
         tempMatrix.forEach((row, y) => {

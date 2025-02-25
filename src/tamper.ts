@@ -8,9 +8,7 @@
 // TODO: Cleaner way to perform those injections.
 // TODO: 
 export function initTamper() {
-  // This function needs to accept any function, otherwise I would have to stringify functions beforehand.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  function getArguments(theFunction: Function): string[] {
+  function getArguments(theFunction: (...args: never[]) => void): string[] {
     let args: string[] = [];
     const argsMatches = theFunction
       .toString()

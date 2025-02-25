@@ -8,7 +8,7 @@
     "moduleResolution": "nodenext",
     
     "module": "NodeNext",
-    "target": "ES6",
+    "target": "ES2022",
     "jsx": "react",
     "allowJs": true,
   }

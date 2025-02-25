@@ -28,7 +28,7 @@ export const initReplayManager = () => {
         const action: number = replayer.actions[i].a;
         const timestamp: number = replayer.actions[i].t;
 
-        if (action == Actions.HARD_DROP) {
+        if (action == Jstris.Actions.HARD_DROP) {
           if (nextHardDropTime == -1 || timestamp < nextHardDropTime) nextHardDropTime = timestamp;
           break;
         }
@@ -54,7 +54,7 @@ export const initReplayManager = () => {
         const action: number = replayer.actions[i].a;
         skipBack += 1;
 
-        if (action == Actions.HARD_DROP) {
+        if (action == Jstris.Actions.HARD_DROP) {
           if (passed) {
             skipBack -= 1;
             break;
