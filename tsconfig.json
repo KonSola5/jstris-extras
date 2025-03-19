@@ -1,15 +1,3 @@
 {
-  "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "moduleResolution": "nodenext",
-    
-    "module": "NodeNext",
-    "target": "ES2022",
-    "jsx": "react",
-    "allowJs": true,
-  }
+  "extends": "./.wxt/tsconfig.json"
 }

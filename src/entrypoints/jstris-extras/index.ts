@@ -1,4 +1,4 @@
-/// <reference types="../jstris-typings/jstris_typings.d.ts" />
+/// <reference types="../../../jstris-typings/jstris_typings.d.ts" />
 /// <reference types="./global-typings.ts" />
 "use strict";
 
