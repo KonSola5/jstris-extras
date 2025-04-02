@@ -135,8 +135,8 @@ export class ConfigManager {
     this.listeners = [];
     const settings = Object.keys(this.settings) as (keyof Config)[];
     settings.forEach(<K extends keyof Config>(setting: K): void => {
-      const value = JSON.parse(localStorage.getItem(setting) || "null");
-      this.settings[setting] = value;
+      //const value = JSON.parse(localStorage.getItem(setting) || "null");
+      //this.settings[setting] = value;
     });
   }
 
@@ -147,7 +147,7 @@ export class ConfigManager {
    */
   set<T extends keyof Config>(name: T, value: Config[T]): void {
     this.settings[name] = value;
-    localStorage.setItem(name, JSON.stringify(value));
+    //localStorage.setItem(name, JSON.stringify(value));
     for (const [event, listener] of this.listeners) {
       if (event == name) listener(value);
     }

@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "../jstris-extras.js";
 
 const changeBG = (link: string): void => {
   console.log("Changing BG to " + link);

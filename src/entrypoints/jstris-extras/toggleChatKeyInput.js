@@ -1,4 +1,4 @@
-import { Config } from "./index.ts";
+import { Config } from "../jstris-extras.js";
 
 export const createKeyInputElement = (varName, desc) => {
   const toggleChatKey_INPUT_ELEMENT = document.createElement("div");

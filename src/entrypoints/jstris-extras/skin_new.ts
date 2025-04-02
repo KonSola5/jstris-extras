@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "../jstris-extras.js";
 import { Modes } from "./util.js";
 import { getBlockSetsEX } from "./blockSetExtensions.js";
 import { ConnectionsMatrix } from "./global-typings.js";
@@ -362,7 +362,6 @@ export const initSkins = () => {
     };
   }
 
-  /** @param {Game} game */
   function drawGhostAndCurrentConnected(game: Game) {
     if (!game.blockSetsEX) {
       game.blockSetsEX = getBlockSetsEX();
@@ -425,18 +424,16 @@ export const initSkins = () => {
     }
     if (
       (!game.ISGAME || !game.redrawBlocked) &&
-      (game.ISGAME || (!game.v.redrawBlocked && game.v.QueueHoldEnabled)) &&
+      (game.ISGAME || game.v instanceof SlotView && (!game.v.redrawBlocked && game.v.QueueHoldEnabled)) &&
       (game.v.clearHoldCanvas(), null !== game.blockInHold)
     ) {
       const piecePreview = game.blockSets[game.blockInHold.set].previewAs;
       const piecePreviewEX = game.blockSetsEX[game.blockInHold.set].previewAs!.pieces[game.blockInHold.id];
       const pieceInInitialState = piecePreview.blocks[game.blockInHold.id].blocks[0];
       const block_color = piecePreview.blocks[game.blockInHold.id].color;
-      const pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride; // yp = vertical span
+      const pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride ?? [0, 0]; // yp = vertical span
       const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      const pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp
-        ? piecePreview.blocks[game.blockInHold.id].xp
-        : piecePreviewEX.xpOverride; // xp = horizontal span
+      const pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp ?? piecePreviewEX.xpOverride ?? [0, 0]; // xp = horizontal span
       const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
@@ -481,7 +478,7 @@ export const initSkins = () => {
     if (game.ISGAME && game.redrawBlocked) {
       return;
     }
-    if (!game.ISGAME && (game.v.redrawBlocked || !game.v.QueueHoldEnabled)) {
+    if (!game.ISGAME && game.v instanceof SlotView && (game.v.redrawBlocked || !game.v.QueueHoldEnabled)) {
       return;
     }
     game.v.clearQueueCanvas();
@@ -505,7 +502,7 @@ export const initSkins = () => {
       const block_color = piecePreview.blocks[piece.id].color;
       const pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
       const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      const pieceWidthSpan = piecePreview.blocks[piece.id].xp || xpOverride; // xp = horizontal span
+      const pieceWidthSpan = piecePreview.blocks[piece.id].xp || xpOverride || [0, 0]; // xp = horizontal span
       const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
@@ -1102,19 +1099,20 @@ export const initSkins = () => {
               }
               this.ctx.globalAlpha = 1;
             } else {
-              const ghostSkin = this.ghostSkins[this.ghostSkinId];
-              this.drawImage(
-                this.ctx,
-                this.ghostTex,
-                (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
-                offsetY * ghostSkin.w,
-                ghostSkin.w,
-                ghostSkin.w,
-                x * this.BS,
-                y * this.BS,
-                scale,
-                scale
-              );
+              // ! Not supported yet
+              // const ghostSkin = this.ghostSkins[this.ghostSkinId];
+              // this.drawImage(
+              //   this.ctx,
+              //   this.ghostTex,
+              //   (6 * (this.g.coffset[blockID] - 2) + offsetX) * ghostSkin.w,
+              //   offsetY * ghostSkin.w,
+              //   ghostSkin.w,
+              //   ghostSkin.w,
+              //   x * this.BS,
+              //   y * this.BS,
+              //   scale,
+              //   scale
+              // );
             }
           }
         };
@@ -1158,7 +1156,9 @@ export const initSkins = () => {
         (View as unknown as typeof ExportView).prototype.drawMainStage = function () {
           if (usingConnected) {
             if (!this.g.connections) {
-              this.g.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0));
+              this.g.connections = Array.from({ length: 21 }).map(() =>
+                Array.from({ length: 10 }).fill(0)
+              ) as ConnectionsMatrix;
             }
             this.drawOffsetTop = this.AP.STG.T;
             this.drawOffsetLeft = this.AP.STG.L;

@@ -1,40 +1,40 @@
 export const fixTeamsMode = () => {
   let oldDecode = Live.prototype.decodeActionsAndPlay;
-  Live.prototype.decodeActionsAndPlay = function () {
+  Live.prototype.decodeActionsAndPlay = function (replayData, bits, ...args) {
     let temp = this.p.GS.extendedAvailable;
     if (this.p.GS.teamData) {
       this.p.GS.extendedAvailable = true;
-      var cid = this.rcS[arguments[0][1]];
+      var cid = this.rcS[replayData[1]];
       if (cid in this.p.GS.cidSlots && this.clients[cid].rep) {
         this.clients[cid].rep.v.cancelLiveMatrix = true;
       }
     }
-    let v = oldDecode.apply(this, arguments);
+    let v = oldDecode.apply(this, [replayData, bits, ...args]);
     this.p.GS.extendedAvailable = temp;
     return v;
   };
   let oldRep = Game.prototype.sendRepFragment;
-  Game.prototype.sendRepFragment = function () {
+  Game.prototype.sendRepFragment = function (...args) {
     let temp = this.transmitMode;
     if (this.GS.teamData) {
       this.transmitMode = 1;
     }
-    let v = oldRep.apply(this, arguments);
+    let v = oldRep.apply(this, args);
     this.transmitMode = temp;
     return v;
   };
   let oldUpdate = Game.prototype.update;
-  Game.prototype.update = function () {
+  Game.prototype.update = function (...args) {
     let temp = this.transmitMode;
     if (this.GS.teamData) {
       this.transmitMode = 1;
     }
-    let v = oldUpdate.apply(this, arguments);
+    let v = oldUpdate.apply(this, args);
     this.transmitMode = temp;
     return v;
   };
   let oldFlash = SlotView.prototype.updateLiveMatrix;
-  SlotView.prototype.updateLiveMatrix = function () {
+  SlotView.prototype.updateLiveMatrix = function (...args) {
     if (this.cancelLiveMatrix) {
       this.queueCanvas.style.display = "block";
       this.holdCanvas.style.display = "block";
@@ -42,25 +42,25 @@ export const fixTeamsMode = () => {
     }
     this.queueCanvas.style.display = "none";
     this.holdCanvas.style.display = "none";
-    return oldFlash.apply(this, arguments);
+    return oldFlash.apply(this, args);
   };
   let oldHold = Replayer.prototype.redrawHoldBox;
-  Replayer.prototype.redrawHoldBox = function () {
+  Replayer.prototype.redrawHoldBox = function (...args) {
     this.v.QueueHoldEnabled = true;
     this.v.holdCanvas.style.display = "block";
-    return oldHold.apply(this, arguments);
+    return oldHold.apply(this, args);
   };
   let oldQueue = Replayer.prototype.updateQueueBox;
-  Replayer.prototype.updateQueueBox = function () {
+  Replayer.prototype.updateQueueBox = function (...args) {
     this.v.QueueHoldEnabled = true;
     this.v.queueCanvas.style.display = "block";
-    return oldQueue.apply(this, arguments);
+    return oldQueue.apply(this, args);
   };
   let oldSlotInit = Slot.prototype.init;
-  Slot.prototype.init = function () {
+  Slot.prototype.init = function (...args) {
     let life = this.gs.p.Live;
     if (life?.roomConfig?.mode != 2) {
-      return oldSlotInit.apply(this, arguments);
+      return oldSlotInit.apply(this, args);
     }
     this.v.queueCanvas.style.display = "none";
     this.v.holdCanvas.style.display = "none";
@@ -80,36 +80,36 @@ export const fixTeamsMode = () => {
     this.queueCan.width = this.holdCan.width = 4 * this.gs.holdQueueBlockSize;
     this.holdCan.height = 4 * this.gs.holdQueueBlockSize;
     this.queueCan.height = 15 * this.gs.holdQueueBlockSize;
-    (this.pCan.style.top =
+    this.pCan.style.top =
       this.bgCan.style.top =
       this.holdCan.style.top =
       this.queueCan.style.top =
-        this.gs.nameHeight + "px"),
-      (this.holdCan.style.left = "0px");
+        this.gs.nameHeight + "px";
+    this.holdCan.style.left = "0px";
     var widad = 0.8 * this.gs.holdQueueBlockSize;
     let keior = 4 * this.gs.holdQueueBlockSize + widad;
-    if (
-      ((this.name.style.left = keior + "px"),
-      (this.pCan.style.left = this.bgCan.style.left = keior + "px"),
-      (this.queueCan.style.left = keior + this.pCan.width + widad + "px"),
-      this.gs.slotStats && this.gs.matrixWidth >= 50)
-    ) {
-      this.stats.init(), (this.stats.statsDiv.style.left = keior + "px"), this.slotDiv.appendChild(this.stats.statsDiv);
-      let leonilla = 1.1 * this.stats.statsDiv.childNodes[0].clientWidth,
-        thorson = 2 * leonilla < 0.85 * this.gs.matrixWidth || leonilla > 0.6 * this.gs.matrixWidth;
+    this.name.style.left = keior + "px";
+    this.pCan.style.left = this.bgCan.style.left = keior + "px";
+    this.queueCan.style.left = keior + this.pCan.width + widad + "px";
+    if (this.gs.slotStats && this.gs.matrixWidth >= 50) {
+      this.stats.init();
+      this.stats.statsDiv.style.left = keior + "px";
+      this.slotDiv.appendChild(this.stats.statsDiv);
+      let leonilla = 1.1 * this.stats.statsDiv.childNodes[0].clientWidth;
+      let thorson = 2 * leonilla < 0.85 * this.gs.matrixWidth || leonilla > 0.6 * this.gs.matrixWidth;
       this.stats.winCounter.style.display = thorson ? null : "none";
     } else {
       this.stats.disable();
     }
-    this.slotDiv.appendChild(this.name),
-      this.slotDiv.appendChild(this.stageDiv),
-      this.stageDiv.appendChild(this.bgCan),
-      this.stageDiv.appendChild(this.pCan),
-      this.stageDiv.appendChild(this.holdCan),
-      this.stageDiv.appendChild(this.queueCan),
-      (this.slotDiv.style.display = "block"),
-      this.gs.gsDiv.appendChild(this.slotDiv),
-      this.v.onResized();
+    this.slotDiv.appendChild(this.name);
+    this.slotDiv.appendChild(this.stageDiv);
+    this.stageDiv.appendChild(this.bgCan);
+    this.stageDiv.appendChild(this.pCan);
+    this.stageDiv.appendChild(this.holdCan);
+    this.stageDiv.appendChild(this.queueCan);
+    this.slotDiv.style.display = "block";
+    this.gs.gsDiv.appendChild(this.slotDiv);
+    this.v.onResized();
 
     this.stats.statsDiv.style.width = "250px";
   };
@@ -117,7 +117,9 @@ export const fixTeamsMode = () => {
     var maxTeamLength = Math.max.apply(null, teamLengths),
       edweina = this.h / 2,
       slotIndex = 0;
-    (this.isExtended = false), (this.nameFontSize = 15), (this.nameHeight = 18);
+    this.isExtended = false;
+    this.nameFontSize = 15;
+    this.nameHeight = 18;
     var shonte = edweina,
       coline = 1 === (curTeamLength = maxTeamLength) ? 0 : (2 === curTeamLength ? 30 : 60) / (curTeamLength - 1),
       cinnamin = this.tagHeight + 2;
@@ -128,13 +130,14 @@ export const fixTeamsMode = () => {
     this.slotWidth = this.slotHeight / 2 + this.redBarWidth;
 
     var janishia = this.slotWidth * curTeamLength + (curTeamLength - 1) * coline;
-    janishia > this.w &&
-      ((this.slotWidth = Math.floor(this.w / curTeamLength) - coline),
-      (this.slotHeight = this.nmob(2 * (this.slotWidth - this.redBarWidth))),
-      (this.redBarWidth = Math.ceil(this.slotHeight / 55) + 1),
-      (this.slotWidth = this.slotHeight / 2 + this.redBarWidth),
-      (janishia = this.slotWidth * curTeamLength + (curTeamLength - 1) * coline)),
-      (this.liveBlockSize = this.slotHeight / 20);
+    if (this.w < janishia) {
+      this.slotWidth = Math.floor(this.w / curTeamLength) - coline;
+      this.slotHeight = this.nmob(2 * (this.slotWidth - this.redBarWidth));
+      this.redBarWidth = Math.ceil(this.slotHeight / 55) + 1;
+      this.slotWidth = this.slotHeight / 2 + this.redBarWidth;
+      janishia = this.slotWidth * curTeamLength + (curTeamLength - 1) * coline;
+    }
+    this.liveBlockSize = this.slotHeight / 20;
 
     // OLD
     //var estarlin = this.slotHeight + this.nameHeight + 15 + cinnamin;
@@ -166,19 +169,25 @@ export const fixTeamsMode = () => {
 
       // end injected code
 
-      curTeamLength > 0 && this.initTeamTag(teamIndex, baseSlotXCoord, estarlin * teamIndex, janishia);
+      if (curTeamLength > 0) this.initTeamTag(teamIndex, baseSlotXCoord, estarlin * teamIndex, janishia);
       for (var teamSlot = 0; teamSlot < curTeamLength; teamSlot++) {
         var slotX = baseSlotXCoord + teamSlot * (this.slotWidth + coline),
           slotY = estarlin * teamIndex + cinnamin;
-        slotIndex >= this.slots.length
-          ? (this.slots[slotIndex] = new Slot(slotIndex, slotX, slotY, this))
-          : ((this.slots[slotIndex].x = slotX), (this.slots[slotIndex].y = slotY), this.slots[slotIndex].init()),
-          slotIndex++;
+        if (slotIndex >= this.slots.length) {
+          this.slots[slotIndex] = new Slot(slotIndex, slotX, slotY, this);
+        } else {
+          this.slots[slotIndex].x = slotX;
+          this.slots[slotIndex].y = slotY;
+          this.slots[slotIndex].init();
+        }
+        slotIndex++;
       }
     }
     for (this.shownSlots = slotIndex; slotIndex < this.slots.length; ) {
-      this.slots[slotIndex].hide(), slotIndex++;
+      this.slots[slotIndex].hide();
+      slotIndex++;
     }
-    (this.realHeight = estarlin * teamLengths.length - 15), this.resizeElements();
+    this.realHeight = estarlin * teamLengths.length - 15;
+    this.resizeElements();
   };
 };

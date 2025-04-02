@@ -1,5 +1,5 @@
 import { ConnectionsMatrix } from "./global-typings.js";
-import { Config } from "./index.js";
+import { Config } from "../jstris-extras.js";
 import { Modes } from "./util.js";
 
 function clone<T>(object: T): T {

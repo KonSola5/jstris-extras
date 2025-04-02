@@ -1,4 +1,4 @@
-import { Config } from "./index.js";
+import { Config } from "../jstris-extras.js";
 
 interface SoundDefinition {
   name?: string;

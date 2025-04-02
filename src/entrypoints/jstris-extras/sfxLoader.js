@@ -1,4 +1,4 @@
-import { Config } from "./index.ts";
+import { Config } from "../jstris-extras.js";
 
 const attemptLoadSFX = function () {
   if (typeof loadSFX == "function") {
@@ -182,10 +182,10 @@ export const loadCustomSFX = (sfx = {}) => {
           let bestFit = { score: 0.5, sound: null, combo: -1 };
           for (let sfx of scoring) {
             let score = 0;
-            if (sfx.hasOwnProperty("b2b") && sfx.b2b == b2b) {
+            if (Object.prototype.hasOwnProperty.call(sfx, "b2b") && sfx.b2b == b2b) {
               score += 1;
             }
-            if (sfx.hasOwnProperty("combo") && sfx.combo <= combo) {
+            if (Object.prototype.hasOwnProperty.call(sfx, "combo") && sfx.combo <= combo) {
               score += 1;
             }
             if (bestFit.score < score) {
@@ -210,12 +210,12 @@ export const loadCustomSFX = (sfx = {}) => {
 
         for (let sfx of this.specialScoring.ANY) {
           let score = 0;
-          if (sfx.hasOwnProperty("b2b")) {
+          if (Object.prototype.hasOwnProperty.call(sfx, "b2b")) {
             if (sfx.b2b == b2b) score += 1;
             else continue;
           }
 
-          if (sfx.hasOwnProperty("combo")) {
+          if (Object.prototype.hasOwnProperty.call(sfx, "combo")) {
             if (sfx.combo <= combo) score += 1;
             else continue;
           }
@@ -235,7 +235,7 @@ export const loadCustomSFX = (sfx = {}) => {
         }
       }
     }
-    if (sfx.hasOwnProperty(b2b) && b2b) {
+    if (Object.prototype.hasOwnProperty.call(sfx, b2b) && b2b) {
       sounds.push("b2b");
     }
     if (combo >= 0) {
@@ -262,7 +262,7 @@ export const loadCustomSFX = (sfx = {}) => {
         let customVFX = new CustomVFXset*/
 
   for (let name of SOUNDS) {
-    if (sfx.hasOwnProperty(name)) {
+    if (Object.prototype.hasOwnProperty.call(sfx, name)) {
       customSFX[name] = {
         url: sfx[name],
       };

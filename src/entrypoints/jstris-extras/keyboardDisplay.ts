@@ -1,5 +1,5 @@
 import { KeyAction } from "./global-typings.js";
-import { Config } from "./index.js";
+import { Config } from "../jstris-extras.js";
 import { createSVG, clamp } from "./util.js";
 
 interface SVGDefinition {

@@ -1,13 +1,16 @@
+import '~/assets/style.css';
+import '~/assets/custom-game-style.css';
+
 export default defineContentScript({
   matches: ["*://*.jstris.jezevec10.com/*"],
   async main(ctx) {
-    console.log("Injecting...");
-
-    await injectScript("/injected.js", {
+    console.log("Injecting Jstris Extras...");
+    const startTime = performance.now();
+    await injectScript("/jstris-extras.js", {
       keepInDom: true,
     });
 
-    console.log("Injected!");
+    console.log(`Jstris Extras injected in ${Math.round(performance.now() - startTime)/1000} s.`);
 
     const ui = createIntegratedUi(ctx, {
       position: "inline",

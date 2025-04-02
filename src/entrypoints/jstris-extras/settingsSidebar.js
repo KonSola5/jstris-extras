@@ -1,4 +1,4 @@
-import { Config } from "./index.ts";
+import { Config } from "../jstris-extras.js";
 
 export function initSidebar() {
   function openSubmenu(submenuElement) {
@@ -12,7 +12,7 @@ export function initSidebar() {
   }
 
   // Sidebar skeleton
-  const sidebar = new DocumentFragment();
+  const sidebar = document.createElement("div")//new DocumentFragment();
 
   let sidebarDiv = document.createElement("div");
   sidebarDiv.id = "sidebar";
@@ -73,7 +73,7 @@ export function initSidebar() {
     constructor(id, displayName) {
       this.id = id;
 
-      this.submenu = new DocumentFragment();
+      this.submenu = document.createElement("div")//new DocumentFragment();
 
       this.submenuDiv = document.createElement("div");
       this.submenuDiv.id = id;

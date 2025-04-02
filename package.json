@@ -22,5 +22,8 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.26.1",
     "wxt": "^0.19.29"
+  },
+  "dependencies": {
+    "tetris-fumen": "^1.1.3"
   }
 }

@@ -1,6 +1,9 @@
-import { Config } from "./index.ts";
+import { Config } from "../jstris-extras.js";
 import { loadCustomSFX } from "./sfxLoader.js";
-import { shouldRenderEffectsOnView } from "./util.js";
+
+function shouldRenderEffectsOnView(view) {
+  return view.holdCanvas && view.holdCanvas.width >= 70;
+}
 
 export const initReplayerSFX = () => {
   if (typeof View == "function" && typeof window.Live != "function" && !location.href.includes("export"))
@@ -16,7 +19,7 @@ export const initCustomReplaySFX = () => {
     try {
       sfx = JSON.parse(json);
       // document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
-    } catch (e) {
+    } catch (error) {
       console.log("SFX json was invalid.");
       // document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
     }
@@ -49,12 +52,24 @@ export const initCustomReplaySFX = () => {
 
     // don't need this line anymore
     // this.SEenabled && createjs.Sound.play(this.SFXset.getComboSFX(this.g.comboCounter));
-    this.g.pmode &&
-      (7 === this.g.pmode
-        ? (this.lrem.textContent = this.g.gamedata.TSD)
-        : 8 === this.g.pmode
-        ? (this.lrem.textContent = this.g.gamedata.PCs)
-        : 5 !== this.g.pmode && (this.lrem.textContent = this.g.linesRemaining));
+    if (this.g.pmode) {
+      switch (this.g.pmode) {
+        case Jstris.Modes.TSD20: {
+          this.lrem.textContent = this.g.gamedata.TSD;
+          break;
+        }
+        case Jstris.Modes.PC_MODE: {
+          this.lrem.textContent = this.g.gamedata.PCs;
+          break;
+        }
+        case Jstris.Modes.ULTRA:
+          break;
+        default: {
+          this.lrem.textContent = this.g.linesRemaining;
+          break;
+        }
+      }
+    }
   };
 };
 const initOpponentSFX = () => {

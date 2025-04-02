@@ -13,7 +13,7 @@ export default defineConfig({
     web_accessible_resources: [
       {
         matches: ['*://*.jstris.jezevec10.com/*'],
-        resources: ['icon/*.png', "injected.js"],
+        resources: ['icon/*.png', "jstris-extras.js", "jstris-extras/*"],
       },
     ],
   },
