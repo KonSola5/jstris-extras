@@ -12,7 +12,7 @@ export function initSidebar() {
   }
 
   // Sidebar skeleton
-  const sidebar = document.createElement("div")//new DocumentFragment();
+  const sidebar = document.createDocumentFragment()
 
   let sidebarDiv = document.createElement("div");
   sidebarDiv.id = "sidebar";
@@ -73,7 +73,7 @@ export function initSidebar() {
     constructor(id, displayName) {
       this.id = id;
 
-      this.submenu = document.createElement("div")//new DocumentFragment();
+      this.submenu = document.createDocumentFragment();
 
       this.submenuDiv = document.createElement("div");
       this.submenuDiv.id = id;

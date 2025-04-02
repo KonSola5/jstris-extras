@@ -33,6 +33,7 @@ import { notify } from "./jstris-extras/util.js";
 export const Config: ConfigManager = new ConfigManager();
 
 export default defineUnlistedScript(() => {
+  const startTime = performance.now()
   // inject style
   // const styleSheet = document.createElement("style");
   // styleSheet.innerText = css;
@@ -98,4 +99,5 @@ export default defineUnlistedScript(() => {
   }
   if (typeof Live == "function") initChat();
   initReplayerSFX();
+  console.log(`Everything initialized in ${Math.round(performance.now() - startTime)/1000} s.`)
 });
