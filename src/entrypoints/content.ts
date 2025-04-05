@@ -42,17 +42,5 @@ export default defineContentScript({
     });
 
     console.log(`[Jstris Extras Content Script]: Jstris Extras injected in ${Math.round(performance.now() - startTime) / 1000} s.`);
-
-    const ui = createIntegratedUi(ctx, {
-      position: "inline",
-      anchor: "body",
-      onMount: (container) => {
-        const app: HTMLParagraphElement = document.createElement("p");
-        app.textContent = "...";
-        container.append(app);
-      },
-    });
-    console.log("Hello content.");
-    ui.mount();
   },
 });

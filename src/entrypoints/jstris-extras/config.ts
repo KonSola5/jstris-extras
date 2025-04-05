@@ -27,7 +27,7 @@ export interface IConfig {
   opponentSFXVolumeMultiplier: number;
 
   customSFXEnabled: boolean;
-  customSFX: CustomSFXDefinition;
+  customSFX: CustomSFXDefinition | null;
   customPieceSpawnSFXEnabled: boolean;
 
   statAPPEnabled: boolean;
@@ -170,12 +170,14 @@ export class ConfigManager {
    */
   set<T extends keyof IConfig>(name: T, value: IConfig[T]): void {
     this.settings.set(name, value)
-    const parsedValue = JSON.stringify(value);
+    if (typeof value == "object") value = structuredClone(value)
     document.dispatchEvent(
       new CustomEvent("setStorageRequest", {
         detail: {
-          [name]: parsedValue,
+          key: name,
+          value: value,
         },
+        bubbles: true
       })
     );
     this.listeners.forEach((listener, event) => {

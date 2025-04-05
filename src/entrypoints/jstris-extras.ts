@@ -33,21 +33,27 @@ import { notify } from "./jstris-extras/util.js";
 export let Config: ConfigManager;
 
 export default defineUnlistedScript(async () => {
-  const startTime = performance.now()
+  const startTime = performance.now();
 
   // Wait to get stored config from extension
-  const settings: IConfig = await new Promise<IConfig>((resolve: (value: IConfig) => void, reject) => {
-    window.addEventListener("getStorageResponse", (event: Event) => {
-      if (!(event instanceof CustomEvent)) return;
-      if (event.detail instanceof Error) {
-        reject(event.detail);
-      }
-      resolve(event.detail);
-    }, {once: true})
-    window.dispatchEvent(new CustomEvent("getStorageRequest", {detail: null}))
-  })
+  const settings: Partial<IConfig> = await new Promise<Partial<IConfig>>(
+    (resolve: (value: Partial<IConfig>) => void, reject) => {
+      window.addEventListener(
+        "getStorageResponse",
+        (event: Event) => {
+          if (!(event instanceof CustomEvent)) return;
+          if (event.detail instanceof Error) {
+            reject(event.detail);
+          }
+          resolve(event.detail);
+        },
+        { once: true }
+      );
+      window.dispatchEvent(new CustomEvent("getStorageRequest", { detail: null }));
+    }
+  );
 
-  Config = new ConfigManager(settings)
+  Config = new ConfigManager(settings);
 
   initLayoutChanges();
 
@@ -109,5 +115,5 @@ export default defineUnlistedScript(async () => {
   }
   if (typeof Live == "function") initChat();
   initReplayerSFX();
-  console.log(`Everything initialized in ${Math.round(performance.now() - startTime)/1000} s.`)
+  console.log(`Everything initialized in ${Math.round(performance.now() - startTime) / 1000} s.`);
 });

@@ -147,7 +147,7 @@ export function initSidebar() {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = id;
-      checkbox.checked = Boolean(Config.settings[id] ?? false);
+      checkbox.checked = Boolean(Config.settings.get(id) ?? false);
       checkbox.disabled = disabled;
       flexbox.append(checkbox);
 
@@ -191,7 +191,7 @@ export function initSidebar() {
       const textbox = document.createElement("input");
       textbox.type = "text";
       textbox.id = id;
-      textbox.value = String(Config.settings[id] ?? "");
+      textbox.value = String(Config.settings.get(id) ?? "");
       textbox.disabled = disabled;
       flexbox.append(textbox);
 
@@ -281,7 +281,7 @@ export function initSidebar() {
       slider.min = String(min);
       slider.max = String(max);
       slider.step = String(step);
-      slider.value = String(Config.settings[id] ?? "");
+      slider.value = String(Config.settings.get(id) ?? "");
 
       slider.disabled = disabled;
       flexbox.append(slider);
@@ -319,7 +319,7 @@ export function initSidebar() {
       const hiddenInput = document.createElement("input");
       hiddenInput.type = "hidden";
       hiddenInput.id = `${id}Value`;
-      hiddenInput.value = String(Config.settings[id] ?? "");
+      hiddenInput.value = String(Config.settings.get(id) ?? "");
       userInput.append(hiddenInput);
 
       const dragDropArea = document.createElement("div");
@@ -475,7 +475,7 @@ export function initSidebar() {
       "Enables custom sound effects. Disabling this may require a refresh."
     )
     .addPasteInput(
-      "customSFX_JSON",
+      "customSFX",
       "Custom SFX data:",
       `Specifies the definition for custom sound effects. Refer to [this guide](WIP) to learn how to create custom SFX definitions.`
     )
