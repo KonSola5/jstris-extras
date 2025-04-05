@@ -1,15 +1,15 @@
-export const lerp = (start, end, amount) => {
+export function lerp(start: number, end: number, amount: number) {
   return (1 - amount) * start + amount * end;
-};
+}
 
 /**
  * Clamps a value between the given minimum and maximum value.
- * @param {number} value The value to clamp.
- * @param {number} min The minimum value.
- * @param {number} max The maximum value.
+ * @param value The value to clamp.
+ * @param min The minimum value.
+ * @param max The maximum value.
  * @returns The clamped value.
  */
-export function clamp(value, min, max) {
+export function clamp(value: number, min: number, max: number) {
   if (value < min) return min;
   if (value > max) return max;
   return value;
@@ -39,19 +39,19 @@ export const Modes = Object.freeze({
  * @param {object[]} pathArray Array of objects containing path attributes.
  * @returns The SVG element.
  */
-export function createSVG(cssClassArray, viewBox, pathArray) {
-  let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+export function createSVG(cssClassArray: string[], viewBox: string, pathArray: object[]) {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.classList.add(...cssClassArray);
   svg.setAttribute("viewBox", viewBox);
-  let paths = [];
-  pathArray.forEach(path => {
-    let pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  const paths: SVGPathElement[] = [];
+  pathArray.forEach((path) => {
+    const pathElement = document.createElementNS("http://www.w3.org/2000/svg", "path");
     for (const [key, value] of Object.entries(path)) {
-      pathElement.setAttribute(key, value)
+      pathElement.setAttribute(key, value);
     }
-    paths.push(pathElement)
+    paths.push(pathElement);
   });
-  svg.append(...paths)
+  svg.append(...paths);
   return svg;
 }
 
@@ -60,6 +60,7 @@ export function createSVG(cssClassArray, viewBox, pathArray) {
  * @abstract
  */
 class NodeBuilder {
+  element!: Element; // Initialized elsewhere
   constructor() {
     if (this.constructor == NodeBuilder) {
       throw new ReferenceError("Abstract classes can't be instantiated.");
@@ -71,7 +72,7 @@ class NodeBuilder {
    * @param {string} id ID to give to the element.
    * @returns The current instance for chaining.
    */
-  withID(id) {
+  withID(id: string) {
     this.element.id = id;
     return this;
   }
@@ -81,7 +82,7 @@ class NodeBuilder {
    * @param  {...string} styles CSS classes to give to the element.
    * @returns The current instance for chaining.
    */
-  withStyles(...styles) {
+  withStyles(...styles: string[]) {
     this.element.classList.add(...styles);
     return this;
   }
@@ -93,17 +94,21 @@ class NodeBuilder {
    * @param {boolean | AddEventListenerOptions} [options] Options for the event.
    * @returns The current instance for chaining.
    */
-  addEventListener(type, listener, options) {
+  addEventListener(
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+    options: boolean | AddEventListenerOptions
+  ) {
     this.element.addEventListener(type, listener, options);
     return this;
   }
 
   /**
    * Appedns the element to the parent element.
-   * @param {Node} parent The parent element.
+   * @param parent The parent element.
    * @returns The current instance for chaining.
    */
-  appendTo(parent) {
+  appendTo(parent: Element) {
     parent.appendChild(this.element);
     return this;
   }
@@ -119,16 +124,14 @@ class NodeBuilder {
 
 /**
  * Constructs new HTML elements.
- * @template {keyof HTMLElementTagNameMap} K
  */
-export class ElementBuilder extends NodeBuilder {
-  /** @type {HTMLElementTagNameMap[K]} */ element;
+export class ElementBuilder<K extends keyof HTMLElementTagNameMap> extends NodeBuilder {
+  element: HTMLElementTagNameMap[K];
 
   /**
    * Constructs a new HTML element.
-   * @param {K} tagName
    */
-  constructor(tagName) {
+  constructor(tagName: K) {
     super();
     this.element = document.createElement(tagName);
   }
@@ -138,7 +141,7 @@ export class ElementBuilder extends NodeBuilder {
    * @param {string} textContent
    * @returns The current instance for chaining.
    */
-  withText(textContent) {
+  withText(textContent: string) {
     this.element.textContent = textContent;
     return this;
   }
@@ -146,12 +149,12 @@ export class ElementBuilder extends NodeBuilder {
 
 /** Constructs new SVG elements. */
 export class SVGBuilder extends NodeBuilder {
-  element;
+  element: SVGSVGElement;
   /**
    * Constructs a new SVG element.
-   * @param {string} viewBox View box.
+   * @param viewBox View box.
    */
-  constructor(viewBox) {
+  constructor(viewBox: string) {
     super();
     this.element = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.element.setAttribute("viewBox", viewBox);
@@ -162,8 +165,8 @@ export class SVGBuilder extends NodeBuilder {
    * @param {Object.<string, string>} pathDefinition An object containing path attributes and their values.
    * @returns The current instance for chaining.
    */
-  addPath(pathDefinition) {
-    let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  addPath(pathDefinition: { [s: string]: string }) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     for (const [key, value] of Object.entries(pathDefinition)) {
       path.setAttribute(key, value);
     }
@@ -172,31 +175,36 @@ export class SVGBuilder extends NodeBuilder {
 }
 
 // https://jsfiddle.net/12aueufy/1/
-var shakingElements = [];
+const shakingElements: HTMLElement[] = [];
 
-export const shake = function (element, magnitude = 16, numberOfShakes = 15, angular = false) {
+export function shake(
+  element: HTMLElement,
+  magnitude: number = 16,
+  numberOfShakes: number = 15,
+  angular: boolean = false
+) {
   if (!element) return;
 
   //First set the initial tilt angle to the right (+1)
-  var tiltAngle = 1;
+  let tiltAngle = 1;
 
   //A counter to count the number of shakes
-  var counter = 1;
+  let counter = 1;
 
   //The total number of shakes (there will be 1 shake per frame)
 
   //Capture the element's position and angle so you can
   //restore them after the shaking has finished
-  var startX = 0,
+  const startX = 0,
     startY = 0,
     startAngle = 0;
 
   // Divide the magnitude into 10 units so that you can
   // reduce the amount of shake by 10 percent each frame
-  var magnitudeUnit = magnitude / numberOfShakes;
+  const magnitudeUnit = magnitude / numberOfShakes;
 
   //The `randomInt` helper function
-  var randomInt = (min, max) => {
+  const randomInt = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   };
 
@@ -230,8 +238,8 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
       magnitude -= magnitudeUnit;
 
       //Randomly change the element's position
-      var randomX = randomInt(-magnitude, magnitude);
-      var randomY = randomInt(-magnitude, magnitude);
+      const randomX = randomInt(-magnitude, magnitude);
+      const randomY = randomInt(-magnitude, magnitude);
 
       element.style.transform = `translate(${randomX}px, ${randomY}px)`;
 
@@ -260,7 +268,7 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
 
       //Rotate the element left or right, depending on the direction,
       //by an amount in radians that matches the magnitude
-      var angle = Number(magnitude * tiltAngle).toFixed(2);
+      const angle = Number(magnitude * tiltAngle).toFixed(2);
 
       element.style.transform = `rotate(${angle}deg)`;
       counter += 1;
@@ -279,14 +287,13 @@ export const shake = function (element, magnitude = 16, numberOfShakes = 15, ang
       shakingElements.splice(shakingElements.indexOf(element), 1);
     }
   }
-};
+}
 
-// @params callback: (name: string , loggedIn: boolean) => {}
-export const getPlayerName = (callback) => {
+export function getPlayerName(callback: (name: string, loggedIn: boolean) => void) {
   fetch("https://jstris.jezevec10.com/profile")
     .then((res) => {
       if (res.url.includes("/u/")) {
-        let username = res.url.substring(res.url.indexOf("/u/") + 3);
+        const username = res.url.substring(res.url.indexOf("/u/") + 3);
         callback(username, true);
       } else {
         callback("", false);
@@ -296,17 +303,17 @@ export const getPlayerName = (callback) => {
       console.log(e);
       callback("", false);
     });
-};
+}
 
 let notificationsSupported = false;
 
-export const authNotification = () => {
+export function authNotification() {
   if (!window.Notification) {
     notificationsSupported = false;
   } else if (Notification.permission != "granted") {
     Notification.requestPermission()
-      .then((p) => {
-        if (p === "granted") {
+      .then((permission: NotificationPermission) => {
+        if (permission === "granted") {
           notificationsSupported = true;
         } else {
           console.log("User has blocked notifications.");
@@ -318,13 +325,13 @@ export const authNotification = () => {
   } else {
     notificationsSupported = true;
   }
-};
+}
 
-export const notify = (title, body) => {
+export function notify(title: string, body: string) {
   if (notificationsSupported) {
     new Notification(title, {
       body: body,
       icon: "https://jstrisplus.github.io/jstris-plus-assets/logo.png",
     });
   }
-};
+}

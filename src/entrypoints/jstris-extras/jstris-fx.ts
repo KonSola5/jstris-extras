@@ -17,7 +17,7 @@ interface GFXDefinition {
   process: (ctx: CanvasRenderingContext2D) => boolean;
 }
 
-function shouldRenderEffectsOnView(view: View): boolean {
+function shouldRenderEffectsOnView(view: View | SlotView): boolean {
   return view.holdCanvas && view.holdCanvas.width >= 70;
 }
 
@@ -134,10 +134,10 @@ export function initFX(): void {
   const oldCheckLineClears = GameCore.prototype.checkLineClears;
   GameCore.prototype.checkLineClears = function (...args) {
     const animateLineClear = (row: number) => {
-      if (Config.settings.lineClearAnimationEnabled && Config.settings.lineClearAnimationLength > 0) {
+      if (Config.settings.get("lineClearAnimationEnabled") && Config.settings.get("lineClearAnimationLength") > 0) {
         this.GFXQueue.push({
           opacity: 1,
-          delta: 1 / ((Config.settings.lineClearAnimationLength * 1000) / 60),
+          delta: 1 / ((Config.settings.get("lineClearAnimationLength") * 1000) / 60),
           row,
           blockSize: this.block_size,
           amountParted: 0,
@@ -175,7 +175,7 @@ export function initFX(): void {
             ctx.fillStyle = rightGradient;
             ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
 
-            this.amountParted = lerp(this.amountParted, this.blockSize * 5, 0.1);
+            this.amountParted = lerp(this.amountParted!, this.blockSize * 5, 0.1);
             this.opacity -= this.delta!;
             return true;
           },
@@ -185,12 +185,14 @@ export function initFX(): void {
 
     const shakeBoard = (oldAttack: number) => {
       const attack: number = this.gamedata.attack - oldAttack;
-      if (Config.settings.lineClearShakeEnabled)
-        shake(
-          this.GFXCanvas!.parentNode!.parentNode,
-          Math.min(1 + attack * 5, 50) * Config.settings.lineClearShakeStrength,
-          Config.settings.lineClearShakeLength * (1000 / 60)
+      if (Config.settings.get("lineClearShakeEnabled")) {
+        const element = this.GFXCanvas?.parentNode?.parentNode as HTMLElement;
+        if (element) shake(
+          element,
+          Math.min(1 + attack * 5, 50) * Config.settings.get("lineClearShakeStrength"),
+          Config.settings.get("lineClearShakeLength") * (1000 / 60)
         );
+      }
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     };
 
@@ -220,7 +222,7 @@ export function initFX(): void {
 
   const oldPlaceBlock = GameCore.prototype.placeBlock;
   GameCore.prototype.placeBlock = function (x: number, y: number, ...args): void {
-    if (!this.GFXCanvas || !Config.settings.piecePlacementAnimationEnabled || isReplayerReversing)
+    if (!this.GFXCanvas || !Config.settings.get("piecePlacementAnimationEnabled") || isReplayerReversing)
       return oldPlaceBlock.apply(this, [x, y, ...args]);
 
     const piece: number[][] =
@@ -229,12 +231,12 @@ export function initFX(): void {
     oldPlaceBlock.apply(this, [x, y, ...args]);
 
     // flashes the piece once you place it
-    if (Config.settings.piecePlacementAnimationLength > 0) {
+    if (Config.settings.get("piecePlacementAnimationLength") > 0) {
       this.GFXQueue.push({
-        opacity: Config.settings.piecePlacementAnimationOpacity / 100,
+        opacity: Config.settings.get("piecePlacementAnimationOpacity") / 100,
         delta:
-          Config.settings.piecePlacementAnimationOpacity /
-          (100 * ((Config.settings.piecePlacementAnimationLength * 1000) / 60)),
+          Config.settings.get("piecePlacementAnimationOpacity") /
+          (100 * ((Config.settings.get("piecePlacementAnimationLength") * 1000) / 60)),
         col: x,
         row: y,
         blockSize: this.block_size,
@@ -305,8 +307,8 @@ export function initFX(): void {
 
         const middle: number = (trailLeftBorder! + trailRightBorder!) / 2;
 
-        this.trailLeftBorder = lerp(trailLeftBorder, middle, 0.1);
-        this.trailRightBorder = lerp(trailRightBorder, middle, 0.1);
+        this.trailLeftBorder = lerp(trailLeftBorder!, middle, 0.1);
+        this.trailRightBorder = lerp(trailRightBorder!, middle, 0.1);
 
         this.opacity -= 0.0125;
 

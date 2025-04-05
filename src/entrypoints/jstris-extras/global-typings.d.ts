@@ -41,6 +41,12 @@ declare global {
     ): void;
     drawBlockConnected(x: number, y: number, blockID: number, connection: number): void;
     drawGhostBlockConnected(x: number, y: number, blockID: number, connection: number): void;
+    playReplayerSound(soundOrSounds: string | string[]): void;
+  }
+
+  interface SlotView {
+    playReplayerSound(soundOrSounds: string | string[]): void;
+    cancelLiveMatrix?: boolean;
   }
 
   interface ExportView {
@@ -137,6 +143,10 @@ declare global {
 
   interface ModeManager {
     injected_connectMap(): void;
+  }
+
+  interface GameSlots {
+    realHeight?: number;
   }
 }
 

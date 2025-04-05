@@ -1,10 +1,10 @@
-/// <reference types="../../../jstris-typings/jstris_typings.d.ts" />
+/// <reference types="../../jstris-typings/index.d.ts" />
 /// <reference types="./jstris-extras/global-typings.ts" />
 
 //import { initActionText } from "./actiontext.js";
 import { initFX } from "./jstris-extras/jstris-fx.js";
 import { initChat } from "./jstris-extras/chat.js";
-import { ConfigManager } from "./jstris-extras/config.js";
+import { ConfigManager, IConfig } from "./jstris-extras/config.js";
 
 // import css from "./css/style.css";
 // import customGameCSS from "./css/custom-game-style.css";
@@ -30,14 +30,24 @@ import { initLayoutChanges } from "./jstris-extras/layoutChanges.js";
 import { initCustomStats } from "./jstris-extras/stats_new.js";
 import { notify } from "./jstris-extras/util.js";
 
-export const Config: ConfigManager = new ConfigManager();
+export let Config: ConfigManager;
 
-export default defineUnlistedScript(() => {
+export default defineUnlistedScript(async () => {
   const startTime = performance.now()
-  // inject style
-  // const styleSheet = document.createElement("style");
-  // styleSheet.innerText = css;
-  // document.body.appendChild(styleSheet);
+
+  // Wait to get stored config from extension
+  const settings: IConfig = await new Promise<IConfig>((resolve: (value: IConfig) => void, reject) => {
+    window.addEventListener("getStorageResponse", (event: Event) => {
+      if (!(event instanceof CustomEvent)) return;
+      if (event.detail instanceof Error) {
+        reject(event.detail);
+      }
+      resolve(event.detail);
+    }, {once: true})
+    window.dispatchEvent(new CustomEvent("getStorageRequest", {detail: null}))
+  })
+
+  Config = new ConfigManager(settings)
 
   initLayoutChanges();
 
@@ -47,7 +57,7 @@ export default defineUnlistedScript(() => {
 
   // initModal();
   initSidebar();
-  if (Config.settings.isFirstOpen) {
+  if (Config.settings.get("isFirstOpen")) {
     alert(
       "Hi! Thank you for installing Jstris Extras! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"
     );
@@ -80,7 +90,7 @@ export default defineUnlistedScript(() => {
     initLayout();
     initPracticeUndo();
     initPracticeFumen();
-    // setPlusSfx(Config.settings.customPlusSFX_JSON);
+    // setPlusSfx(Config.settings.get("customPlusSFX_JSON"));
     // const oldNewPB = GameCaption.prototype.newPB;
     // GameCaption.prototype.newPB = function (...args) {
     //   playSound("PB");

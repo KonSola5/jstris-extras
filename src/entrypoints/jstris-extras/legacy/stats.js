@@ -1,4 +1,4 @@
-import { Config } from "../jstris-extras.js";
+import { Config } from "../../jstris-extras.js";
 
 const replaceBadValues = (n, defaultValue) => {
   // NaN check

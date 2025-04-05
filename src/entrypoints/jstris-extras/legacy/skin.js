@@ -9,7 +9,7 @@
 // let usingGhostConnected = false;
 // function loadCustomSkin(url, ghost = false) {
 //   // if not allowing force replay skin, don't load custom skin
-//   if (location.href.includes("replay") && !Config.settings.customSkinInReplays) {
+//   if (location.href.includes("replay") && !Config.settings.get("customSkinInReplays")) {
 //     return;
 //   }
 
@@ -54,9 +54,9 @@
 //   initConnectedSkins();
 //   let skinLoaded = false;
 //   let game = null;
-//   if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
+//   if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
 
-//   if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
+//   if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
 //   if (typeof window.Live == "function") {
 //     Config.onChange("customSkinURL", (val) => {
 //       if (val) loadCustomSkin(val);
@@ -80,9 +80,9 @@
 //       if (!skinLoaded) {
 //         game = this.p;
 //         skinLoaded = true;
-//         if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
+//         if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
 
-//         if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
+//         if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
 //       }
 
 //       return v;
@@ -93,10 +93,10 @@
 //     let onready = View.prototype.onReady;
 //     View.prototype.onReady = function () {
 //       let val = onready.apply(this, arguments);
-//       if (Config.settings.customSkinInReplays && Config.settings.customSkinURL) {
+//       if (Config.settings.get("customSkinInReplays") && Config.settings.get("customSkinURL")) {
 //         this.tex.crossOrigin = "anonymous";
 //         this.skinId = 1;
-//         this.g.skins[1].data = Config.settings.customSkinURL;
+//         this.g.skins[1].data = Config.settings.get("customSkinURL");
 //         this.g.skins[1].w = customSkinSize;
 //         this.tex.src = this.g.skins[1].data;
 //       }

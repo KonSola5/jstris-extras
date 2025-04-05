@@ -6,7 +6,7 @@ export const initChat = () => {
 
   // === show or hide chat timestamps code ===
   // showing timestamp logic is in css
-  if (Config.settings.chatTimestampsEnabled) document.body.classList.add("show-chat-timestamps");
+  if (Config.settings.get("chatTimestampsEnabled")) document.body.classList.add("show-chat-timestamps");
   Config.onChange("chatTimestampsEnabled", (value: boolean) => {
     if (value) {
       document.body.classList.add("show-chat-timestamps");
@@ -23,8 +23,8 @@ export const initChat = () => {
 
   // === toggle chat button code ===
 
-  // document.getElementById("toggleChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.toggleChatKey);
-  // document.getElementById("closeChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.closeChatKey);
+  // document.getElementById("toggleChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.get("toggleChatKey"));
+  // document.getElementById("closeChatKey_INPUT_ELEMENT").value = displayKey(Config.settings.get("closeChatKey"));
 
   // thanks justin https://greasyfork.org/en/scripts/423192-change-chat-key
 
@@ -33,7 +33,7 @@ export const initChat = () => {
     chatListenerPresent = true;
     document.addEventListener("keydown", (event: KeyboardEvent) => {
       const key: string = event.code;
-      if (key == Config.settings.toggleChatKey) {
+      if (key == Config.settings.get("toggleChatKey")) {
         if (game && game.focusState !== 1) {
           // game already focused, unfocus
           game.setFocusState(1);
@@ -42,11 +42,11 @@ export const initChat = () => {
           }, 0); // setTimeout to prevent the key from being typed
 
           // if keys are same, should close chat in this case
-        } else if (Config.settings.closeChatKey == Config.settings.toggleChatKey) {
+        } else if (Config.settings.get("closeChatKey") == Config.settings.get("toggleChatKey")) {
           (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
           (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
         }
-      } else if (key == Config.settings.closeChatKey) {
+      } else if (key == Config.settings.get("closeChatKey")) {
         // focus game
         (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
         (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();

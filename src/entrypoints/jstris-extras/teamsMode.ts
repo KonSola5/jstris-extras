@@ -1,71 +1,71 @@
 export const fixTeamsMode = () => {
-  let oldDecode = Live.prototype.decodeActionsAndPlay;
+  const oldDecodeActionsAndPlay = Live.prototype.decodeActionsAndPlay;
   Live.prototype.decodeActionsAndPlay = function (replayData, bits, ...args) {
-    let temp = this.p.GS.extendedAvailable;
+    const temp = this.p.GS.extendedAvailable;
     if (this.p.GS.teamData) {
       this.p.GS.extendedAvailable = true;
-      var cid = this.rcS[replayData[1]];
-      if (cid in this.p.GS.cidSlots && this.clients[cid].rep) {
+      const cid = this.rcS[replayData[1]];
+      if (cid in this.p.GS.cidSlots && this.clients[cid].rep && this.clients[cid].rep.v instanceof SlotView) {
         this.clients[cid].rep.v.cancelLiveMatrix = true;
       }
     }
-    let v = oldDecode.apply(this, [replayData, bits, ...args]);
+    const v = oldDecodeActionsAndPlay.apply(this, [replayData, bits, ...args]);
     this.p.GS.extendedAvailable = temp;
     return v;
   };
-  let oldRep = Game.prototype.sendRepFragment;
+
+  const oldRep = Game.prototype.sendRepFragment;
   Game.prototype.sendRepFragment = function (...args) {
-    let temp = this.transmitMode;
+    const temp = this.transmitMode;
     if (this.GS.teamData) {
       this.transmitMode = 1;
     }
-    let v = oldRep.apply(this, args);
+    const v = oldRep.apply(this, args);
     this.transmitMode = temp;
     return v;
   };
-  let oldUpdate = Game.prototype.update;
+  const oldUpdate = Game.prototype.update;
   Game.prototype.update = function (...args) {
-    let temp = this.transmitMode;
+    const temp = this.transmitMode;
     if (this.GS.teamData) {
       this.transmitMode = 1;
     }
-    let v = oldUpdate.apply(this, args);
+    const v = oldUpdate.apply(this, args);
     this.transmitMode = temp;
     return v;
   };
-  let oldFlash = SlotView.prototype.updateLiveMatrix;
+  const oldFlash = SlotView.prototype.updateLiveMatrix;
   SlotView.prototype.updateLiveMatrix = function (...args) {
     if (this.cancelLiveMatrix) {
-      this.queueCanvas.style.display = "block";
-      this.holdCanvas.style.display = "block";
+      this.queueCanvas.classList.remove("hidden")
+      this.holdCanvas.classList.remove("hidden")
       return;
     }
-    this.queueCanvas.style.display = "none";
-    this.holdCanvas.style.display = "none";
+    this.queueCanvas.classList.add("hidden")
+    this.holdCanvas.classList.add("hidden")
     return oldFlash.apply(this, args);
   };
-  let oldHold = Replayer.prototype.redrawHoldBox;
+  const oldHold = Replayer.prototype.redrawHoldBox;
   Replayer.prototype.redrawHoldBox = function (...args) {
     this.v.QueueHoldEnabled = true;
-    this.v.holdCanvas.style.display = "block";
+    this.v.holdCanvas.classList.add("hidden")
     return oldHold.apply(this, args);
   };
-  let oldQueue = Replayer.prototype.updateQueueBox;
+  const oldQueue = Replayer.prototype.updateQueueBox;
   Replayer.prototype.updateQueueBox = function (...args) {
     this.v.QueueHoldEnabled = true;
-    this.v.queueCanvas.style.display = "block";
+    this.v.queueCanvas.classList.add("hidden")
     return oldQueue.apply(this, args);
   };
-  let oldSlotInit = Slot.prototype.init;
+  const oldSlotInit = Slot.prototype.init;
   Slot.prototype.init = function (...args) {
-    let life = this.gs.p.Live;
+    const life = this.gs.p.Live;
     if (life?.roomConfig?.mode != 2) {
       return oldSlotInit.apply(this, args);
     }
-    this.v.queueCanvas.style.display = "none";
-    this.v.holdCanvas.style.display = "none";
+    this.v.queueCanvas.classList.add("hidden")
+    this.v.holdCanvas.classList.add("hidden")
     this.gs.holdQueueBlockSize = this.gs.matrixHeight / 20;
-    //    console.log("hi2", this.gs.holdQueueBlockSize)
     this.v.QueueHoldEnabled = true;
     this.v.cancelLiveMatrix = false;
     this.slotDiv.className = "slot";
@@ -86,8 +86,8 @@ export const fixTeamsMode = () => {
       this.queueCan.style.top =
         this.gs.nameHeight + "px";
     this.holdCan.style.left = "0px";
-    var widad = 0.8 * this.gs.holdQueueBlockSize;
-    let keior = 4 * this.gs.holdQueueBlockSize + widad;
+    const widad = 0.8 * this.gs.holdQueueBlockSize;
+    const keior = 4 * this.gs.holdQueueBlockSize + widad;
     this.name.style.left = keior + "px";
     this.pCan.style.left = this.bgCan.style.left = keior + "px";
     this.queueCan.style.left = keior + this.pCan.width + widad + "px";
@@ -95,9 +95,10 @@ export const fixTeamsMode = () => {
       this.stats.init();
       this.stats.statsDiv.style.left = keior + "px";
       this.slotDiv.appendChild(this.stats.statsDiv);
-      let leonilla = 1.1 * this.stats.statsDiv.childNodes[0].clientWidth;
-      let thorson = 2 * leonilla < 0.85 * this.gs.matrixWidth || leonilla > 0.6 * this.gs.matrixWidth;
-      this.stats.winCounter.style.display = thorson ? null : "none";
+      const leonilla = 1.1 * this.stats.statsDiv.children[0].clientWidth;
+      const thorson = 2 * leonilla < 0.85 * this.gs.matrixWidth || leonilla > 0.6 * this.gs.matrixWidth;
+      if (thorson) this.stats.winCounter.classList.add("hidden");
+      else this.stats.winCounter.classList.remove("hidden");
     } else {
       this.stats.disable();
     }
@@ -107,29 +108,30 @@ export const fixTeamsMode = () => {
     this.stageDiv.appendChild(this.pCan);
     this.stageDiv.appendChild(this.holdCan);
     this.stageDiv.appendChild(this.queueCan);
-    this.slotDiv.style.display = "block";
+    this.slotDiv.classList.remove("hidden")
     this.gs.gsDiv.appendChild(this.slotDiv);
     this.v.onResized();
 
     this.stats.statsDiv.style.width = "250px";
   };
   GameSlots.prototype.tsetup = function (teamLengths) {
-    var maxTeamLength = Math.max.apply(null, teamLengths),
-      edweina = this.h / 2,
-      slotIndex = 0;
+    const maxTeamLength = Math.max.apply(null, teamLengths);
+    const edweina = this.h / 2;
+    let slotIndex = 0;
     this.isExtended = false;
     this.nameFontSize = 15;
     this.nameHeight = 18;
-    var shonte = edweina,
-      coline = 1 === (curTeamLength = maxTeamLength) ? 0 : (2 === curTeamLength ? 30 : 60) / (curTeamLength - 1),
-      cinnamin = this.tagHeight + 2;
+    const shonte = edweina;
+    const curTeamLength = maxTeamLength; 
+    const coline = 1 === curTeamLength ? 0 : (2 === curTeamLength ? 30 : 60) / (curTeamLength - 1);
+    const cinnamin = this.tagHeight + 2;
 
     this.slotHeight = this.nmob(shonte - this.nameHeight - 15);
 
     this.redBarWidth = Math.ceil(this.slotHeight / 55) + 1;
     this.slotWidth = this.slotHeight / 2 + this.redBarWidth;
 
-    var janishia = this.slotWidth * curTeamLength + (curTeamLength - 1) * coline;
+    let janishia = this.slotWidth * curTeamLength + (curTeamLength - 1) * coline;
     if (this.w < janishia) {
       this.slotWidth = Math.floor(this.w / curTeamLength) - coline;
       this.slotHeight = this.nmob(2 * (this.slotWidth - this.redBarWidth));
@@ -142,7 +144,7 @@ export const fixTeamsMode = () => {
     // OLD
     //var estarlin = this.slotHeight + this.nameHeight + 15 + cinnamin;
     // INJECTED
-    var estarlin = this.slotHeight + this.nameHeight * (this.slotStats ? 3 : 1) + 15 + cinnamin;
+    const estarlin = this.slotHeight + this.nameHeight * (this.slotStats ? 3 : 1) + 15 + cinnamin;
 
     this.matrixHeight = this.slotHeight;
     this.matrixWidth = this.slotWidth;
@@ -150,12 +152,12 @@ export const fixTeamsMode = () => {
     // inject slot width here instead of in Slot.init because tsetup is called first.
     this.slotWidth = this.matrixWidth * 1.7413;
 
-    for (var teamIndex = 0; teamIndex < teamLengths.length; teamIndex++) {
-      var curTeamLength = teamLengths[teamIndex];
+    for (let teamIndex = 0; teamIndex < teamLengths.length; teamIndex++) {
+      const curTeamLength = teamLengths[teamIndex];
 
       // begin injected code
-      let queueHoldBoxPadding = 0.8 * this.holdQueueBlockSize;
-      let queueHoldBoxWidthPlusPadding = 4 * this.holdQueueBlockSize + queueHoldBoxPadding;
+      const queueHoldBoxPadding = 0.8 * this.holdQueueBlockSize;
+      const queueHoldBoxWidthPlusPadding = 4 * this.holdQueueBlockSize + queueHoldBoxPadding;
 
       // OLD LINE:
       //janishia = this.slotWidth * letrina + (letrina - 1) * coline;
@@ -165,13 +167,13 @@ export const fixTeamsMode = () => {
       // OLD LINE:
       //var baseSlotXCoord = Math.floor((this.w - janishia) / 2);
       // INJECTED LINE (TO PREVENT OVERLAP WITH BOARD)
-      var baseSlotXCoord = Math.max(0, Math.floor((this.w - janishia) / 2));
+      const baseSlotXCoord = Math.max(0, Math.floor((this.w - janishia) / 2));
 
       // end injected code
 
       if (curTeamLength > 0) this.initTeamTag(teamIndex, baseSlotXCoord, estarlin * teamIndex, janishia);
-      for (var teamSlot = 0; teamSlot < curTeamLength; teamSlot++) {
-        var slotX = baseSlotXCoord + teamSlot * (this.slotWidth + coline),
+      for (let teamSlot = 0; teamSlot < curTeamLength; teamSlot++) {
+        const slotX = baseSlotXCoord + teamSlot * (this.slotWidth + coline),
           slotY = estarlin * teamIndex + cinnamin;
         if (slotIndex >= this.slots.length) {
           this.slots[slotIndex] = new Slot(slotIndex, slotX, slotY, this);

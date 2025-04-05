@@ -171,7 +171,7 @@ export const initPracticeUndo = () => {
           "keydown",
           (keyEvent: KeyboardEvent) => {
             if (this.focusState === 0) {
-              if (keyEvent.code === Config.settings.undoKey) {
+              if (keyEvent.code === Config.settings.get("undoKey")) {
                 this.undoToSaveState();
               }
             }

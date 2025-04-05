@@ -1,43 +1,44 @@
 import { Config } from "../jstris-extras.js";
+import { IConfig } from "./config.js";
 
 export function initSidebar() {
-  function openSubmenu(submenuElement) {
+  function openSubmenu(submenuElement: HTMLElement) {
     submenuElement.classList.remove("submenu-hidden");
     sidebarMainDiv.classList.add("sidebarMain-hidden");
   }
 
-  function closeSubmenu(submenuElement) {
+  function closeSubmenu(submenuElement: HTMLElement) {
     submenuElement.classList.add("submenu-hidden");
     sidebarMainDiv.classList.remove("sidebarMain-hidden");
   }
 
   // Sidebar skeleton
-  const sidebar = document.createDocumentFragment()
+  const sidebar = document.createDocumentFragment();
 
-  let sidebarDiv = document.createElement("div");
+  const sidebarDiv = document.createElement("div");
   sidebarDiv.id = "sidebar";
   sidebarDiv.classList.add("sidebar", "noAnimation");
   sidebar.append(sidebarDiv);
 
-  let sidebarHeaderDiv = document.createElement("div");
+  const sidebarHeaderDiv = document.createElement("div");
   sidebarHeaderDiv.id = "sidebarHeader";
   sidebarHeaderDiv.classList.add("sidebarHeader");
   sidebarDiv.append(sidebarHeaderDiv);
 
-  let title = document.createElement("h1");
+  const title = document.createElement("h1");
   title.textContent = "Jstris Extras";
   sidebarHeaderDiv.append(title);
 
-  let closeButton = document.createElement("a");
-  closeButton.onclick = (event) => {
+  const closeButton = document.createElement("a");
+  closeButton.onclick = (_event: MouseEvent) => {
     sidebarDiv.classList.remove("sidebar-shown");
   };
   closeButton.classList.add("closebtn");
 
-  let closeBtnSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  const closeBtnSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   closeBtnSVG.setAttribute("viewBox", "0 0 24 24");
   closeButton.append(closeBtnSVG);
-  let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("fill-rule", "evenodd");
   path.setAttribute("style", "fill:currentColor;stroke:currentColor;");
   path.setAttribute(
@@ -48,29 +49,35 @@ export function initSidebar() {
 
   sidebarHeaderDiv.append(closeButton);
 
-  let sidebarContentDiv = document.createElement("div");
+  const sidebarContentDiv = document.createElement("div");
   sidebarContentDiv.id = "sidebarContent";
   sidebarContentDiv.classList.add("sidebarContent");
   sidebarDiv.append(sidebarContentDiv);
 
-  let sidebarMainDiv = document.createElement("div");
+  const sidebarMainDiv = document.createElement("div");
   sidebarMainDiv.id = "sidebarMain";
   sidebarMainDiv.classList.add("sidebarMain");
   sidebarContentDiv.appendChild(sidebarMainDiv);
 
-  let sidebarFooterDiv = document.createElement("div");
+  const sidebarFooterDiv = document.createElement("div");
   sidebarFooterDiv.id = "sidebarFooter";
   sidebarFooterDiv.classList.add("sidebarFooter");
   sidebarDiv.append(sidebarFooterDiv);
 
-  let aboutButton = document.createElement("a");
+  const aboutButton = document.createElement("a");
   aboutButton.classList.add("sidebarButton");
   // aboutButton.textContent = "About";
   sidebarFooterDiv.append(aboutButton);
 
   // Submenu-creating class that allows chaining methods
   class Submenu {
-    constructor(id, displayName) {
+    id: string;
+    submenu: DocumentFragment;
+    submenuDiv: HTMLDivElement;
+    submenuButton: HTMLAnchorElement;
+    submenuContent: HTMLDivElement;
+
+    constructor(id: string, displayName: string) {
       this.id = id;
 
       this.submenu = document.createDocumentFragment();
@@ -82,25 +89,25 @@ export function initSidebar() {
 
       this.submenuButton = document.createElement("a");
       this.submenuButton.classList.add("sidebarButton");
-      this.submenuButton.onclick = (event) => {
+      this.submenuButton.onclick = (_event: MouseEvent) => {
         openSubmenu(this.submenuDiv);
       };
       this.submenuButton.textContent = displayName;
       sidebarMainDiv.append(this.submenuButton);
 
-      let submenuNavigation = document.createElement("div");
+      const submenuNavigation = document.createElement("div");
       submenuNavigation.classList.add("submenuNavigation");
       this.submenuDiv.append(submenuNavigation);
 
-      let closeSubmenuButton = document.createElement("a");
+      const closeSubmenuButton = document.createElement("a");
       closeSubmenuButton.classList.add("closeSubmenuBtn");
-      closeSubmenuButton.onclick = (event) => {
+      closeSubmenuButton.onclick = (_event: MouseEvent) => {
         closeSubmenu(this.submenuDiv);
       };
       closeSubmenuButton.textContent = "\u25C2 Back";
       submenuNavigation.append(closeSubmenuButton);
 
-      let header = document.createElement("h2");
+      const header = document.createElement("h2");
       header.textContent = displayName;
       submenuNavigation.append(header);
 
@@ -109,8 +116,8 @@ export function initSidebar() {
       this.submenuDiv.append(this.submenuContent);
     }
 
-    addSectionTitle(title) {
-      let sectionTitle = document.createElement("h3");
+    addSectionTitle(title: string) {
+      const sectionTitle = document.createElement("h3");
       sectionTitle.textContent = title;
       this.submenuContent.append(sectionTitle);
       return this;
@@ -123,37 +130,37 @@ export function initSidebar() {
 
     /**
      * Adds a new checkbox input to the submenu.
-     * @param {string} id - ID of the checkbox input - should match the setting name in Config.
-     * @param {string} label - The label for the checkbox input
-     * @param {string} description - The description of the input written below.
-     * @param {boolean} disabled - Optional - specifies whether the input is disabled or not. Defaults to `false`.
+     * @param id - ID of the checkbox input - should match the setting name in Config.
+     * @param label - The label for the checkbox input
+     * @param description - The description of the input written below.
+     * @param disabled - Optional - specifies whether the input is disabled or not. Defaults to `false`.
      * @returns This.
      */
-    addCheckboxInput(id, label, description, disabled = false) {
-      let userInput = document.createElement("div");
+    addCheckboxInput(id: keyof IConfig, label: string, description: string, disabled: boolean = false) {
+      const userInput = document.createElement("div");
       userInput.classList.add("userInput");
       this.submenuContent.append(userInput);
 
-      let flexbox = document.createElement("div");
+      const flexbox = document.createElement("div");
       userInput.append(flexbox);
 
-      let checkbox = document.createElement("input");
+      const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = id;
-      checkbox.checked = Config.settings[id];
+      checkbox.checked = Boolean(Config.settings[id] ?? false);
       checkbox.disabled = disabled;
       flexbox.append(checkbox);
 
-      checkbox.addEventListener("change", (event) => {
+      checkbox.addEventListener("change", (_event: Event) => {
         Config.set(id, checkbox.checked);
       });
 
-      let labelElement = document.createElement("label");
+      const labelElement = document.createElement("label");
       labelElement.htmlFor = id;
       labelElement.textContent = label;
       flexbox.append(labelElement);
 
-      let smallText = document.createElement("small");
+      const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
 
@@ -162,37 +169,37 @@ export function initSidebar() {
 
     /**
      * Adds a new text input to the submenu.
-     * @param {string} id - ID of the text input - should match the setting name in Config.
-     * @param {string} label - The label for the text input.
-     * @param {string} description - The description of the input written below.
-     * @param {boolean} disabled - Optional - specifies whether the input is disabled or not. Defaults to `false`.
+     * @param id - ID of the text input - should match the setting name in Config.
+     * @param label - The label for the text input.
+     * @param description - The description of the input written below.
+     * @param disabled - Optional - specifies whether the input is disabled or not. Defaults to `false`.
      * @returns This.
      */
-    addTextInput(id, label, description, disabled = false) {
-      let userInput = document.createElement("div");
+    addTextInput(id: keyof IConfig, label: string, description: string, disabled: boolean = false) {
+      const userInput = document.createElement("div");
       userInput.classList.add("userInput");
       this.submenuContent.append(userInput);
 
-      let flexbox = document.createElement("div");
+      const flexbox = document.createElement("div");
       userInput.append(flexbox);
 
-      let labelElement = document.createElement("label");
+      const labelElement = document.createElement("label");
       labelElement.htmlFor = id;
       labelElement.textContent = label;
       flexbox.append(labelElement);
 
-      let textbox = document.createElement("input");
+      const textbox = document.createElement("input");
       textbox.type = "text";
       textbox.id = id;
-      textbox.value = Config.settings[id];
+      textbox.value = String(Config.settings[id] ?? "");
       textbox.disabled = disabled;
       flexbox.append(textbox);
 
-      textbox.addEventListener("change", (event) => {
-        Config.set(id, event.target.value);
+      textbox.addEventListener("change", (_event: Event) => {
+        Config.set(id, textbox.value);
       });
 
-      let smallText = document.createElement("small");
+      const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
 
@@ -201,146 +208,153 @@ export function initSidebar() {
 
     /**
      * Adds a new radio input group to the submenu.
-     * @param {string} groupID - The group ID. IDs of the options will be derived from the option names.
-     * @param {string} label - The label of the radio group.
-     * @param {string[]} optionArray - Displayed option names.
-     * @param {boolean[]} disabledArray - Optional - Specifies, which options are disabled. Defaults to all options enabled.
+     * @param groupID - The group ID. IDs of the options will be derived from the option names.
+     * @param label - The label of the radio group.
+     * @param optionArray - Displayed option names.
+     * @param disabledArray - Optional - Specifies, which options are disabled. Defaults to all options enabled.
      * @returns This.
      */
     addRadioInput(
-      groupID,
-      label,
-      description,
-      optionArray,
-      disabledArray = Array.from({ length: optionArray.length }).fill(false)
+      groupID: string,
+      label: string,
+      description: string,
+      optionArray: string[],
+      disabledArray: boolean[] = Array(optionArray.length).fill(false)
     ) {
-      let userInput = document.createElement("div");
+      const userInput = document.createElement("div");
       userInput.classList.add("userInput");
       this.submenuContent.append(userInput);
 
-      let span = document.createElement("span");
+      const span = document.createElement("span");
       span.textContent = label;
       userInput.append(label);
 
       optionArray.forEach((option, i) => {
-        let flexbox = document.createElement("div");
+        const flexbox = document.createElement("div");
         userInput.append(flexbox);
 
-        let radio = document.createElement("input");
+        const radio = document.createElement("input");
         radio.type = "radio";
         radio.name = groupID;
-        radio.id = `${groupID}-${option.toLowerCase.replace(/ /g, "-")}`;
+        radio.id = `${groupID}-${option.toLowerCase().replace(/ /g, "-")}`;
         radio.disabled = disabledArray[i];
         flexbox.append(radio);
 
-        let labelElement = document.createElement("label");
-        labelElement.htmlFor = `${groupID}-${option.toLowerCase.replace(/ /g, "-")}`;
+        const labelElement = document.createElement("label");
+        labelElement.htmlFor = `${groupID}-${option.toLowerCase().replace(/ /g, "-")}`;
         labelElement.textContent = option;
         flexbox.append(labelElement);
       });
 
-      let smallText = document.createElement("small");
+      const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
 
       return this;
     }
 
-    addSliderInput(id, label, min, max, step, type, description, disabled = false) {
-      let userInput = document.createElement("div");
+    addSliderInput(
+      id: keyof IConfig,
+      label: string,
+      min: number,
+      max: number,
+      step: number,
+      type: string,
+      description: string,
+      disabled: boolean = false
+    ) {
+      const userInput = document.createElement("div");
       userInput.classList.add("userInput");
       this.submenuContent.append(userInput);
 
-      let flexbox = document.createElement("div");
+      const flexbox = document.createElement("div");
       userInput.append(flexbox);
 
-      let labelElement = document.createElement("label");
+      const labelElement = document.createElement("label");
       labelElement.htmlFor = id;
       labelElement.textContent = label;
       flexbox.append(labelElement);
 
-      let slider = document.createElement("input");
+      const slider = document.createElement("input");
       slider.type = "range";
       slider.id = id;
-      slider.min = min;
-      slider.max = max;
-      slider.step = step;
-      slider.value = Config.settings[id];
+      slider.min = String(min);
+      slider.max = String(max);
+      slider.step = String(step);
+      slider.value = String(Config.settings[id] ?? "");
 
       slider.disabled = disabled;
       flexbox.append(slider);
 
-      let valueSpan = document.createElement("span");
+      const valueSpan = document.createElement("span");
       valueSpan.classList.add("value", type);
       valueSpan.id = `${id}Value`;
       valueSpan.textContent = type == "percentage" ? slider.value : Number(slider.value).toFixed(2);
       flexbox.append(valueSpan);
 
-      slider.addEventListener("input", (event) => {
-        valueSpan.textContent = type == "percentage" ? event.target.value : Number(event.target.value).toFixed(2);
+      slider.addEventListener("input", (_event) => {
+        valueSpan.textContent = type == "percentage" ? slider.value : Number(slider.value).toFixed(2);
       });
 
-      slider.addEventListener("change", (event) => {
-        Config.set(id, event.target.value);
+      slider.addEventListener("change", (_event) => {
+        Config.set(id, slider.value);
       });
 
-      let smallText = document.createElement("small");
+      const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
 
       return this;
     }
 
-    addPasteInput(id, label, type, description, disabled = false) {
-      let userInput = document.createElement("div");
+    addPasteInput(id: keyof IConfig, label: string, description: string, disabled: boolean = false) {
+      const userInput = document.createElement("div");
       userInput.classList.add("userInput");
       this.submenuContent.append(userInput);
 
-      let span = document.createElement("span");
+      const span = document.createElement("span");
       span.textContent = label;
       userInput.append(label);
 
-      let hiddenInput = document.createElement("input");
+      const hiddenInput = document.createElement("input");
       hiddenInput.type = "hidden";
       hiddenInput.id = `${id}Value`;
-      hiddenInput.value = Config.settings[id];
+      hiddenInput.value = String(Config.settings[id] ?? "");
       userInput.append(hiddenInput);
 
-      let dragDropArea = document.createElement("div");
+      const dragDropArea = document.createElement("div");
       dragDropArea.classList.add("dragDropArea");
       dragDropArea.id = `${id}Area`;
       dragDropArea.textContent = "Drag and drop a JSON file here!\nOr click here to paste from clipboard.";
 
       userInput.append(dragDropArea);
 
-      let statusDiv = document.createElement("div");
+      const statusDiv = document.createElement("div");
       statusDiv.classList.add("status");
       userInput.append(statusDiv);
 
-      let validity = document.createElement("span");
+      const validity = document.createElement("span");
       validity.id = `${id}Validity`;
-      let selection = document.createElement("b");
+      const selection = document.createElement("b");
       selection.id = `${id}Selection`;
 
       statusDiv.append(validity, selection);
 
-      let smallText = document.createElement("small");
+      const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
 
       return this;
     }
 
-    addKeyInput(id, label, description, disabled = false) {
-      
-    }
+    addKeyInput(id: keyof IConfig, label: string, description: string, disabled: boolean = false) {}
 
-    done() {
+    done(): DocumentFragment {
       return this.submenu;
     }
   }
 
-  let visualSettingsSubmenu = new Submenu("visualSettings", "Visual Settings")
+  const visualSettingsSubmenu = new Submenu("visualSettings", "Visual Settings")
     .addSectionTitle("Piece Placement Animation")
     .addCheckboxInput("piecePlacementAnimationEnabled", "Enabled", "Enables the piece placement animation.")
     .addSliderInput(
@@ -408,7 +422,7 @@ export function initSidebar() {
     )
     .done();
 
-  let customizationSettingsSubmenu = new Submenu("customizationSettings", "Customization Settings")
+  const customizationSettingsSubmenu = new Submenu("customizationSettings", "Customization Settings")
     .addSectionTitle("Background")
     .addTextInput(
       "backgroundURL",
@@ -437,7 +451,7 @@ export function initSidebar() {
     )
     .done();
 
-  let audioSettingsSubmenu = new Submenu("audioSettings", "Audio Settings")
+  const audioSettingsSubmenu = new Submenu("audioSettings", "Audio Settings")
     .addSectionTitle("Hear opponents")
     .addCheckboxInput(
       "opponentSFXEnabled",
@@ -472,7 +486,7 @@ export function initSidebar() {
     )
     .done();
 
-  let customStatsSubmenu = new Submenu("customStats", "Custom Stats")
+  const customStatsSubmenu = new Submenu("customStats", "Custom Stats")
     .addSectionTitle("All Modes")
     .addCheckboxInput("statAPPEnabled", "Attack Per Piece", "Enables the Attack Per Piece stat.")
     .addCheckboxInput(
@@ -509,7 +523,7 @@ export function initSidebar() {
     )
     .done();
 
-  let miscSettingsSubmenu = new Submenu("miscSettings", "Miscellaneous Settings")
+  const miscSettingsSubmenu = new Submenu("miscSettings", "Miscellaneous Settings")
     .addSectionTitle("Chat")
     .addCheckboxInput(
       "automaticReplayCodesEnabled",
@@ -518,9 +532,9 @@ export function initSidebar() {
     )
     .addCheckboxInput("chatTimestampsEnabled", "Chat Timestamps", "Adds a timestamp for every chat message.")
     // .addKeyInput(
-      // "toggleChatKey",
-      // "Open Chat:",
-      // "Choose a button to open chat. The hardcoded Enter key will still work."
+    // "toggleChatKey",
+    // "Open Chat:",
+    // "Choose a button to open chat. The hardcoded Enter key will still work."
     // )
     // .addKeyInput("closeChatKey", "Close Chat:", "Choose a button to close chat and give focus back to the game.")
     .addHorizontalRule()
@@ -543,7 +557,7 @@ export function initSidebar() {
     sidebarDiv.classList.remove("noAnimation");
   }, 1000);
 
-  let settingsButton = document.createElement("img");
+  const settingsButton = document.createElement("img");
   settingsButton.src =
     "https://media.istockphoto.com/vectors/gear-icon-vector-illustration-vector-id857768248?k=6&m=857768248&s=170667a&w=0&h=p8E79IurGj0VrH8FO3l1-NXmMubUiShDW88xXynZpjE=";
   settingsButton.className = "settings-modalOpenButton";

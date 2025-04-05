@@ -17,6 +17,8 @@
   "devDependencies": {
     "@eslint/js": "^9.22.0",
     "@types/chrome": "^0.0.280",
+    "@types/createjs": "^0.0.32",
+    "@types/jquery": "^3.5.32",
     "eslint": "^9.22.0",
     "globals": "^16.0.0",
     "typescript": "^5.6.3",

@@ -11,7 +11,7 @@ export const initSkins = () => {
 
   function loadCustomSkin(url: string, ghost: boolean = false): void {
     // if not allowing force replay skin, don't load custom skin
-    if (location.href.includes("replay") && !Config.settings.customSkinInReplays) {
+    if (location.href.includes("replay") && !Config.settings.get("customSkinInReplays")) {
       return;
     }
 
@@ -442,7 +442,7 @@ export const initSkins = () => {
       const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
-          if (pieceInInitialState[j][k] > 0) {
+          if (pieceInInitialState[j][k] > 0 && !(game.v instanceof SlotView)) {
             game.v.drawBlockOnCanvasConnected(
               game.drawScale * (k - pieceWidthSpan[0] + hOffset),
               game.drawScale * (j - pieceHeightSpan[0] + vOffset),
@@ -455,7 +455,7 @@ export const initSkins = () => {
             if (
               game.blockInHold.item &&
               pieceInInitialState[j][k] === game.blockInHold.item &&
-              !(game.v instanceof View)
+              !(game.v instanceof View || game.v instanceof SlotView)
             ) {
               game.v.drawBrickOverlayOnCanvas(
                 game.drawScale * (k - pieceWidthSpan[0] + hOffset),
@@ -511,7 +511,7 @@ export const initSkins = () => {
       const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
-          if (pieceInInitialState[j][k] > 0) {
+          if (pieceInInitialState[j][k] > 0 && !(game.v instanceof SlotView)) {
             game.v.drawBlockOnCanvasConnected(
               game.drawScale * (k - pieceWidthSpan[0] + hOffset),
               game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
@@ -582,7 +582,7 @@ export const initSkins = () => {
       }
     };
 
-    GameCore.prototype.injected_beforePlaceBlockInDeadline = function (y, i, x, j) {
+    GameCore.prototype.injected_beforePlaceBlockInDeadline = function (_y, i, x, j) {
       if (usingConnected && this.connections) {
         if (!this.blockSetsEX) {
           this.blockSetsEX = getBlockSetsEX();
@@ -648,7 +648,7 @@ export const initSkins = () => {
           ) as ConnectionsMatrix;
         }
         this.connections.forEach((row, i) => {
-          row.forEach((column, j) => {
+          row.forEach((_column, j) => {
             this.connections![i][j] = 0;
           });
         });
@@ -678,7 +678,7 @@ export const initSkins = () => {
     }
     for (let row = 0; row < 20; row++) {
       for (let column = 0; column < 10; column++) {
-        game.v.drawBlockConnected(
+        if (!(game.v instanceof SlotView)) game.v.drawBlockConnected(
           column,
           row,
           game.matrix[row][column],
@@ -792,7 +792,7 @@ export const initSkins = () => {
         if (this.pmode === Modes.MAPS) {
           const tempMatrix = [this.deadline].concat(this.matrix);
           tempMatrix.forEach((row, y) => {
-            row.forEach((column, x) => connectMap(this, x, y));
+            row.forEach((_column, x) => connectMap(this, x, y));
           });
         }
       }
@@ -814,7 +814,7 @@ export const initSkins = () => {
         // TODO: A toggle for connecting blocks of maps.
         const tempMatrix = [this.p.deadline].concat(this.p.matrix);
         tempMatrix.forEach((row, y) => {
-          row.forEach((column, x) => connectMap(this.p, x, y));
+          row.forEach((_column, x) => connectMap(this.p, x, y));
         });
       }
     };
@@ -1188,9 +1188,9 @@ export const initSkins = () => {
   // Remaining skin init
   let skinLoaded: boolean = false;
   let game: Game | null = null;
-  if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
+  if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
 
-  if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
+  if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
 
   if (typeof Live == "function") {
     Config.onChange("customSkinURL", (val) => {
@@ -1213,8 +1213,8 @@ export const initSkins = () => {
       if (!skinLoaded) {
         game = this.p;
         skinLoaded = true;
-        if (Config.settings.customSkinURL) loadCustomSkin(Config.settings.customSkinURL);
-        if (Config.settings.customGhostSkinURL) loadCustomSkin(Config.settings.customGhostSkinURL, true);
+        if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
+        if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
       }
       return returnValue;
     };
@@ -1225,10 +1225,10 @@ export const initSkins = () => {
     const oldOnReady = View.prototype.onReady;
     View.prototype.onReady = function (...args) {
       const returnValue = oldOnReady.apply(this, args);
-      if (Config.settings.customSkinInReplays && Config.settings.customSkinURL) {
+      if (Config.settings.get("customSkinInReplays") && Config.settings.get("customSkinURL")) {
         this.tex.crossOrigin = "anonymous";
         this.skinId = 1;
-        this.g.skins[1].data = Config.settings.customSkinURL;
+        this.g.skins[1].data = Config.settings.get("customSkinURL");
         this.g.skins[1].w = customSkinSize;
         this.tex.src = this.g.skins[1].data;
       }

@@ -32,7 +32,7 @@ export const initAutomaticReplayCodes = () => {
 
     if (
       (this.GameStats.stats.BLOCKS.value as number) > piecesPlacedCutoff &&
-      Config.settings.automaticReplayCodesEnabled
+      Config.settings.get("automaticReplayCodesEnabled")
     ) {
       const replayHTML = `
         <div style='font-size:14px;'>
