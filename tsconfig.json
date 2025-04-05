@@ -1,0 +1,8 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": true,
+    "types": ["jquery", "chrome", "createjs", "createjs-lib", "webextension-polyfill"],
+  }
+}
