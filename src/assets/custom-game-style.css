@@ -496,17 +496,17 @@
   margin-right: auto;
 }
 
-.comboclass {
+#gameFrame .comboclass {
   display: block;
 }
 
-#buttonsBox {
+#bstage #buttonsBox {
   margin-left: 0px;
   padding: 0px;
 }
 
-#gstats,
-#stats {
+#bstage #gstats,
+#bstage #stats {
   margin-left: 0px;
 }
 

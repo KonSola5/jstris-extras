@@ -17,7 +17,11 @@ export default defineContentScript({
     window.addEventListener("getStorageRequest", (event: Event) => {
       if (!(event instanceof CustomEvent)) return;
       if (event.detail === null) {
-        window.dispatchEvent(new CustomEvent("getStorageResponse", { detail: structuredClone(config) }));
+        if (import.meta.env.BROWSER === "firefox") { // Firefox can't pass objects to a webpage
+          window.dispatchEvent(new CustomEvent("getStorageResponse", { detail: JSON.stringify(config) }));
+        } else {
+          window.dispatchEvent(new CustomEvent("getStorageResponse", { detail: structuredClone(config) }));
+        }
       }
     });
 
@@ -41,6 +45,8 @@ export default defineContentScript({
       keepInDom: true,
     });
 
-    console.log(`[Jstris Extras Content Script]: Jstris Extras injected in ${Math.round(performance.now() - startTime) / 1000} s.`);
+    console.log(
+      `[Jstris Extras Content Script]: Jstris Extras injected in ${Math.round(performance.now() - startTime) / 1000} s.`
+    );
   },
 });

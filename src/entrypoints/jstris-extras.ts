@@ -45,7 +45,9 @@ export default defineUnlistedScript(async () => {
           if (event.detail instanceof Error) {
             reject(event.detail);
           }
-          resolve(event.detail);
+          else if (typeof event.detail == "string") resolve(JSON.parse(event.detail))  // Firefox
+          else if (typeof event.detail == "object") resolve(event.detail);             // Chromium
+          else reject(new Error("The response is neither a string nor an object."));
         },
         { once: true }
       );

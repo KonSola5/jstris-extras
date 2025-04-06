@@ -5,18 +5,22 @@ type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 
 // expands object types recursively
 type ExpandRecursively<T> = T extends object
-  ? T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never
+  ? T extends infer O
+    ? { [K in keyof O]: ExpandRecursively<O[K]> }
+    : never
   : T;
 
 // Really hacky way to tell TypeScipt that _idHash exists on CreateJS static object.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare class IDHash {
-  static _idHash: { [name: string]: {
-    sndObj: object;
-    src: string
-  } }
+  static _idHash: {
+    [name: string]: {
+      sndObj: object;
+      src: string;
+    };
+  };
 }
-type SoundWithIDHash = createjs.Sound & typeof IDHash
+type SoundWithIDHash = createjs.Sound & typeof IDHash;
 
 interface VanillaSFXEvents {
   /** Sound played when the player holds a piece. */
@@ -163,25 +167,27 @@ function attemptLoadSFX(sfx: BaseSFXset, useVoice?: 0 | 1) {
   } else {
     setTimeout(() => attemptLoadSFX(sfx, useVoice), 200);
   }
-};
-function loadSound<T extends {url: string}>(name: string, sound: T) {
+}
+function loadSound<T extends { url: string }>(name: string, sound: T) {
   if (!name || !sound) {
     return;
   }
   const soundURL: string = sound.url;
   if (soundURL) {
     const registeredSound = createjs.Sound.registerSound(soundURL, name);
-      if (!registeredSound || !(createjs.Sound as unknown as SoundWithIDHash)._idHash[name]) {
-        console.error(
+    if (!registeredSound || !(createjs.Sound as unknown as SoundWithIDHash)._idHash[name]) {
+      console.error(
         "loadSounds error: src parse / cannot init plugins, id=" +
-          name + (registeredSound === false ? ", rs=false" : ", no _idHash"));
+          name +
+          (registeredSound === false ? ", rs=false" : ", no _idHash")
+      );
       return;
     }
     (createjs.Sound as unknown as SoundWithIDHash)._idHash[name].sndObj = sound;
   }
-};
+}
 
-function loadDefaultSFX(){
+function loadDefaultSFX() {
   console.log("loading default sfx");
   try {
     loadSFX(new SFXsets[localStorage["SFXset"]].data(), 0);
@@ -190,10 +196,18 @@ function loadDefaultSFX(){
     console.log("failed loading default sfx: " + e);
   }
   return;
-};
+}
 
 function changeSFX() {
-  const sfx: CustomSFXDefinition | null = Config.settings.get("customSFX");
+  const SFX_JSON: string = Config.settings.get("customSFX_JSON");
+  let sfx: CustomSFXDefinition | null = {};
+  try {
+    sfx = JSON.parse(SFX_JSON);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error);
+    }
+  }
 
   if (typeof Game == "function") {
     if (!Config.settings.get("customSFXEnabled") || !sfx) {
@@ -206,7 +220,7 @@ function changeSFX() {
       attemptLoadSFX(customSFX);
     }
   }
-};
+}
 
 export const initCustomSFX = () => {
   if (!createjs) return;
@@ -237,7 +251,7 @@ export const initCustomSFX = () => {
            return val
        }*/
   changeSFX();
-  Config.onChange("customSFX", changeSFX);
+  Config.onChange("customSFX_JSON", changeSFX);
   Config.onChange("customSFXEnabled", changeSFX);
   Config.onChange("customPieceSpawnSFXEnabled", changeSFX);
   return true;
@@ -251,27 +265,6 @@ export interface CustomSFXDefinition extends VanillaSFXEvents {
   spawns?: CustomSpawnDefinition;
   specialScoring?: SpecialScoring;
 }
-
-const SpecialScoringKeys = [
-  "SOFT_DROP",
-  "HARD_DROP",
-  "CLEAR1",
-  "CLEAR2",
-  "CLEAR3",
-  "CLEAR4",
-  "TSPIN_MINI",
-  "TSPIN",
-  "TSPIN_MINI_SINGLE",
-  "TSPIN_SINGLE",
-  "TSPIN_DOUBLE",
-  "TSPIN_TRIPLE",
-  "PERFECT_CLEAR",
-  "COMBO",
-  "CLEAR5",
-  "ALLSPIN",
-  "TSPINORTETRIS",
-  "ANY",
-];
 
 export const loadCustomSFX = (sfx: CustomSFXDefinition = {}) => {
   const SOUNDS: (keyof Required<VanillaSFXEvents>)[] = [

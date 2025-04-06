@@ -340,6 +340,109 @@ export function initSidebar() {
 
       statusDiv.append(validity, selection);
 
+      dragDropArea.addEventListener("dragenter", (_event) => {
+        if (dragDropArea.classList.contains("dragDropArea")) {
+          dragDropArea.classList.add("dragover");
+        }
+      });
+
+      dragDropArea.addEventListener("dragleave", (_event) => {
+        if (dragDropArea.classList.contains("dragDropArea")) {
+          dragDropArea.classList.remove("dragover");
+        }
+      });
+
+      dragDropArea.addEventListener("dragover", (event) => {
+        event.preventDefault();
+      });
+
+      function dropHandler(event: DragEvent) {
+        function tryParseText(text: string) {
+          try {
+            const json: object & { name?: string } = JSON.parse(text);
+            hiddenInput.value = text;
+            Config.set(id, text);
+            validity.textContent = "Currently loaded:";
+            selection.textContent = json.name ?? "Unnamed Sound Pack";
+          } catch (error) {
+            if (error instanceof Error) {
+              console.error(`An error occured while parsing file data to JSON:
+                ${error.message}`);
+              validity.textContent = "Invalid JSON!";
+              selection.textContent = "";
+            }
+          }
+        }
+
+        if (dragDropArea.classList.contains("dragDropArea")) {
+          dragDropArea.classList.remove("dragover");
+        }
+
+        if (event.dataTransfer?.items) {
+          // Use DataTransferItemList interface to access the file(s)
+          if (event.dataTransfer.items.length != 1) {
+            validity.textContent = "Only 1 item at a time, please!";
+            selection.textContent = "";
+          }
+          const item = event.dataTransfer.items[0];
+          if (item.kind !== "file") {
+            validity.textContent = "This isn't a file.";
+            selection.textContent = "";
+          } else {
+            item
+              .getAsFile()!
+              .text()
+              .then((text: string) => {
+                tryParseText(text);
+              });
+          }
+        } else {
+          // Use DataTransfer interface to access the file(s)
+          if (event.dataTransfer?.files.length != 1) {
+            validity.textContent = "Only 1 file at a time, please!";
+            selection.textContent = "";
+          } else {
+            const file = event.dataTransfer.files[0];
+            file.text().then((text: string) => {
+              tryParseText(text);
+            });
+          }
+        }
+
+        event.preventDefault();
+      }
+
+      dragDropArea.addEventListener("drop", dropHandler, false);
+
+      dragDropArea.addEventListener("click", (event) => {
+        navigator.clipboard
+          .readText()
+          .then((text) => {
+            try {
+              const json: object & { name?: string } = JSON.parse(text);
+              hiddenInput.value = text;
+              Config.set(id, text);
+              validity.textContent = "Currently loaded:";
+              selection.textContent = json.name ?? "Unnamed Sound Pack";
+            } catch (error) {
+              if (error instanceof Error) {
+                console.error(`An error occured while parsing clipboard data to JSON:
+                ${error.message}`);
+                validity.textContent = "Invalid JSON!";
+                selection.textContent = "";
+              }
+            }
+          })
+          .catch((error) => {
+            if (error instanceof Error) {
+              console.error(`An error occured while reading clipboard data:
+                ${error.message}`);
+                validity.textContent = "Paste error!";
+                selection.textContent = "";
+            }
+          });
+      });
+
       const smallText = document.createElement("small");
       smallText.textContent = description;
       userInput.append(smallText);
@@ -475,7 +578,7 @@ export function initSidebar() {
       "Enables custom sound effects. Disabling this may require a refresh."
     )
     .addPasteInput(
-      "customSFX",
+      "customSFX_JSON",
       "Custom SFX data:",
       `Specifies the definition for custom sound effects. Refer to [this guide](WIP) to learn how to create custom SFX definitions.`
     )

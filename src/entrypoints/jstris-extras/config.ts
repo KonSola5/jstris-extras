@@ -27,7 +27,7 @@ export interface IConfig {
   opponentSFXVolumeMultiplier: number;
 
   customSFXEnabled: boolean;
-  customSFX: CustomSFXDefinition | null;
+  customSFX_JSON: string;
   customPieceSpawnSFXEnabled: boolean;
 
   statAPPEnabled: boolean;
@@ -51,7 +51,7 @@ export interface IConfig {
   keyboardOSDWidthPx: number;
   keyboardOSDHeightPx: number;
   // To be removed
-  customPlusSFX_JSON: object;
+  customPlusSFX_JSON: string;
   thirdPartyMatchmakingEnabled: boolean;
 }
 
@@ -82,7 +82,7 @@ const defaultConfig: IConfig = {
   opponentSFXVolumeMultiplier: 0.5,
 
   customSFXEnabled: false,
-  customSFX: {},
+  customSFX_JSON: "{}",
   customPieceSpawnSFXEnabled: false,
 
   statAPPEnabled: false,
@@ -106,7 +106,7 @@ const defaultConfig: IConfig = {
   keyboardOSDWidthPx: 250,
   keyboardOSDHeightPx: 124,
   // To be removed
-  customPlusSFX_JSON: {},
+  customPlusSFX_JSON: "",
   thirdPartyMatchmakingEnabled: true,
 };
 
@@ -170,7 +170,6 @@ export class ConfigManager {
    */
   set<T extends keyof IConfig>(name: T, value: IConfig[T]): void {
     this.settings.set(name, value)
-    if (typeof value == "object") value = structuredClone(value)
     document.dispatchEvent(
       new CustomEvent("setStorageRequest", {
         detail: {
