@@ -11,7 +11,7 @@
 }
 
 .stat-box-left > *,
-.stat-box-right > *  {
+.stat-box-right > * {
   flex: none;
 }
 
@@ -27,13 +27,13 @@
 
 /* Custom stats */
 .stat {
-  font-family: 'Exo 2', sans-serif;
+  font-family: "Exo 2", sans-serif;
   color: white;
   display: grid;
   width: 100%;
   grid-template-areas:
-  "title"
-  "value";
+    "title"
+    "value";
   user-select: none;
 }
 
@@ -54,12 +54,12 @@
 
 .stat .value *:first-child {
   font-size: 24px;
-  color: white
+  color: white;
 }
 
 .stat .value *:not(:first-child) {
   font-size: 18px;
-  color: #888
+  color: #888;
 }
 
 /* Sidebar */
@@ -640,6 +640,7 @@
 
 .settings-slider {
   -webkit-appearance: none;
+  appearance: none;
   max-width: 300px;
   height: 15px;
   border-radius: 5px;

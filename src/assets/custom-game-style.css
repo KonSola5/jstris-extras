@@ -25,7 +25,7 @@ html body:has(#main) {
 html {
   & #gameFrame {
     display: grid;
-    /* grid-template-columns: 500px 450px; */
+    grid-template-columns: min-content auto;
     grid-template-areas: "main players";
     /* Default rules */
     margin: 0 auto;
@@ -34,7 +34,11 @@ html {
     column-gap: 11px;
     position: relative;
     text-align: center;
-    width: 950px;
+    width: min-content;
+  }
+
+  & div.setTab {
+    display: block;
   }
 
   /* Holds the board, stats and various game-related buttons */
@@ -392,16 +396,17 @@ html {
 
   /* Personal best */
   & #stage > .gCapt.pb {
-    margin-top: 168px;
+    margin-top: 142px;
     padding-top: 11px;
     opacity: 1;
     height: 235px;
     top: 142px;
   }
 
-  & #stage > .gCapt.pb[data-first-game="true"] {
+  & #stage > .gCapt.pb.first-game {
     height: 184px;
     top: 168px;
+    margin-top: 168px;
   }
 
   & .pb > .time {
