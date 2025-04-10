@@ -27,3 +27,6 @@ web-ext.config.ts
 
 # Chrome for testing
 chrome
+
+# Jstris' game style
+game-style.css

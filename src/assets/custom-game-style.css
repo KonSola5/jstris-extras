@@ -10,586 +10,595 @@
   grid-area: 1/1;
 }
 
+#app nav {
+  position: sticky;
+  top: 0px;
+  left: 0px;
+}
+
 /* I need higher specificity than the webpage */
-html body {
+html body:has(#main) {
   background-color: black;
 }
 
 /* Holds most of the game UI */
-#gameFrame {
-  display: grid;
-  /* grid-template-columns: 500px 450px; */
-  grid-template-areas: "main players";
-  /* Default rules */
-  margin: 0 auto;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  position: relative;
-  text-align: center;
-  width: 950px;
-}
-
-/* Holds the board, stats and various game-related buttons */
-#gameFrame #main {
-  grid-area: main;
-  width: 500px;
-
-  display: grid;
-  grid-template-areas:
-  "left-stage mid-stage right-stage"
-  ".          b-stage   .          ";
-
-  /* Default rules */
-  float: none;
-  position: relative;
-}
-
-/* Holds opponent boards and chat */
-#gameFrame #players {
-  grid-area: players;
-
-  display: grid;
-  grid-template-areas:
-    "slots"
-    "chat"
-    "chat-input"
-    "status";
-  width: 450px;
-  /* Default rules */
-  text-align: center;
-  margin-bottom: 7px;
-  float: none;
-  position: relative;
-}
-
-#replayerGameFrame .two-boards {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-#replayerGameFrame #main {
-  width: unset;
-
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr);
-  grid-template-areas:
-  ".          name      .          "
-  "left-stage mid-stage right-stage"
-  ".          b-stage   .          ";
-
-  /* Default rules */
-  float: none;
-  position: relative;
-}
-
-.replayName {
-  grid-area: name;
-  display: grid;
-  align-items: center;
-  justify-items: center;
-  text-align: unset;
-  margin-left: unset;
-  width: unset;
-}
-
-/* Left stage, contains hold, April Fools items and some Usermode stuff */
-#main .lstage {
-  grid-area: left-stage;
-  display: flex;
-  flex-direction: column;
-
-  float: none;
-  margin-right: 10px;
-  position: relative;
-}
-
-#main .lstage > * {
-  flex: none;
-}
-
-/* Hold canvas */
-:is(.lstage #holdCanvas, .lstage #holdCanvas1, .lstage #holdCanvas2) {
-  margin-bottom: auto;
-
-  float: none;
-  margin-left: auto;
-  margin-right: 0px;
-  position: relative;
-}
-
-/* April Fools items */
-.lstage .itmBox {
-  position: static;
-}
-
-/* Usermode buttons (used only in playlists) */
-.lstage .modeBtns {
-  position: static;
-}
-
-/* Usermode goal info */
-.lstage .goalInfo {
-  position: static;
-  top: 358px;
-}
-
-#main #mstage {
-  grid-area: mid-stage;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#main #mstage > * {
-  flex: none;
-}
-
-/* Contains the grid and the board */
-#main #stage {
-  float: none;
-  display: grid;
-}
-
-/* Stack elements inside main stage */
-#main #stage > * {
-  grid-area: 1/1;
-}
-
-/* No need for this anymore */
-.layer {
-  position: static;
-}
-
-#main #bstage {
-  grid-area: b-stage;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#main #bstage > * {
-  flex: none;
-}
-
-/* Singleplayer mode selection menu */
-#stage #practice-menu-big {
-  position: static;
-  padding: 4px;
-  width: 242px;
-  display: block;
-  z-index: 10;
-  height: 336px;
-
-  align-self: end;
-}
-
-/* Team selection */
-#stage #team-options {
-  position: static;
-  padding: 4px;
-  background-color: #1c1c1c;
-  width: 242px;
-  display: block;
-  z-index: 9;
-  height: 100px;
-
-  justify-self: end;
-}
-
-#stage > .gCapt {
-  position: static;
-  z-index: 3;
-  width: 100%;
-  text-align: center;
-  opacity: 0.85;
-  background-color: #1c1c1c;
-}
-
-/* All captions */
-#stage > .gCapt {
-  justify-self: start;
-  width: 242px;
-  height: min-content;
-}
-
-/* Spectator mode */
-#stage > .gCapt.spectator-mode {
-  margin-top: 288px;
-  height: 73px;
-  color: #cbd600;
-}
-
-.spectator-mode > .spec-mode {
-  font-size: 22px;
-  margin-top: 7px;
-}
-
-.spectator-mode > .end-spec {
-  font-size: 15px;
-  margin-top: 7px;
-}
-
-/* Out of focus */
-#stage > .gCapt.out-of-focus {
-  margin-top: 168px;
-  height: 97px;
-  color: #cbd600;
-}
-
-.out-of-focus > .not-focused {
-  font-size: 30px;
-  margin-top: 11px;
-}
-
-.out-of-focus > .click-to-focus {
-  font-size: 16px;
-  margin-top: 7px;
-}
-
-/* Ready? Go! */
-#stage > .gCapt.ready-go {
-  margin-top: 264px;
-  height: 73px;
-  color: #cbd600;
-  font-weight: bold;
-  opacity: 1;
-}
-
-.ready-go > .ready-or-go {
-  font-size: 31px;
-  margin-top: 15px;
-}
-
-/* Usermode task */
-#stage > .gCapt.mode-info {
-  margin-top: 90px;
-  color: rgb(107 180 255);
-  font-weight: bold;
-  opacity: 1;
-}
-
-#stage > .gCapt.mode-info.fading {
-  margin-top: 236px;
-}
-
-.mode-info > .task {
-  font-size: 20px;
-  margin-top: 15px;
-  color: #cbd600;
-}
-
-.mode-info > .task-desc {
-  font-size: 19px;
-  margin-top: 4px;
-  margin-bottom: 15px;
-}
-
-.mode-info.fading > .task-desc {
-  margin-bottom: 5px;
-  color: yellow;
-}
-
-/* Usermode complete */
-#stage > .gCapt.mode-complete {
-  margin-top: 272px;
-  color: #00db00;
-  opacity: 1;
-}
-
-.mode-complete > .completed-text {
-  font-size: 27px;
-  margin-top: 15px;
-  margin-bottom: 15px;
-}
-
-/* Map/Usermode loading... */
-#stage > .gCapt.map-loading {
-  margin-top: 266px;
-  height: 69px;
-  color: white;
-  opacity: 1;
-}
-
-.map-loading > .image {
-  width: 30px;
-  margin-top: 5px;
-}
-
-.map-loading > .loading-text {
-  font-size: 22px;
-  margin-top: 1px;
-}
-
-/* Live game place */
-#stage > .gCapt.game-place {
-  margin-top: 168px;
-  height: 97px;
-  color: #cbd600;
-  opacity: 91%;
-  font-weight: bold;
-}
-
-.game-place > .place {
-  font-size: 32px;
-  margin-top: 11px;
-  color: #00bfff;
-}
-
-.game-place > .place[data-place="1"] {
-  color: yellow; /* 1st */
-}
-
-.game-place > .place[data-place="2"] {
-  color: orange; /* 2nd */
-}
-
-.game-place > .place[data-place="3"] {
-  color: #fc6d3d; /* 3rd */
-}
-
-.game-place > .instructions {
-  font-size: 16px;
-  margin-top: 7px;
-}
-
-.game-place > .instructions[data-game-ongoing="true"] {
-  color: white;
-}
-
-.game-place > .instructions[data-game-ongoing="false"] {
-  color: yellow;
-  font-weight: bold;
-}
-
-/* Speed limit */
-#stage > .gCapt.speed-warning {
-  margin-top: 216px;
-  height: 97px;
-  background-color: red;
-  font-weight: bold;
-}
-
-.speed-warning > .slow-down {
-  font-size: 31px;
-  margin-top: 15px;
-  color: white;
-}
-
-.speed-warning > .speed-limit {
-  font-size: 16px;
-  margin-top: 7px;
-  color: white;
-  font-weight: normal;
-}
-
-/* Personal best */
-#stage > .gCapt.pb {
-  margin-top: 168px;
-  padding-top: 11px;
-  opacity: 1;
-  height: 235px;
-  top: 142px;
-}
-
-#stage > .gCapt.pb[data-first-game=true] {
-  height: 184px;
-  top: 168px;
-}
-
-.pb > .time {
-  font-size: 40px;
-  font-weight: bold;
-  color: #fafad2;
-}
-
-.pb > .your-new-pb {
-  font-size: 31px;
-  margin-top: 4px;
-  color: yellow;
-}
-
-.pb > .improvement {
-  font-size: 16px;
-  margin-top: 12px;
-  color: white;
-  font-weight: normal;
-}
-
-.pb > .mode-info {
-  font-size: 14px;
-  margin-top: 14px;
-  opacity: 1;
-  position: initial;
-  padding-bottom: 11px;
-  color: gray;
-}
-
-/* Loading */
-#stage > .gCapt.loading {
-  margin-top: 214px;
-  height: 125px;
-  color: white;
-  opacity: 1;
-}
-
-.loading > .image {
-  width: 60px;
-  margin-top: 15px;
-}
-
-.loading > .loading-text {
-  font-size: 22px;
-  margin-top: 6px;
-}
-
-/* Live race finished */
-#stage > .gCapt.race-finished {
-  margin-top: 174px;
-  height: 63px;
-  color: #CBD600;
-}
-
-.race-finished > .race-finished-text {
-  margin-top: 4px;
-  font-size: 19px;
-  color: yellow;
-}
-
-.race-finished > .race-finished-info {
-  margin-top: 1px;
-  font-size: 12px;
-}
-
-/* Game warning */
-#stage > .gCapt.warning {
-  margin-top: 216px;
-  padding-bottom: 15px;
-  background-color: red;
-  font-weight: bold;
-}
-
-.warning > .title {
-  font-size: 31px;
-  margin-top: 15px;
-  color: white;
-}
-
-.warning > .description {
-  font-size: 16px;
-  margin-top: 7px;
-  color: white;
-  font-weight: normal;
-  padding: 0px 6px;
-}
-
-#main #rstage {
-  grid-area: right-stage;
-  display: flex;
-  flex-direction: column;
-
-  float: none;
-  margin-left: 8px;
-  text-align: left;
-  width: 127px;
-}
-
-#main #rstage > * {
-  flex: none;
-}
-
-:is(#rstage #queueCanvas, #rstage #queueCanvas1, #rstage #queueCanvas2) {
-  margin-right: auto;
-}
-
-#gameFrame .comboclass {
-  display: block;
-}
-
-#bstage #buttonsBox {
-  margin-left: 0px;
-  padding: 0px;
-}
-
-#bstage #gstats,
-#bstage #stats {
-  margin-left: 0px;
-}
-
-#players .slots {
-  grid-area: slots;
-  position: relative;
-  width: 100%;
-  margin-bottom: 15px;
-  margin-top: 0px; /* -15px */
-  height: 450px;
-}
-
-.rdLimit {
-  display: flex;
-}
-
-.rdContent {
-  display: flex;
-}
-
-#players .chatArea {
-  grid-area: chat;
-}
-
-#players #chatInputArea {
-  grid-area: chat-input;
-}
-
-.chatInputC .emSel {
-  display: block;
-}
-
-#players #connectStatus {
-  grid-area: status;
-}
-
-/* Whole slot (nickname and board) */
-#gameSlots .slot {
-  display: grid;
-}
-
-/* Nickname */
-
-/* Board */
-#gameSlots .slot {
-  display: grid;
-  grid-template-areas:
-    ".    name  .   "
-    "hold board next"
-    ".    stats .   ";
-}
-
-#gameSlots .slot span {
-  position: static;
-  grid-area: name;
-}
-
-#gameSlots .slot .stat {
-  position: static;
-  grid-area: stats;
-}
-
-#gameSlots .slot .bgLayer {
-  position: static;
-  grid-area: board;
-}
-
-#gameSlots .slot .mainLayer {
-  position: static;
-  grid-area: board;
-}
-
-#gameSlots .slot .mp-holdCan {
-  position: static;
-  grid-area: hold;
-}
-
-#gameSlots .slot .mp-queueCan {
-  position: static;
-  grid-area: next;
+html {
+  & #gameFrame {
+    display: grid;
+    /* grid-template-columns: 500px 450px; */
+    grid-template-areas: "main players";
+    /* Default rules */
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    column-gap: 11px;
+    position: relative;
+    text-align: center;
+    width: 950px;
+  }
+
+  /* Holds the board, stats and various game-related buttons */
+  & #gameFrame #main {
+    grid-area: main;
+    width: auto;
+
+    display: grid;
+    grid-template-areas:
+      "left-stage mid-stage right-stage"
+      ".          b-stage   .          ";
+
+    /* Default rules */
+    float: none;
+    position: relative;
+  }
+
+  /* Holds opponent boards and chat */
+  & #gameFrame #players {
+    grid-area: players;
+
+    display: grid;
+    grid-template-areas:
+      "slots"
+      "chat"
+      "chat-input"
+      "status";
+    width: 450px;
+    /* Default rules */
+    text-align: center;
+    margin-bottom: 7px;
+    float: none;
+    position: relative;
+  }
+
+  & #replayerGameFrame .two-boards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  & #replayerGameFrame #main {
+    width: unset;
+
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 248px minmax(0, 1fr);
+    grid-template-areas:
+      ".          name      .          "
+      "left-stage mid-stage right-stage"
+      ".          b-stage   .          ";
+
+    /* Default rules */
+    float: none;
+    position: relative;
+  }
+
+  & .replayName {
+    grid-area: name;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    text-align: unset;
+    margin-left: unset;
+    width: unset;
+  }
+
+  /* Left stage, contains hold, April Fools items and some Usermode stuff */
+  & #main .lstage {
+    grid-area: left-stage;
+    display: flex;
+    flex-direction: column;
+
+    float: none;
+    margin-right: 10px;
+    position: relative;
+  }
+
+  & #main .lstage > * {
+    flex: none;
+  }
+
+  /* Hold canvas */
+  & :is(.lstage #holdCanvas, .lstage #holdCanvas1, .lstage #holdCanvas2) {
+    margin-bottom: auto;
+
+    float: none;
+    margin-left: auto;
+    margin-right: 0px;
+    position: relative;
+  }
+
+  /* April Fools items */
+  & .lstage .itmBox {
+    position: static;
+  }
+
+  /* Usermode buttons (used only in playlists) */
+  & .lstage .modeBtns {
+    position: static;
+  }
+
+  /* Usermode goal info */
+  & .lstage .goalInfo {
+    position: static;
+    top: 358px;
+  }
+
+  & #main #mstage {
+    grid-area: mid-stage;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  & #main #mstage > * {
+    flex: none;
+  }
+
+  /* Contains the grid and the board */
+  & #main #stage {
+    float: none;
+    display: grid;
+  }
+
+  /* Stack elements inside main stage */
+  & #main #stage > * {
+    grid-area: 1/1;
+  }
+
+  /* No need for this anymore */
+  & .layer {
+    position: static;
+  }
+
+  & #main #bstage {
+    grid-area: b-stage;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  & #main #bstage > * {
+    flex: none;
+  }
+
+  /* Singleplayer mode selection menu */
+  & #stage #practice-menu-big {
+    position: static;
+    padding: 4px;
+    width: 242px;
+    display: block;
+    z-index: 10;
+    height: 336px;
+
+    align-self: end;
+  }
+
+  /* Team selection */
+  & #stage #team-options {
+    position: static;
+    padding: 4px;
+    background-color: #1c1c1c;
+    width: 242px;
+    display: block;
+    z-index: 9;
+    height: 100px;
+
+    justify-self: end;
+  }
+
+  & #stage > .gCapt {
+    position: static;
+    z-index: 3;
+    width: 100%;
+    text-align: center;
+    opacity: 0.85;
+    background-color: #1c1c1c;
+  }
+
+  /* All captions */
+  & #stage > .gCapt {
+    justify-self: start;
+    width: 242px;
+    height: min-content;
+  }
+
+  /* Spectator mode */
+  & #stage > .gCapt.spectator-mode {
+    margin-top: 288px;
+    height: 73px;
+    color: #cbd600;
+  }
+
+  & .spectator-mode > .spec-mode {
+    font-size: 22px;
+    margin-top: 7px;
+  }
+
+  & .spectator-mode > .end-spec {
+    font-size: 15px;
+    margin-top: 7px;
+  }
+
+  /* Out of focus */
+  & #stage > .gCapt.out-of-focus {
+    margin-top: 168px;
+    height: 97px;
+    color: #cbd600;
+  }
+
+  & .out-of-focus > .not-focused {
+    font-size: 30px;
+    margin-top: 11px;
+  }
+
+  & .out-of-focus > .click-to-focus {
+    font-size: 16px;
+    margin-top: 7px;
+  }
+
+  /* Ready? Go! */
+  & #stage > .gCapt.ready-go {
+    margin-top: 264px;
+    height: 73px;
+    color: #cbd600;
+    font-weight: bold;
+    opacity: 1;
+  }
+
+  & .ready-go > .ready-or-go {
+    font-size: 31px;
+    margin-top: 15px;
+  }
+
+  /* Usermode task */
+  & #stage > .gCapt.mode-info {
+    margin-top: 90px;
+    color: rgb(107 180 255);
+    font-weight: bold;
+    opacity: 1;
+  }
+
+  & #stage > .gCapt.mode-info.fading {
+    margin-top: 236px;
+  }
+
+  & .mode-info > .task {
+    font-size: 20px;
+    margin-top: 15px;
+    color: #cbd600;
+  }
+
+  & .mode-info > .task-desc {
+    font-size: 19px;
+    margin-top: 4px;
+    margin-bottom: 15px;
+  }
+
+  & .mode-info.fading > .task-desc {
+    margin-bottom: 5px;
+    color: yellow;
+  }
+
+  /* Usermode complete */
+  & #stage > .gCapt.mode-complete {
+    margin-top: 272px;
+    color: #00db00;
+    opacity: 1;
+  }
+
+  & .mode-complete > .completed-text {
+    font-size: 27px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  /* Map/Usermode loading... */
+  & #stage > .gCapt.map-loading {
+    margin-top: 266px;
+    height: 69px;
+    color: white;
+    opacity: 1;
+  }
+
+  & .map-loading > .image {
+    width: 30px;
+    margin-top: 5px;
+  }
+
+  & .map-loading > .loading-text {
+    font-size: 22px;
+    margin-top: 1px;
+  }
+
+  /* Live game place */
+  & #stage > .gCapt.game-place {
+    margin-top: 168px;
+    height: 97px;
+    color: #cbd600;
+    opacity: 91%;
+    font-weight: bold;
+  }
+
+  & .game-place > .place {
+    font-size: 32px;
+    margin-top: 11px;
+    color: #00bfff;
+  }
+
+  & .game-place > .place[data-place="1"] {
+    color: yellow; /* 1st */
+  }
+
+  & .game-place > .place[data-place="2"] {
+    color: orange; /* 2nd */
+  }
+
+  & .game-place > .place[data-place="3"] {
+    color: #fc6d3d; /* 3rd */
+  }
+
+  & .game-place > .instructions {
+    font-size: 16px;
+    margin-top: 7px;
+  }
+
+  & .game-place > .instructions[data-game-ongoing="true"] {
+    color: white;
+  }
+
+  & .game-place > .instructions[data-game-ongoing="false"] {
+    color: yellow;
+    font-weight: bold;
+  }
+
+  /* Speed limit */
+  & #stage > .gCapt.speed-warning {
+    margin-top: 216px;
+    height: 97px;
+    background-color: red;
+    font-weight: bold;
+  }
+
+  & .speed-warning > .slow-down {
+    font-size: 31px;
+    margin-top: 15px;
+    color: white;
+  }
+
+  & .speed-warning > .speed-limit {
+    font-size: 16px;
+    margin-top: 7px;
+    color: white;
+    font-weight: normal;
+  }
+
+  /* Personal best */
+  & #stage > .gCapt.pb {
+    margin-top: 168px;
+    padding-top: 11px;
+    opacity: 1;
+    height: 235px;
+    top: 142px;
+  }
+
+  & #stage > .gCapt.pb[data-first-game="true"] {
+    height: 184px;
+    top: 168px;
+  }
+
+  & .pb > .time {
+    font-size: 40px;
+    font-weight: bold;
+    color: #fafad2;
+  }
+
+  & .pb > .your-new-pb {
+    font-size: 31px;
+    margin-top: 4px;
+    color: yellow;
+  }
+
+  & .pb > .improvement {
+    font-size: 16px;
+    margin-top: 12px;
+    color: white;
+    font-weight: normal;
+  }
+
+  & .pb > .mode-info {
+    font-size: 14px;
+    margin-top: 14px;
+    opacity: 1;
+    position: initial;
+    padding-bottom: 11px;
+    color: gray;
+  }
+
+  /* Loading */
+  & #stage > .gCapt.loading {
+    margin-top: 214px;
+    height: 125px;
+    color: white;
+    opacity: 1;
+  }
+
+  & .loading > .image {
+    width: 60px;
+    margin-top: 15px;
+  }
+
+  & .loading > .loading-text {
+    font-size: 22px;
+    margin-top: 6px;
+  }
+
+  /* Live race finished */
+  & #stage > .gCapt.race-finished {
+    margin-top: 174px;
+    height: 63px;
+    color: #cbd600;
+  }
+
+  & .race-finished > .race-finished-text {
+    margin-top: 4px;
+    font-size: 19px;
+    color: yellow;
+  }
+
+  & .race-finished > .race-finished-info {
+    margin-top: 1px;
+    font-size: 12px;
+  }
+
+  /* Game warning */
+  & #stage > .gCapt.warning {
+    margin-top: 216px;
+    padding-bottom: 15px;
+    background-color: red;
+    font-weight: bold;
+  }
+
+  & .warning > .title {
+    font-size: 31px;
+    margin-top: 15px;
+    color: white;
+  }
+
+  & .warning > .description {
+    font-size: 16px;
+    margin-top: 7px;
+    color: white;
+    font-weight: normal;
+    padding: 0px 6px;
+  }
+
+  & #main #rstage {
+    grid-area: right-stage;
+    display: flex;
+    flex-direction: column;
+
+    float: none;
+    margin-left: 8px;
+    text-align: left;
+    width: 127px;
+  }
+
+  & #main #rstage > * {
+    flex: none;
+  }
+
+  & :is(#rstage #queueCanvas, #rstage #queueCanvas1, #rstage #queueCanvas2) {
+    margin-right: auto;
+  }
+
+  & #gameFrame .comboclass {
+    display: block;
+  }
+
+  & #bstage #buttonsBox {
+    margin-left: 0px;
+    padding: 0px;
+  }
+
+  & #bstage #gstats,
+  & #bstage #stats {
+    margin-left: 0px;
+  }
+
+  & #players .slots {
+    grid-area: slots;
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+    margin-top: 0px; /* -15px */
+    height: 450px;
+  }
+
+  & .rdLimit {
+    display: flex;
+  }
+
+  & .rdContent {
+    display: flex;
+  }
+
+  & #players .chatArea {
+    grid-area: chat;
+  }
+
+  & #players #chatInputArea {
+    grid-area: chat-input;
+  }
+
+  & .chatInputC .emSel {
+    display: block;
+  }
+
+  & #players #connectStatus {
+    grid-area: status;
+  }
+
+  /* Whole slot (nickname and board) */
+  & #gameSlots .slot {
+    display: grid;
+  }
+
+  /* Nickname */
+
+  /* Board */
+  & #gameSlots .slot {
+    display: grid;
+    grid-template-areas:
+      ".    name  .   "
+      "hold board next"
+      ".    stats .   ";
+  }
+
+  & #gameSlots .slot span {
+    position: static;
+    grid-area: name;
+  }
+
+  & #gameSlots .slot .stat {
+    position: static;
+    grid-area: stats;
+  }
+
+  & #gameSlots .slot .bgLayer {
+    position: static;
+    grid-area: board;
+  }
+
+  & #gameSlots .slot .mainLayer {
+    position: static;
+    grid-area: board;
+  }
+
+  & #gameSlots .slot .mp-holdCan {
+    position: static;
+    grid-area: hold;
+  }
+
+  & #gameSlots .slot .mp-queueCan {
+    position: static;
+    grid-area: next;
+  }
 }
