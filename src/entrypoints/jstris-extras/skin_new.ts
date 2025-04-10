@@ -424,7 +424,11 @@ export const initSkins = () => {
     }
     if (
       (!game.ISGAME || !game.redrawBlocked) &&
-      (game.ISGAME || game.v instanceof SlotView && (!game.v.redrawBlocked && game.v.QueueHoldEnabled)) &&
+      (game.ISGAME ||
+        (((typeof View == "function" && game.v instanceof View) ||
+          (typeof SlotView == "function" && game.v instanceof SlotView)) &&
+          !game.v.redrawBlocked &&
+          game.v.QueueHoldEnabled)) &&
       (game.v.clearHoldCanvas(), null !== game.blockInHold)
     ) {
       const piecePreview = game.blockSets[game.blockInHold.set].previewAs;
@@ -433,7 +437,7 @@ export const initSkins = () => {
       const block_color = piecePreview.blocks[game.blockInHold.id].color;
       const pieceHeightSpan = piecePreview.blocks[game.blockInHold.id].yp ?? piecePreviewEX.ypOverride ?? [0, 0]; // yp = vertical span
       const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      const pieceWidthSpan = piecePreview.blocks[game.blockInHold.id].xp ?? piecePreviewEX.xpOverride ?? [0, 0]; // xp = horizontal span
+      const pieceWidthSpan = (piecePreview.blocks[game.blockInHold.id].xp || piecePreviewEX.xpOverride) ?? [0, 0]; // xp = horizontal span
       const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
@@ -442,7 +446,7 @@ export const initSkins = () => {
       const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
-          if (pieceInInitialState[j][k] > 0 && !(game.v instanceof SlotView)) {
+          if (pieceInInitialState[j][k] > 0) {
             game.v.drawBlockOnCanvasConnected(
               game.drawScale * (k - pieceWidthSpan[0] + hOffset),
               game.drawScale * (j - pieceHeightSpan[0] + vOffset),
@@ -452,16 +456,13 @@ export const initSkins = () => {
               game.drawScale
             );
 
-            if (
-              game.blockInHold.item &&
-              pieceInInitialState[j][k] === game.blockInHold.item &&
-              !(game.v instanceof View || game.v instanceof SlotView)
-            ) {
-              game.v.drawBrickOverlayOnCanvas(
-                game.drawScale * (k - pieceWidthSpan[0] + hOffset),
-                game.drawScale * (j - pieceHeightSpan[0] + vOffset),
-                game.v.HOLD
-              );
+            if (game.blockInHold.item && pieceInInitialState[j][k] === game.blockInHold.item) {
+              if (game.v instanceof WebGLView || game.v instanceof Ctx2DView)
+                game.v.drawBrickOverlayOnCanvas(
+                  game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+                  game.drawScale * (j - pieceHeightSpan[0] + vOffset),
+                  game.v.HOLD
+                );
             }
           }
         }
@@ -478,7 +479,12 @@ export const initSkins = () => {
     if (game.ISGAME && game.redrawBlocked) {
       return;
     }
-    if (!game.ISGAME && game.v instanceof SlotView && (game.v.redrawBlocked || !game.v.QueueHoldEnabled)) {
+    if (
+      !game.ISGAME &&
+      ((typeof View == "function" && game.v instanceof View) ||
+        (typeof SlotView == "function" && game.v instanceof SlotView)) &&
+      (game.v.redrawBlocked || !game.v.QueueHoldEnabled)
+    ) {
       return;
     }
     game.v.clearQueueCanvas();
@@ -502,7 +508,7 @@ export const initSkins = () => {
       const block_color = piecePreview.blocks[piece.id].color;
       const pieceHeightSpan = piecePreview.blocks[piece.id].yp ?? ypOverride; // yp = vertical span
       const pieceHeight = pieceHeightSpan[1] - pieceHeightSpan[0] + 1;
-      const pieceWidthSpan = piecePreview.blocks[piece.id].xp || xpOverride || [0, 0]; // xp = horizontal span
+      const pieceWidthSpan = (piecePreview.blocks[piece.id].xp || xpOverride) ?? [0, 0]; // xp = horizontal span
       const pieceWidth = pieceWidthSpan[1] - pieceWidthSpan[0] + 1;
 
       game.drawScale = pieceHeight >= 3 || pieceWidth >= 5 ? 0.75 : 1;
@@ -511,7 +517,7 @@ export const initSkins = () => {
       const vOffset = (3 * (1 / game.drawScale) - pieceHeight) / 2;
       for (let j = pieceHeightSpan[0]; j <= pieceHeightSpan[1]; j++) {
         for (let k = pieceWidthSpan[0]; k <= pieceWidthSpan[1]; k++) {
-          if (pieceInInitialState[j][k] > 0 && !(game.v instanceof SlotView)) {
+          if (pieceInInitialState[j][k] > 0) {
             game.v.drawBlockOnCanvasConnected(
               game.drawScale * (k - pieceWidthSpan[0] + hOffset),
               game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
@@ -521,12 +527,14 @@ export const initSkins = () => {
               game.drawScale
             );
 
-            if (piece.item && pieceInInitialState[j][k] === piece.item && !(game.v instanceof View)) {
-              game.v.drawBrickOverlayOnCanvas(
-                game.drawScale * (k - pieceWidthSpan[0] + hOffset),
-                game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
-                game.v.QUEUE
-              );
+            if (piece.item && pieceInInitialState[j][k] === piece.item) {
+              if (game.v instanceof WebGLView || game.v instanceof Ctx2DView) {
+                game.v.drawBrickOverlayOnCanvas(
+                  game.drawScale * (k - pieceWidthSpan[0] + hOffset),
+                  game.drawScale * (j - pieceHeightSpan[0] + vOffset) + spacing,
+                  game.v.QUEUE
+                );
+              }
             }
           }
         }
@@ -678,7 +686,7 @@ export const initSkins = () => {
     }
     for (let row = 0; row < 20; row++) {
       for (let column = 0; column < 10; column++) {
-        if (!(game.v instanceof SlotView)) game.v.drawBlockConnected(
+        game.v.drawBlockConnected(
           column,
           row,
           game.matrix[row][column],
@@ -1185,6 +1193,17 @@ export const initSkins = () => {
       }
     }
   }
+
+  if (typeof SlotView == "function") {
+    SlotView.prototype.drawBlockOnCanvasConnected = function (x, y, blockID, connection, ctxKind) {
+      return SlotView.prototype.drawBlockOnCanvas.call(this, x, y, blockID, ctxKind);
+    };
+
+    SlotView.prototype.drawBlockConnected = function (x, y, blockID, connection) {
+      return SlotView.prototype.drawBlock.call(this, x, y, blockID);
+    };
+  }
+
   // Remaining skin init
   let skinLoaded: boolean = false;
   let game: Game | null = null;

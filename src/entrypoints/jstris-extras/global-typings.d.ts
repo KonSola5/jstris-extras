@@ -46,6 +46,8 @@ declare global {
 
   interface SlotView {
     playReplayerSound(soundOrSounds: string | string[]): void;
+    drawBlockOnCanvasConnected(x: number, y: number, blockID: number, connection: number, ctxKind: number): void;
+    drawBlockConnected(x: number, y: number, blockID: number, connection: number): void;
     cancelLiveMatrix?: boolean;
   }
 

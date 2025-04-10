@@ -8,16 +8,23 @@ interface SetStorageRequest {
 
 export default defineContentScript({
   matches: ["*://*.jstris.jezevec10.com/*"],
-  async main(ctx) {
+  async main(_ctx) {
     console.log("[Jstris Extras Content Script]: Injecting Jstris Extras...");
     const startTime = performance.now();
+
+    for (const child of document.head.children) {
+      if (child.tagName == "STYLE" && child.textContent == "body{background: black !important;}") {
+        child.remove();
+      }
+    }
 
     const config = await browser.storage.local.get(null);
 
     window.addEventListener("getStorageRequest", (event: Event) => {
       if (!(event instanceof CustomEvent)) return;
       if (event.detail === null) {
-        if (import.meta.env.BROWSER === "firefox") { // Firefox can't pass objects to a webpage
+        if (import.meta.env.BROWSER === "firefox") {
+          // Firefox can't pass objects to a webpage
           window.dispatchEvent(new CustomEvent("getStorageResponse", { detail: JSON.stringify(config) }));
         } else {
           window.dispatchEvent(new CustomEvent("getStorageResponse", { detail: structuredClone(config) }));

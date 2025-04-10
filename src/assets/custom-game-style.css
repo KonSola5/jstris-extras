@@ -10,6 +10,11 @@
   grid-area: 1/1;
 }
 
+/* I need higher specificity than the webpage */
+html body {
+  background-color: black;
+}
+
 /* Holds most of the game UI */
 #gameFrame {
   display: grid;
