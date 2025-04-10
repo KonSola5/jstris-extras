@@ -28,7 +28,7 @@ const initStat = (index, name, configVar, calc, options = {}) => {
     name,
     calc,
     val: 0,
-    enabled: Config.settings[configVar],
+    enabled: Config.#settings[configVar],
     initialValue: options.initialValue || 0,
     enabledMode: options.enabledMode || 0, // 0 = enabled for all modes
   });

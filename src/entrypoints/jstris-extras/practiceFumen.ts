@@ -127,7 +127,7 @@ export const initPracticeFumen = () => {
       return returnValue;
     } else {
       this.fumenPages = null;
-      if (this.pmode === 2) this.fumenPages = [];
+      if (this.pmode === Modes.PRACTICE) this.fumenPages = [];
       return oldRestart.apply(this, args);
     }
   };

@@ -11,7 +11,7 @@ export const initSkins = () => {
 
   function loadCustomSkin(url: string, ghost: boolean = false): void {
     // if not allowing force replay skin, don't load custom skin
-    if (location.href.includes("replay") && !Config.settings.get("customSkinInReplays")) {
+    if (location.href.includes("replay") && !Config.get("customSkinInReplays")) {
       return;
     }
 
@@ -1207,9 +1207,9 @@ export const initSkins = () => {
   // Remaining skin init
   let skinLoaded: boolean = false;
   let game: Game | null = null;
-  if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
+  if (Config.get("customSkinURL")) loadCustomSkin(Config.get("customSkinURL"));
 
-  if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
+  if (Config.get("customGhostSkinURL")) loadCustomSkin(Config.get("customGhostSkinURL"), true);
 
   if (typeof Live == "function") {
     Config.onChange("customSkinURL", (val) => {
@@ -1232,8 +1232,8 @@ export const initSkins = () => {
       if (!skinLoaded) {
         game = this.p;
         skinLoaded = true;
-        if (Config.settings.get("customSkinURL")) loadCustomSkin(Config.settings.get("customSkinURL"));
-        if (Config.settings.get("customGhostSkinURL")) loadCustomSkin(Config.settings.get("customGhostSkinURL"), true);
+        if (Config.get("customSkinURL")) loadCustomSkin(Config.get("customSkinURL"));
+        if (Config.get("customGhostSkinURL")) loadCustomSkin(Config.get("customGhostSkinURL"), true);
       }
       return returnValue;
     };
@@ -1244,10 +1244,10 @@ export const initSkins = () => {
     const oldOnReady = View.prototype.onReady;
     View.prototype.onReady = function (...args) {
       const returnValue = oldOnReady.apply(this, args);
-      if (Config.settings.get("customSkinInReplays") && Config.settings.get("customSkinURL")) {
+      if (Config.get("customSkinInReplays") && Config.get("customSkinURL")) {
         this.tex.crossOrigin = "anonymous";
         this.skinId = 1;
-        this.g.skins[1].data = Config.settings.get("customSkinURL");
+        this.g.skins[1].data = Config.get("customSkinURL");
         this.g.skins[1].w = customSkinSize;
         this.tex.src = this.g.skins[1].data;
       }

@@ -134,10 +134,10 @@ export function initFX(): void {
   const oldCheckLineClears = GameCore.prototype.checkLineClears;
   GameCore.prototype.checkLineClears = function (...args) {
     const animateLineClear = (row: number) => {
-      if (Config.settings.get("lineClearAnimationEnabled") && Config.settings.get("lineClearAnimationLength") > 0) {
+      if (Config.get("lineClearAnimationEnabled") && Config.get("lineClearAnimationLength") > 0) {
         this.GFXQueue.push({
           opacity: 1,
-          delta: 1 / ((Config.settings.get("lineClearAnimationLength") * 1000) / 60),
+          delta: 1 / ((Config.get("lineClearAnimationLength") * 1000) / 60),
           row,
           blockSize: this.block_size,
           amountParted: 0,
@@ -185,12 +185,12 @@ export function initFX(): void {
 
     const shakeBoard = (oldAttack: number) => {
       const attack: number = this.gamedata.attack - oldAttack;
-      if (Config.settings.get("lineClearShakeEnabled")) {
+      if (Config.get("lineClearShakeEnabled")) {
         const element = this.GFXCanvas?.parentNode?.parentNode as HTMLElement;
         if (element) shake(
           element,
-          Math.min(1 + attack * 5, 50) * Config.settings.get("lineClearShakeStrength"),
-          Config.settings.get("lineClearShakeLength") * (1000 / 60)
+          Math.min(1 + attack * 5, 50) * Config.get("lineClearShakeStrength"),
+          Config.get("lineClearShakeLength") * (1000 / 60)
         );
       }
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
@@ -222,7 +222,7 @@ export function initFX(): void {
 
   const oldPlaceBlock = GameCore.prototype.placeBlock;
   GameCore.prototype.placeBlock = function (x: number, y: number, ...args): void {
-    if (!this.GFXCanvas || !Config.settings.get("piecePlacementAnimationEnabled") || isReplayerReversing)
+    if (!this.GFXCanvas || !Config.get("piecePlacementAnimationEnabled") || isReplayerReversing)
       return oldPlaceBlock.apply(this, [x, y, ...args]);
 
     const piece: number[][] =
@@ -231,12 +231,12 @@ export function initFX(): void {
     oldPlaceBlock.apply(this, [x, y, ...args]);
 
     // flashes the piece once you place it
-    if (Config.settings.get("piecePlacementAnimationLength") > 0) {
+    if (Config.get("piecePlacementAnimationLength") > 0) {
       this.GFXQueue.push({
-        opacity: Config.settings.get("piecePlacementAnimationOpacity") / 100,
+        opacity: Config.get("piecePlacementAnimationOpacity") / 100,
         delta:
-          Config.settings.get("piecePlacementAnimationOpacity") /
-          (100 * ((Config.settings.get("piecePlacementAnimationLength") * 1000) / 60)),
+          Config.get("piecePlacementAnimationOpacity") /
+          (100 * ((Config.get("piecePlacementAnimationLength") * 1000) / 60)),
         col: x,
         row: y,
         blockSize: this.block_size,

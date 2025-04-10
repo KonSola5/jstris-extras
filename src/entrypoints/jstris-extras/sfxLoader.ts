@@ -199,7 +199,7 @@ function loadDefaultSFX() {
 }
 
 function changeSFX() {
-  const SFX_JSON: string = Config.settings.get("customSFX_JSON");
+  const SFX_JSON: string = Config.get("customSFX_JSON");
   let sfx: CustomSFXDefinition | null = {};
   try {
     sfx = JSON.parse(SFX_JSON);
@@ -210,7 +210,7 @@ function changeSFX() {
   }
 
   if (typeof Game == "function") {
-    if (!Config.settings.get("customSFXEnabled") || !sfx) {
+    if (!Config.get("customSFXEnabled") || !sfx) {
       loadDefaultSFX();
     } else {
       console.log("Changing SFX...");
@@ -228,7 +228,7 @@ export const initCustomSFX = () => {
   if (typeof Game == "function") {
     const oldGetNextBlock = Game.prototype.getNextBlock;
     Game.prototype.getNextBlock = function (...args) {
-      if (Config.settings.get("customPieceSpawnSFXEnabled")) {
+      if (Config.get("customPieceSpawnSFXEnabled")) {
         this.playCurrentPieceSound();
       }
       const val = oldGetNextBlock.apply(this, args);
@@ -236,7 +236,7 @@ export const initCustomSFX = () => {
     };
     const oldHoldBlock = Game.prototype.holdBlock;
     Game.prototype.holdBlock = function (...args) {
-      if (Config.settings.get("customPieceSpawnSFXEnabled")) {
+      if (Config.get("customPieceSpawnSFXEnabled")) {
         this.playCurrentPieceSound();
       }
       const val = oldHoldBlock.apply(this, args);

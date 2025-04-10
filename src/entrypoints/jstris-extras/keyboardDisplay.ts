@@ -159,12 +159,12 @@ export const initKeyboardDisplay = (): void => {
 
   const keyboardDiv: HTMLDivElement = document.createElement("div");
   keyboardDiv.classList.add("keyboard-div");
-  keyboardDiv.style.left = `${Config.settings.get("keyboardOSDViewportX")}vw`;
-  keyboardDiv.style.top = `${Config.settings.get("keyboardOSDViewportY")}vh`;
-  keyboardDiv.style.width = `${Config.settings.get("keyboardOSDWidthPx")}px`;
-  keyboardDiv.style.height = `${Config.settings.get("keyboardOSDHeightPx")}px`;
+  keyboardDiv.style.left = `${Config.get("keyboardOSDViewportX")}vw`;
+  keyboardDiv.style.top = `${Config.get("keyboardOSDViewportY")}vh`;
+  keyboardDiv.style.width = `${Config.get("keyboardOSDWidthPx")}px`;
+  keyboardDiv.style.height = `${Config.get("keyboardOSDHeightPx")}px`;
 
-  if (!Config.settings.get("keyboardOSD")) keyboardDiv.classList.add("hidden");
+  if (!Config.get("keyboardOSD")) keyboardDiv.classList.add("hidden");
   Config.onChange("keyboardOSD", (value: boolean): void => {
     if (value) {
       keyboardDiv.classList.remove("hidden");

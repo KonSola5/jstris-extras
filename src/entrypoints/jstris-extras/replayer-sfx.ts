@@ -1,5 +1,5 @@
 import { Config } from "../jstris-extras.js";
-import { loadCustomSFX } from "./sfxLoader.js";
+import { CustomSFXDefinition, loadCustomSFX } from "./sfxLoader.js";
 
 function shouldRenderEffectsOnView(view: SlotView) {
   return view.holdCanvas && view.holdCanvas.width >= 70;
@@ -13,20 +13,21 @@ export const initReplayerSFX = () => {
 
 export const initCustomReplaySFX = () => {
   console.log("init replayer sfx");
-  const sfx = Config.settings.get("customSFX");
-  // if (json) {
-  //   try {
-  //     sfx = JSON.parse(json);
-  //     // document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
-  //   } catch (error) {
-  //     console.log("SFX json was invalid.");
-  //     // document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
-  //   }
-  // } else {
-  //   // document.getElementById("customSFX_JSON_err").textContent = "";
-  // }
+  const json = Config.get("customSFX_JSON");
+  let sfx: CustomSFXDefinition = {};
+  if (json) {
+    try {
+      sfx = JSON.parse(json);
+      // document.getElementById("customSFX_JSON_err").textContent = "Loaded " + (sfx.name || "custom sounds");
+    } catch (_error) {
+      console.log("SFX json was invalid.");
+      // document.getElementById("customSFX_JSON_err").textContent = "SFX json is invalid.";
+    }
+  } else {
+    // document.getElementById("customSFX_JSON_err").textContent = "";
+  }
 
-  if (!Config.settings.get("customSFXEnabled") || !Config.settings.get("customSFX")) {
+  if (!Config.get("customSFXEnabled") || !Config.get("customSFX_JSON")) {
     return;
   }
 
@@ -76,12 +77,12 @@ const initOpponentSFX = () => {
 
   console.log("init opponent sfx");
   SlotView.prototype.playReplayerSound = function (soundOrSounds) {
-    let volume = Config.settings.get("opponentSFXVolumeMultiplier") || 0;
+    let volume = Config.get("opponentSFXVolumeMultiplier") || 0;
 
     if (!shouldRenderEffectsOnView(this)) {
       volume /= 4;
     }
-    const enabled = !!localStorage.getItem("SE") && Config.settings.get("opponentSFXEnabled");
+    const enabled = !!localStorage.getItem("SE") && Config.get("opponentSFXEnabled");
     if (enabled) {
       if (Array.isArray(soundOrSounds)) {
         soundOrSounds.forEach((sound) => {

@@ -23,9 +23,11 @@ export function initLayoutChanges() {
     bstage.id = "bstage";
     main.append(bstage);
 
-    const statsDiv = main.querySelector("#main > div:not([class]):not([id])") as HTMLDivElement;
-    statsDiv.classList.add("hidden");
-    bstage.append(...statsDiv.children);
+    const statsDiv: HTMLDivElement | null = main.querySelector("#main > div:not([class]):not([id])");
+    if (statsDiv) {
+      statsDiv.classList.add("hidden");
+      bstage.append(...statsDiv.children);
+    }
   });
 
   if (mains.length == 2) {
@@ -382,5 +384,4 @@ export function initLayoutChanges() {
       return this;
     };
   }
-
 }

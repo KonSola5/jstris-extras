@@ -110,7 +110,6 @@ const defaultConfig: IConfig = {
   thirdPartyMatchmakingEnabled: true,
 };
 
-
 interface ListenerMap<Props extends { [key in keyof Props]: Props[key] }>
   extends Map<keyof Props, (value: Props[keyof Props]) => void> {
   get<K extends keyof Props>(key: K): (value: Props[K]) => void;
@@ -128,9 +127,8 @@ interface ListenerMap<Props extends { [key in keyof Props]: Props[key] }>
   [Symbol.iterator]<K extends keyof Props>(): MapIterator<[K, (value: Props[K]) => void]>;
 }
 
-interface ConfigMap<Props extends { [key in keyof Props]: Props[key] }>
-  extends Map<keyof Props, Props[keyof Props]> {
-  get<K extends keyof Props>(key: K): Props[K]
+interface ConfigMap<Props extends { [key in keyof Props]: Props[key] }> extends Map<keyof Props, Props[keyof Props]> {
+  get<K extends keyof Props>(key: K): Props[K];
   set<K extends keyof Props>(key: K, value: Props[K]): this;
   has<K extends keyof Props>(key: K): boolean;
   delete<K extends keyof Props>(key: K): boolean;
@@ -150,16 +148,16 @@ interface ConfigMap<Props extends { [key in keyof Props]: Props[key] }>
  */
 export class ConfigManager {
   // No idea what the type of the listener callback should be.
-  settings: ConfigMap<IConfig>;
+  #settings: ConfigMap<IConfig>;
   // listeners: [configName: keyof IConfig, listener: (value: any) => void][]; // eslint-disable-line
-  listeners: ListenerMap<IConfig>;
+  #listeners: ListenerMap<IConfig>;
   constructor(storedSettings: Partial<IConfig>) {
-    this.settings = new Map(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
-    this.listeners = new Map();
+    this.#settings = new Map(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
+    this.#listeners = new Map();
     for (const pair of Object.entries(storedSettings)) {
       const setting: keyof IConfig = pair[0] as keyof IConfig;
       const value: IConfig[keyof IConfig] = pair[1];
-      this.settings.set(setting, value)
+      this.#settings.set(setting, value);
     }
   }
 
@@ -169,19 +167,27 @@ export class ConfigManager {
    * @param value The value to set.
    */
   set<T extends keyof IConfig>(name: T, value: IConfig[T]): void {
-    this.settings.set(name, value)
+    this.#settings.set(name, value);
     document.dispatchEvent(
       new CustomEvent("setStorageRequest", {
         detail: {
           key: name,
           value: value,
         },
-        bubbles: true
+        bubbles: true,
       })
     );
-    this.listeners.forEach((listener, event) => {
-      if (event == name) listener(value)
-    })
+    this.#listeners.forEach((listener, event) => {
+      if (event == name) listener(value);
+    });
+  }
+
+  /**
+   * Gets the given config.
+   * @param name The name of the config to get.
+   */
+  get<T extends keyof IConfig>(name: T): IConfig[T] {
+    return this.#settings.get(name);
   }
 
   /**
@@ -193,6 +199,6 @@ export class ConfigManager {
   }
 
   onChange<T extends keyof IConfig>(configName: T, listener: (value: IConfig[T]) => void): void {
-    this.listeners.set(configName, listener);
+    this.#listeners.set(configName, listener);
   }
 }

@@ -1,6 +1,6 @@
 import { ConnectionsMatrix } from "./global-typings.js";
 import { Config } from "../jstris-extras.js";
-import { Modes } from "./util.js";
+import { Modes, range } from "./util.js";
 
 function clone<T>(object: T): T {
   return JSON.parse(JSON.stringify(object));
@@ -133,7 +133,7 @@ export const initPracticeUndo = () => {
     // +1 for current piece and +1 for hold, because those are saved separately
     let rollCount: number = placedPieceCount + 1;
     if (holdPiece != null) rollCount += 1;
-    for (let i: number = 0; i < rollCount; i++) {
+    for (const _i of range(rollCount)) {
       this.getRandomizerBlock(); // result is ignored but rng is adjusted
     }
 
@@ -171,7 +171,7 @@ export const initPracticeUndo = () => {
           "keydown",
           (keyEvent: KeyboardEvent) => {
             if (this.focusState === 0) {
-              if (keyEvent.code === Config.settings.get("undoKey")) {
+              if (keyEvent.code === Config.get("undoKey")) {
                 this.undoToSaveState();
               }
             }

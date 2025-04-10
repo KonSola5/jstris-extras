@@ -65,7 +65,7 @@ export default defineUnlistedScript(async () => {
 
   // initModal();
   initSidebar();
-  if (Config.settings.get("isFirstOpen")) {
+  if (Config.get("isFirstOpen")) {
     alert(
       "Hi! Thank you for installing Jstris Extras! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"
     );
@@ -98,7 +98,7 @@ export default defineUnlistedScript(async () => {
     initLayout();
     initPracticeUndo();
     initPracticeFumen();
-    // setPlusSfx(Config.settings.get("customPlusSFX_JSON"));
+    // setPlusSfx(Config.get("customPlusSFX_JSON"));
     // const oldNewPB = GameCaption.prototype.newPB;
     // GameCaption.prototype.newPB = function (...args) {
     //   playSound("PB");

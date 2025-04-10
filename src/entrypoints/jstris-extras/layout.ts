@@ -10,7 +10,7 @@ const changeBG = (link: string): void => {
 };
 
 export const initLayout = (): void => {
-  changeBG(Config.settings.get("backgroundURL"));
+  changeBG(Config.get("backgroundURL"));
   Config.onChange("backgroundURL", (value: string) => {
     changeBG(value);
   });

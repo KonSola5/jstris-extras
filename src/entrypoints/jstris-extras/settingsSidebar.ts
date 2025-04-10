@@ -147,7 +147,7 @@ export function initSidebar() {
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.id = id;
-      checkbox.checked = Boolean(Config.settings.get(id) ?? false);
+      checkbox.checked = Boolean(Config.get(id) ?? false);
       checkbox.disabled = disabled;
       flexbox.append(checkbox);
 
@@ -191,7 +191,7 @@ export function initSidebar() {
       const textbox = document.createElement("input");
       textbox.type = "text";
       textbox.id = id;
-      textbox.value = String(Config.settings.get(id) ?? "");
+      textbox.value = String(Config.get(id) ?? "");
       textbox.disabled = disabled;
       flexbox.append(textbox);
 
@@ -281,7 +281,7 @@ export function initSidebar() {
       slider.min = String(min);
       slider.max = String(max);
       slider.step = String(step);
-      slider.value = String(Config.settings.get(id) ?? "");
+      slider.value = String(Config.get(id) ?? "");
 
       slider.disabled = disabled;
       flexbox.append(slider);
@@ -319,7 +319,7 @@ export function initSidebar() {
       const hiddenInput = document.createElement("input");
       hiddenInput.type = "hidden";
       hiddenInput.id = `${id}Value`;
-      hiddenInput.value = String(Config.settings.get(id) ?? "");
+      hiddenInput.value = String(Config.get(id) ?? "");
       userInput.append(hiddenInput);
 
       const dragDropArea = document.createElement("div");
