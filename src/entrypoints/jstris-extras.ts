@@ -28,12 +28,13 @@ import { initTamper } from "./jstris-extras/tamper.js";
 import { initSidebar } from "./jstris-extras/settingsSidebar.js";
 import { initLayoutChanges } from "./jstris-extras/layoutChanges.js";
 import { initCustomStats } from "./jstris-extras/stats_new.js";
-import { notify } from "./jstris-extras/util.js";
+import { getLogDiv, notify } from "./jstris-extras/util.js";
 
 export let Config: ConfigManager;
 
 export default defineUnlistedScript(async () => {
-  const startTime = performance.now();
+  try {
+    const startTime = performance.now();
 
   // Wait to get stored config from extension
   const settings: Partial<IConfig> = await new Promise<Partial<IConfig>>(
@@ -118,4 +119,26 @@ export default defineUnlistedScript(async () => {
   if (typeof Live == "function") initChat();
   initReplayerSFX();
   console.log(`Everything initialized in ${Math.round(performance.now() - startTime) / 1000} s.`);
+  } catch (error) {
+    if (error instanceof Error) {
+      const chatDiv: HTMLDivElement | null = document.querySelector("#chatContent");
+      if (chatDiv) {
+        const chatMessage = document.createElement("div");
+        chatMessage.classList.add("chl", "srv");
+
+        const details = document.createElement("details");
+        const summary = document.createElement("summary");
+        const text = document.createElement("span");
+
+        summary.textContent = `${error.name}: ${error.message}`;
+        text.textContent = error.stack ?? null;
+
+        details.append(summary, text)
+
+        chatMessage.append(getLogDiv("error", "Startup failed!", details));
+        chatDiv.append(chatMessage);
+      }
+    }
+  }
+  
 });

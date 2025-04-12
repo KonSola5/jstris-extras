@@ -203,6 +203,104 @@
   color: #f1f1f1;
 }
 
+/* Jstris Extras chat boxes */
+
+#gc .je-log {
+  width: 98%;
+  border-radius: 6px;
+  padding: 6px;
+  color: black;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  margin-top: 1px;
+}
+
+#gc .je-log .title {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 5px;
+  align-items: center;
+}
+
+#gc .je-log.je-error {
+  background-color: #f44336;
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  & .title {
+    color: #f17067;
+  }
+}
+
+#gc .je-log.je-warning {
+  background-color: #f98118;
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  & .title {
+    color: #f3a45f;
+  }
+}
+
+#gc .je-log.je-info {
+  background-color: #00bcd4;
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  & .title {
+    color: #82c2ca;
+  }
+}
+
+#gc .je-log .title h1 {
+  font-size: 1.2em;
+  margin: 0;
+}
+
+#gc .je-log span {
+  font-size: 0.85em;
+}
+
+#gc .je-svg {
+  width: 20px;
+  height: 20px;
+}
+
+#gc .je-closebtn {
+  width: 1.2em;
+  height: 1.2em;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+#gc .je-closebtn * {
+  fill: red;
+  stroke: red;
+}
+
+#gc .je-svg * {
+  stroke: black;
+  fill: white;
+}
+
+/* Who the hell thought that "display: block" is appropriate for summary */
+#gc details summary {
+  display: list-item;
+}
+
+#gc details summary::marker {
+  content: "▼";
+}
+
+#gc details[open] summary::marker {
+  content: "▲";
+}
+
+#gc details span {
+  font-family: monospace;
+  text-align: left;
+  white-space: pre-wrap;
+}
+
 /* Sidebar Header */
 
 .sidebarHeader {

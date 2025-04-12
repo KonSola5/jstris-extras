@@ -14,13 +14,13 @@ export const fixTeamsMode = () => {
     return v;
   };
 
-  const oldRep = Game.prototype.sendRepFragment;
+  const oldSendRepFragment = Game.prototype.sendRepFragment;
   Game.prototype.sendRepFragment = function (...args) {
     const temp = this.transmitMode;
     if (this.GS.teamData) {
       this.transmitMode = 1;
     }
-    const v = oldRep.apply(this, args);
+    const v = oldSendRepFragment.apply(this, args);
     this.transmitMode = temp;
     return v;
   };
@@ -34,7 +34,7 @@ export const fixTeamsMode = () => {
     this.transmitMode = temp;
     return v;
   };
-  const oldFlash = SlotView.prototype.updateLiveMatrix;
+  const oldUpdateLiveMatrix = SlotView.prototype.updateLiveMatrix;
   SlotView.prototype.updateLiveMatrix = function (...args) {
     if (this.cancelLiveMatrix) {
       this.queueCanvas.classList.remove("hidden")
@@ -43,19 +43,19 @@ export const fixTeamsMode = () => {
     }
     this.queueCanvas.classList.add("hidden")
     this.holdCanvas.classList.add("hidden")
-    return oldFlash.apply(this, args);
+    return oldUpdateLiveMatrix.apply(this, args);
   };
-  const oldHold = Replayer.prototype.redrawHoldBox;
+  const oldRedrawHoldBox = Replayer.prototype.redrawHoldBox;
   Replayer.prototype.redrawHoldBox = function (...args) {
     this.v.QueueHoldEnabled = true;
     this.v.holdCanvas.classList.add("hidden")
-    return oldHold.apply(this, args);
+    return oldRedrawHoldBox.apply(this, args);
   };
-  const oldQueue = Replayer.prototype.updateQueueBox;
+  const oldUpdateQueueBox = Replayer.prototype.updateQueueBox;
   Replayer.prototype.updateQueueBox = function (...args) {
     this.v.QueueHoldEnabled = true;
     this.v.queueCanvas.classList.add("hidden")
-    return oldQueue.apply(this, args);
+    return oldUpdateQueueBox.apply(this, args);
   };
   const oldSlotInit = Slot.prototype.init;
   Slot.prototype.init = function (...args) {

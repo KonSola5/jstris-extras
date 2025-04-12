@@ -1,5 +1,3 @@
-import { CustomSFXDefinition } from "./sfxLoader";
-
 export interface IConfig {
   isFirstOpen: boolean;
 

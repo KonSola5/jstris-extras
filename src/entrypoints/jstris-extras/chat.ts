@@ -1,4 +1,5 @@
 import { Config } from "../jstris-extras.js";
+import { getLogDiv } from "./util.js";
 let chatListenerPresent: boolean = false;
 
 export const initChat = () => {
@@ -18,6 +19,10 @@ export const initChat = () => {
   const oldReadyGo = Game.prototype.readyGo;
   Game.prototype.readyGo = function (...args) {
     addChatToggleEventListener(this);
+
+    this.Live.showInChat("", getLogDiv("error", "Test error", "Error message"))
+    this.Live.showInChat("", getLogDiv("warning", "Test warning", "Warning message"))
+    this.Live.showInChat("", getLogDiv("info", "Test info", "Info message"))
     return oldReadyGo.apply(this, args);
   };
 
@@ -56,7 +61,7 @@ export const initChat = () => {
 
   // === emote code ===
 
-  const CUSTOM_EMOTES = [
+  const CUSTOM_EMOTES: Jstris.Emote[] = [
     {
       u: "https://raw.githubusercontent.com/JstrisPlus/jstris-plus-assets/main/emotes/Cheese.png",
       t: "qep",
