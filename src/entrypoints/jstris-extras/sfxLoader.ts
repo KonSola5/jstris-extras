@@ -1,15 +1,5 @@
 import { Config } from "../jstris-extras.js";
 
-// expands object types one level deep
-type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
-
-// expands object types recursively
-type ExpandRecursively<T> = T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: ExpandRecursively<O[K]> }
-    : never
-  : T;
-
 // Really hacky way to tell TypeScipt that _idHash exists on CreateJS static object.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare class IDHash {

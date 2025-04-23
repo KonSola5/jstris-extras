@@ -3,6 +3,10 @@ import { Modes } from "./util.js";
 import { getBlockSetsEX } from "./blockSetExtensions.js";
 import { ConnectionsMatrix } from "./global-typings.js";
 
+type GrowToSize<T, N extends number, A extends T[]> = A["length"] extends N ? A : GrowToSize<T, N, [...A, T]>;
+
+type FixedArray<T, N extends number> = GrowToSize<T, N, []>;
+
 export const initSkins = () => {
   let customSkinSize = 32;
   let customGhostSkinSize = 32;
@@ -651,9 +655,7 @@ export const initSkins = () => {
       oldClearMatrix.call(this);
       if (usingConnected) {
         if (!this.connections) {
-          this.connections = Array.from({ length: 21 }).map(() =>
-            Array.from({ length: 10 }).fill(0)
-          ) as ConnectionsMatrix;
+          this.connections = Array(21).map(() => Array(10).fill(0)) as ConnectionsMatrix;
         }
         this.connections.forEach((row, i) => {
           row.forEach((_column, j) => {
@@ -682,7 +684,7 @@ export const initSkins = () => {
 
   function redrawMatrixConnected(game: Game | Replayer) {
     if (!game.connections) {
-      game.connections = Array.from({ length: 21 }).map(() => Array.from({ length: 10 }).fill(0)) as ConnectionsMatrix;
+      game.connections = Array<Jstris.MatrixRow>(21).map(() => Array<number>(10).fill(0)) as ConnectionsMatrix;
     }
     for (let row = 0; row < 20; row++) {
       for (let column = 0; column < 10; column++) {
@@ -793,9 +795,7 @@ export const initSkins = () => {
 
     Game.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.connections = Array.from({ length: 21 }).map(() =>
-          Array.from({ length: 10 }).fill(0)
-        ) as ConnectionsMatrix;
+        this.connections = Array(21).map(() => Array(10).fill(0)) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
         if (this.pmode === Modes.MAPS) {
           const tempMatrix = [this.deadline].concat(this.matrix);
@@ -816,9 +816,7 @@ export const initSkins = () => {
   if (typeof ModeManager === "function") {
     ModeManager.prototype.injected_connectMap = function () {
       if (usingConnected) {
-        this.p.connections = Array.from({ length: 21 }).map(() =>
-          Array.from({ length: 10 }).fill(0)
-        ) as ConnectionsMatrix;
+        this.p.connections = Array(21).map(() => Array(10).fill(0)) as ConnectionsMatrix;
         // TODO: A toggle for connecting blocks of maps.
         const tempMatrix = [this.p.deadline].concat(this.p.matrix);
         tempMatrix.forEach((row, y) => {
@@ -1164,9 +1162,7 @@ export const initSkins = () => {
         (View as unknown as typeof ExportView).prototype.drawMainStage = function () {
           if (usingConnected) {
             if (!this.g.connections) {
-              this.g.connections = Array.from({ length: 21 }).map(() =>
-                Array.from({ length: 10 }).fill(0)
-              ) as ConnectionsMatrix;
+              this.g.connections = Array(21).map(() => Array(10).fill(0)) as ConnectionsMatrix;
             }
             this.drawOffsetTop = this.AP.STG.T;
             this.drawOffsetLeft = this.AP.STG.L;

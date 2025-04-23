@@ -2,7 +2,7 @@ import { ConnectionsMatrix } from "./global-typings.js";
 import { Config } from "../jstris-extras.js";
 import { Modes, range } from "./util.js";
 
-function clone<T>(object: T): T {
+function clone<T extends object | null>(object: T): T {
   return JSON.parse(JSON.stringify(object));
 }
 export class SaveState {
@@ -133,7 +133,7 @@ export const initPracticeUndo = () => {
     // +1 for current piece and +1 for hold, because those are saved separately
     let rollCount: number = placedPieceCount + 1;
     if (holdPiece != null) rollCount += 1;
-    for (const _i of range(rollCount)) {
+    for (const _ of range(rollCount)) {
       this.getRandomizerBlock(); // result is ignored but rng is adjusted
     }
 

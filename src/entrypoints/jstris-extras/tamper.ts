@@ -6,7 +6,7 @@
   All injections can short-circuit in cases where somehow the injected functions aren't initialized properly (like in the case of Live opponent boards).
 */
 // TODO: Cleaner way to perform those injections.
-// TODO: 
+// TODO:
 export function initTamper() {
   function getArguments(theFunction: (...args: never[]) => void): string[] {
     let args: string[] = [];
@@ -38,14 +38,14 @@ export function initTamper() {
       /this\[[^,[\]]*\]\[_0x\w*\[_0x\w*\(0x\w*\)\]\(_0x\w*,_0x\w*\)\]\[_0x\w*\[_0x\w*\(0x\w*\)\]\(_0x\w*,_0x\w*\)\]/g;
 
     const regexResults1 = placeBlockRegex1.exec(strippedPlaceBlockString); // This contains the wanted variables.
-    if (!regexResults1) throw new TypeError("regexResults1 has no results!")
+    if (!regexResults1) throw new TypeError("regexResults1 has no results!");
     const stringWithVariables = regexResults1[0];
     const index1 = placeBlockRegex1.lastIndex;
     // Slices after the regex match!
     const slicedFunction1 = strippedPlaceBlockString.slice(index1);
 
     // Now find strings like (__,__) in the string found previously - these hold wanted variables
-    const variables = [];
+    const variables: string[] = [];
 
     let array1, array2;
 
@@ -66,7 +66,7 @@ export function initTamper() {
     const placeBlockRegex3 =
       /this\[[^,[\]]*\]\[_0x\w*\[[^,[\]]*\]\(_0x\w*,_0x\w*\)\]=_0x\w*\[[^,[\]]*\]\(_0x\w*\[[^,[\]]*\],_0x\w*\)/g;
     const regexResults3 = placeBlockRegex3.exec(remainingPart);
-    if (!regexResults3) throw new TypeError("regexResults3 has no results!")
+    if (!regexResults3) throw new TypeError("regexResults3 has no results!");
     const part2 = remainingPart.slice(0, placeBlockRegex3.lastIndex - regexResults3[0].length);
     const part3 = remainingPart.slice(placeBlockRegex3.lastIndex - regexResults3[0].length);
 
@@ -80,15 +80,17 @@ export function initTamper() {
     GameCore.prototype.placeBlock = new Function(
       ...getArguments(GameCore.prototype.placeBlock),
       injectedPlaceBlockString
-    ) as typeof GameCore.prototype.placeBlock
+    ) as typeof GameCore.prototype.placeBlock;
   }
 
   function injectIntoCheckLineClears() {
+    let lineClear = "";
     const strippedLineClearsString = stripCurlyBrackets(GameCore.prototype.checkLineClears.toString());
-    // Matches `this.deadline = [0,0,0,0,0,0,0,0,0,0]`.
-    // There are two of them in the function, but only the first one is relevant here.
-    const deadlineRegex = /this\[[^,[\]]*?\]=\[([^,[\]]*,){9}[^,[\]]*\],/g;
-    deadlineRegex.exec(strippedLineClearsString);
+    // Matches `this.deadline = [0,0,0,0,0,0,0,0,0,0], ++lineClear`.
+    const deadlineRegex = /this\[[^,[\]]*?\]=\[(?:[^,[\]]*,){9}[^,[\]]*\],\+\+(_0x\w*)/g;
+    const regexResults1 = deadlineRegex.exec(strippedLineClearsString);
+    if (regexResults1?.[1]) lineClear = regexResults1[1];
+    else throw new Error("Line clear variable not found!");
     const part1 = strippedLineClearsString.slice(0, deadlineRegex.lastIndex);
     let remainingPart = strippedLineClearsString.slice(deadlineRegex.lastIndex);
 
@@ -105,11 +107,11 @@ export function initTamper() {
     const part3 = remainingPart.slice(0, forLoopRegex.lastIndex);
     remainingPart = remainingPart.slice(forLoopRegex.lastIndex);
 
-    const variables = [];
+    const variables: string[] = [];
     const variableRegex = /_0x\w*/g;
     for (let i: number = 0; i < 2; i++) {
       const regexResult = variableRegex.exec(regexResults3![0]);
-      if (!regexResult) throw new TypeError("regexResult has no results!")
+      if (!regexResult) throw new Error("regexResult has no results!");
       variables.push(regexResult[0]);
     }
 
@@ -130,14 +132,15 @@ export function initTamper() {
     const injectedLineClearString: string =
       `let connectionsCopy = null;` +
       part1 +
-      `this.injected_clearHiddenRow1?.(),` +
+      `,this.injected_clearHiddenRow1?.()` +
       part2 +
       `,this.connections && (connectionsCopy = copyMatrix(this.connections))` +
       part3 +
       `{this.injected_moveLinesDown?.(${variables[0]});` +
       part4 +
       `};this.injected_afterLinesMoved?.(${variables[1]});` +
-      remainingPart;
+      remainingPart +
+      `this.injected_displayActionText?.(${lineClear})`;
 
     GameCore.prototype.checkLineClears = new Function(
       ...getArguments(GameCore.prototype.checkLineClears),
@@ -163,7 +166,7 @@ export function initTamper() {
     const trueHeightRegex = /_0x\w*=_0x\w*\[[^,[\]]*\]\(this\[[^,[\]]*\]\[[^,[\]]*\],this\[[^,[\]]*\]/g;
 
     const trueHeightRegexResults = trueHeightRegex.exec(remainingPart);
-    if (!trueHeightRegexResults) throw new TypeError("trueHeightRegexResults has no results!")
+    if (!trueHeightRegexResults) throw new TypeError("trueHeightRegexResults has no results!");
     const variableRegex = /_0x\w*/g;
 
     const trueHeight = variableRegex.exec(trueHeightRegexResults[0])![0];
@@ -192,7 +195,10 @@ export function initTamper() {
       `this.injected_bumpUpConnections?.(${trueHeight}, ${amountOfLines});` +
       remainingPart;
 
-    GameCore.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString) as typeof GameCore.prototype.addGarbage
+    GameCore.prototype.addGarbage = new Function(
+      ...functionArguments,
+      injectedAddGarbageString
+    ) as typeof GameCore.prototype.addGarbage;
   }
 
   function injectIntoReplayerAddGarbage() {
@@ -243,7 +249,10 @@ export function initTamper() {
       `this.injected_bumpUpConnections?.(${trueHeight}, ${amountOfLines});` +
       remainingPart;
 
-    Replayer.prototype.addGarbage = new Function(...functionArguments, injectedAddGarbageString) as typeof Replayer.prototype.addGarbage;
+    Replayer.prototype.addGarbage = new Function(
+      ...functionArguments,
+      injectedAddGarbageString
+    ) as typeof Replayer.prototype.addGarbage;
   }
 
   function injectIntoStartPractice() {

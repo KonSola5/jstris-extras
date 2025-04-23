@@ -981,13 +981,90 @@
   border: 2px solid white;
 }
 
-/* =========== action text css ============= */
+/* =========== Action Text ============= */
 
 .action-text {
+  font-size: 1em;
+  display: grid;
+  grid-template-areas:
+    "line-clear"
+    "combo"
+    "b2b";
+  margin-bottom: auto;
+}
+
+.action-text .line-clear {
+  grid-area: line-clear;
+  opacity: 0;
+}
+
+.action-text .current-combo {
+  grid-area: combo;
+  opacity: 0;
+}
+
+.action-text .b2b {
+  grid-area: b2b;
+  color: yellow;
+}
+
+.action-text .spin[data-color="1"] {
+  color: #d70f37;
+}
+
+.action-text .spin[data-color="2"] {
+  color: #e35b02;
+}
+
+.action-text .spin[data-color="3"] {
+  color: #e39f02;
+}
+
+.action-text .spin[data-color="4"] {
+  color: #59b101;
+}
+
+.action-text .spin[data-color="5"] {
+  color: #0f9bd7;
+}
+
+.action-text .spin[data-color="6"] {
+  color: #2141c6;
+}
+
+.action-text .spin[data-color="7"] {
+  color: #af298a;
+}
+
+.action-text .spin[data-color="8"] {
+  color: #999999;
+}
+
+.action-text .spin[data-color="9"] {
+  color: #6a6a6a;
+}
+
+.action-text .slide-in {
+  animation: 1s linear 0s slide-in
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0%;
+    translate: 50% 0;
+  }
+
+  to {
+    opacity: 100%;
+    translate: 0 0;
+  }
+}
+
+/* .action-text {
   transition: 1s;
-  /*font-family: 'Gugi', sans-serif;*/
+  font-family: 'Gugi', sans-serif;
   -webkit-animation-name: bounce;
-  /* Fade in the background */
+  /Fade in the background
   -webkit-animation-duration: 0.4s;
   animation-name: action-text;
   animation-duration: 0.4s;
@@ -1006,7 +1083,7 @@
   100% {
     transform: translateY(0);
   }
-}
+} */
 
 /* Chat timestamp showing logic */
 

@@ -23,6 +23,11 @@ html body:has(#main) {
 
 /* Holds most of the game UI */
 html {
+  & .table-striped > tbody > tr:nth-child(even) > td,
+  & .table-striped> tbody > tr:nth-child(even) > th {
+    background-color: #222222
+}
+
   & #gameFrame {
     display: grid;
     grid-template-columns: min-content auto;
@@ -121,7 +126,7 @@ html {
 
   /* Hold canvas */
   & :is(.lstage #holdCanvas, .lstage #holdCanvas1, .lstage #holdCanvas2) {
-    margin-bottom: auto;
+    /* margin-bottom: auto; */
 
     float: none;
     margin-left: auto;
@@ -165,6 +170,27 @@ html {
   /* Stack elements inside main stage */
   & #main #stage > * {
     grid-area: 1/1;
+  }
+
+  & .designerBlock {
+    display: grid;
+    grid-template-areas: "playfield colors";
+  }
+
+  & .designerBlock :is(#stage, .stage) {
+    float: none;
+    display: grid;
+    grid-area: playfield;
+  }
+
+  /* Stack elements inside main stage */
+  & .designerBlock :is(#stage, .stage) > * {
+    grid-area: 1/1;
+  }
+
+  & .designerBlock .colorBar {
+    grid-area: colors;
+    float: none;
   }
 
   /* No need for this anymore */
@@ -566,6 +592,10 @@ html {
     display: grid;
   }
 
+  & #gameSlots .slot .bgLayer {
+    background-color: black;
+  }
+
   /* Nickname */
 
   /* Board */
@@ -606,4 +636,6 @@ html {
     position: static;
     grid-area: next;
   }
+
+  /* & .form-horizontal */
 }

@@ -19,10 +19,6 @@ export const initChat = () => {
   const oldReadyGo = Game.prototype.readyGo;
   Game.prototype.readyGo = function (...args) {
     addChatToggleEventListener(this);
-
-    this.Live.showInChat("", getLogDiv("error", "Test error", "Error message"))
-    this.Live.showInChat("", getLogDiv("warning", "Test warning", "Warning message"))
-    this.Live.showInChat("", getLogDiv("info", "Test info", "Info message"))
     return oldReadyGo.apply(this, args);
   };
 

@@ -1,3 +1,5 @@
+import { Actions, range } from "./util";
+
 export let isReplayerReversing = false;
 
 export const initReplayManager = () => {
@@ -24,11 +26,11 @@ export const initReplayManager = () => {
     // find the next upcoming hard drop
     let nextHardDropTime: number = -1;
     this.g.forEach((replayer: Replayer) => {
-      for (let i: number = replayer.ptr; i < replayer.actions.length; i++) {
+      for (const i of range(replayer.ptr, replayer.actions.length)) {
         const action: number = replayer.actions[i].a;
         const timestamp: number = replayer.actions[i].t;
 
-        if (action == Jstris.Actions.HARD_DROP) {
+        if (action == Actions.HARD_DROP) {
           if (nextHardDropTime == -1 || timestamp < nextHardDropTime) nextHardDropTime = timestamp;
           break;
         }
@@ -50,11 +52,11 @@ export const initReplayManager = () => {
     let skipBack: number = 0;
     let passed: boolean = false;
     this.g.forEach((replayer: Replayer) => {
-      for (let i: number = replayer.ptr - 1; i >= 0; i--) {
-        const action: number = replayer.actions[i].a;
+      for (const i of range(replayer.ptr, 0, -1)) {
+        const action: number = replayer.actions[i - 1].a;
         skipBack += 1;
 
-        if (action == Jstris.Actions.HARD_DROP) {
+        if (action == Actions.HARD_DROP) {
           if (passed) {
             skipBack -= 1;
             break;
@@ -63,7 +65,7 @@ export const initReplayManager = () => {
         }
       }
     });
-    for (let i = 0; i < skipBack; i++) {
+    for (const _ of range(skipBack)) {
       isReplayerReversing = true;
       oldPrevFrame.apply(this, ...args);
       isReplayerReversing = false;

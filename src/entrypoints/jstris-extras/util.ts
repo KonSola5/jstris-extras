@@ -49,6 +49,16 @@ export function* range(start: number, end?: number, step?: number) {
   }
 }
 
+// expands object types one level deep
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+
+// expands object types recursively
+export type ExpandRecursively<T> = T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: ExpandRecursively<O[K]> }
+    : never
+  : T;
+
 /**
  * An enum for easier readability of modes.
  * @enum {number}
@@ -64,6 +74,34 @@ export const Modes = Object.freeze({
   PC_MODE: 8,
   USERMODE: 9,
   BOT: 10,
+});
+
+export const Actions = Object.freeze({
+  MOVE_LEFT: 0,
+  MOVE_RIGHT: 1,
+  DAS_LEFT: 2,
+  DAS_RIGHT: 3,
+  ROTATE_LEFT: 4,
+  ROTATE_RIGHT: 5,
+  ROTATE_180: 6,
+  HARD_DROP: 7,
+  SOFT_DROP_BEGIN_END: 8,
+  GRAVITY_STEP: 9,
+  HOLD_BLOCK: 10,
+  GARBAGE_ADD: 11,
+  SGARBAGE_ADD: 12,
+  REDBAR_SET: 13,
+  ARR_MOVE: 14,
+  AUX: 15,
+});
+
+export const AuxActions = Object.freeze({
+  AFK: 0,
+  BLOCK_SET: 1,
+  MOVE_TO: 2,
+  RANDOMIZER: 3,
+  MATRIX_MOD: 4,
+  WIDE_GARBAGE_ADD: 5,
 });
 
 /**
@@ -188,7 +226,7 @@ export function getLogDiv(level: LogLevels, title: string, message: string | HTM
  * Contains functions shared between various element builders.
  * @abstract
  */
-class NodeBuilder {
+abstract class NodeBuilder {
   element!: Element; // Initialized elsewhere
   constructor() {
     if (this.constructor == NodeBuilder) {
@@ -273,6 +311,19 @@ export class ElementBuilder<K extends keyof HTMLElementTagNameMap> extends NodeB
   withText(textContent: string) {
     this.element.textContent = textContent;
     return this;
+  }
+
+  withData(name: string, value: string | number | boolean) {
+    this.element.dataset[name] = String(value);
+    return this;
+  }
+
+  /**
+   * Builds the element.
+   * @returns The built element.
+   */
+  build() {
+    return this.element;
   }
 }
 

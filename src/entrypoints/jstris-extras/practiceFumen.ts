@@ -3,7 +3,7 @@ import { encoder, decoder, Field, EncodePage, Pages } from "tetris-fumen";
 import { PieceType, RotationType } from "tetris-fumen/lib/defines.js";
 import { SaveState } from "./practiceUndo.js";
 import { SnapshotPlus } from "./global-typings.js";
-import { Modes } from "./util.js";
+import { getLogDiv, Modes } from "./util.js";
 
 /** Creates a deep clone of an object. */
 function clone<T>(x: T): T {
@@ -56,7 +56,7 @@ const jstrisToCenterY: number[][] = [
 ];
 const pIndex: PieceType[] = ["I", "O", "T", "L", "J", "S", "Z"];
 const rIndex: RotationType[] = ["spawn", "right", "reverse", "left"];
-const quizFilter = new RegExp("[^" + "IOTLJSZ" + "]", "g");
+const quizFilter = /[^IOTLJSZ]/g;
 
 function downloadText(filename: string, text: string): void {
   const anchor: HTMLAnchorElement = document.createElement("a");
@@ -71,10 +71,10 @@ function downloadText(filename: string, text: string): void {
   document.body.removeChild(anchor);
 }
 
-function generateFumenQueue(this: Game | Replayer, lim: number | null = null) {
-  if (!lim) lim = this.queue.length;
+function generateFumenQueue(this: Game | Replayer, limit: number | null = null) {
+  if (!limit) limit = this.queue.length;
   const pieceSet = this.blockSets[this.activeBlock.set];
-  lim = Math.min(lim, this.queue.length);
+  limit = Math.min(limit, this.queue.length);
   let activePieceName: string = "";
   if (this.activeBlock) {
     activePieceName = pieceSet.blocks[this.activeBlock.id].name;
@@ -84,7 +84,7 @@ function generateFumenQueue(this: Game | Replayer, lim: number | null = null) {
     holdPieceName = pieceSet.blocks[this.blockInHold.id].name;
   }
   let quiz: string = `#Q=[${holdPieceName}](${activePieceName})`;
-  for (let i: number = 0; i < lim; i++) {
+  for (let i: number = 0; i < limit; i++) {
     quiz += pieceSet.blocks[this.queue[i].id].name;
   }
   return quiz;
@@ -111,7 +111,7 @@ export const initPracticeFumen = () => {
     if (this.pmode === 2 && snapshot != null) {
       const returnValue: void = oldRestart.apply(this, args);
       const decompressedGame = LZString.decompressFromEncodedURIComponent(snapshot);
-      const game: SnapshotPlus = JSON.parse(decompressedGame || "null");
+      const game: SnapshotPlus = JSON.parse(decompressedGame ?? "null");
       if (!game) return returnValue;
       console.log(game);
 
@@ -176,28 +176,49 @@ export const initPracticeFumen = () => {
     const msg = "string" != typeof rawmsg ? this.chatInput.value.replace(/"/g, '\\"') : rawmsg;
     if (msg == "/fumen") {
       if (this.p.pmode != Modes.PRACTICE) {
-        this.showInChat("Jstris Extras", "Live Fumen export is only supported in Practice mode.");
+        this.showInChat(
+          "",
+          getLogDiv("error", "Fumen Export Error", "Live Fumen export is only supported in Practice mode.")
+        );
         this.chatInput.value = "";
         return;
       }
       if (!this.p.fumenPages) {
-        this.showInChat("Jstris Extras", "No Fumen data available.");
+        this.showInChat("", getLogDiv("error", "Fumen Export Error", "No Fumen data available."));
         this.chatInput.value = "";
         return;
       }
       const fumen: string = encoder.encode(this.p.fumenPages);
-      const coderro = `
-            <span class='wFirstLine'><span class='wTitle'>!${i18n.warning2}!</span><b>${i18n.repFail}"</b>(<em>Jstris+ Fumen Export</em>)</span>
-            <p>Fumen code dumped into the chat.</p>
-            <a href="https://harddrop.com/fumen/?${fumen}" target="_blank">Link</a>
-            <textarea readonly cols="30" onclick="this.focus();this.select()">${fumen}</textarea>
-            `;
-      this.chatMajorWarning(coderro);
+
+      // const coderro = `
+      //       <span class='wFirstLine'><span class='wTitle'>!${i18n.warning2}!</span><b>${i18n.repFail}"</b>(<em>Jstris+ Fumen Export</em>)</span>
+      //       <p>Fumen code dumped into the chat.</p>
+      //       <a href="https://harddrop.com/fumen/?${fumen}" target="_blank">Link</a>
+      //       <textarea readonly cols="30" onclick="this.focus();this.select()">${fumen}</textarea>
+      //       `;
+      // this.chatMajorWarning(coderro);
+      const div = document.createElement("div");
+      const span = document.createElement("span");
+      span.textContent = "Fumen code dumped into the chat.";
+      const link = document.createElement("a");
+      link.href = `https://harddrop.com/fumen/?${fumen}`;
+      link.target = "_blank";
+      link.textContent = "link"
+      const textArea = document.createElement("textarea");
+      textArea.readOnly = true;
+      textArea.cols = 30;
+      textArea.onclick = () => {
+        textArea.focus();
+        textArea.select();
+      };
+      textArea.textContent = fumen;
+      div.append(span, link, document.createElement("br"), textArea);
+      this.showInChat("", getLogDiv("info", "Fumen Export", div));
       this.chatInput.value = "";
       return;
-    } else if ("/fumen" === msg.substring(0, 6)) {
+    } else if (msg.startsWith("/fumen")) {
       if (this.p.pmode != Modes.PRACTICE) {
-        this.showInChat("Jstris Extras", "Fumen import is only supported in Practice mode.");
+        this.showInChat("", getLogDiv("error", "Jstris Extras", "Fumen import is only supported in Practice mode."));
         this.chatInput.value = "";
         return;
       }
@@ -207,7 +228,15 @@ export const initPracticeFumen = () => {
       } catch (error) {
         console.log(error);
         if (error instanceof Error) {
-          this.showInChat("Jstris Extras", error.message);
+          const details = document.createElement("details");
+          const summary = document.createElement("summary");
+          const text = document.createElement("span");
+
+          summary.textContent = `${error.name}: ${error.message}`;
+          text.textContent = error.stack ?? null;
+
+          details.append(summary, text);
+          this.showInChat("", getLogDiv("error", "Fumen Export Error", details));
           this.chatInput.value = "";
         }
         return;

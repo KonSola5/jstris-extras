@@ -1,6 +1,6 @@
 import { KeyAction } from "./global-typings.js";
 import { Config } from "../jstris-extras.js";
-import { createSVG, clamp } from "./util.js";
+import { createSVG, clamp, Actions } from "./util.js";
 
 interface SVGDefinition {
   name: string;
@@ -348,7 +348,7 @@ export const initKeyboardDisplay = (): void => {
 
           for (let i = 0; i < this.actions.length; i++) {
             const keyAction: KeyAction = { action: this.actions[i].a, timestamp: this.actions[i].t };
-            if (keyAction.action == Jstris.Actions.DAS_LEFT || keyAction.action == Jstris.Actions.DAS_RIGHT) {
+            if (keyAction.action == Actions.DAS_LEFT || keyAction.action == Actions.DAS_RIGHT) {
               keyAction.action -= 2;
               for (let j: number = i - 1; j >= 0; j--) {
                 if (this.kbdActions[j].action < 2) {

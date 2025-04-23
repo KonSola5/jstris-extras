@@ -145,13 +145,28 @@ interface ConfigMap<Props extends { [key in keyof Props]: Props[key] }> extends 
  * Manages Jstris Extras configs.
  */
 export class ConfigManager {
-  // No idea what the type of the listener callback should be.
-  #settings: ConfigMap<IConfig>;
-  // listeners: [configName: keyof IConfig, listener: (value: any) => void][]; // eslint-disable-line
-  #listeners: ListenerMap<IConfig>;
+  #settings!: ConfigMap<IConfig>;
+  #listeners!: ListenerMap<IConfig>;
   constructor(storedSettings: Partial<IConfig>) {
-    this.#settings = new Map(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
-    this.#listeners = new Map();
+    let Map: typeof window.Map | null = null;
+    // First check if Map hasn't been overriden
+    if (window.Map.toString() == "function Map() { [native code] }") Map = window.Map;
+    else {
+      // If it is, grab a fresh copy of native Map from the iframe
+      const frame = document.createElement("iframe");
+      frame.setAttribute("sandbox", "allow-same-origin");
+      frame.classList.add("hidden");
+      document.body.appendChild(frame);
+      if (frame.contentWindow?.Map) Map = frame.contentWindow.Map;
+      frame.remove();
+    }
+    if (Map) {
+      this.#settings = new Map(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
+      this.#listeners = new Map();
+    } else {
+      throw new Error("Failed to get native Map.");
+    }
+
     for (const pair of Object.entries(storedSettings)) {
       const setting: keyof IConfig = pair[0] as keyof IConfig;
       const value: IConfig[keyof IConfig] = pair[1];

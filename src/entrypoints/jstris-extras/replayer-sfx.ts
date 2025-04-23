@@ -1,5 +1,6 @@
 import { Config } from "../jstris-extras.js";
 import { CustomSFXDefinition, loadCustomSFX } from "./sfxLoader.js";
+import { Modes } from "./util.js";
 
 function shouldRenderEffectsOnView(view: SlotView) {
   return view.holdCanvas && view.holdCanvas.width >= 70;
@@ -54,15 +55,15 @@ export const initCustomReplaySFX = () => {
     // this.SEenabled && createjs.Sound.play(this.SFXset.getComboSFX(this.g.comboCounter));
     if (this.g.pmode) {
       switch (this.g.pmode) {
-        case Jstris.Modes.TSD20: {
+        case Modes.TSD20: {
           this.lrem.textContent = String(this.g.gamedata.TSD);
           break;
         }
-        case Jstris.Modes.PC_MODE: {
+        case Modes.PC_MODE: {
           this.lrem.textContent = String(this.g.gamedata.PCs);
           break;
         }
-        case Jstris.Modes.ULTRA:
+        case Modes.ULTRA:
           break;
         default: {
           this.lrem.textContent = String(this.g.linesRemaining);
@@ -134,40 +135,37 @@ const initOpponentSFX = () => {
 
     // bot sfx
     Game.prototype.readyGo = function (...args) {
-      const val = oldReadyGo.apply(this, args);
+      const returnValue = oldReadyGo.apply(this, args);
       console.log("injected bot sfx");
       if (this.Bots && this.Bots.bots) {
         this.Bots.bots.forEach((bot) => {
           if (bot.g) {
             bot.g.SFXset = this.SFXset;
-            // @ts-expect-error Not typed yet
             bot.g.playSound = (sound) => {
               if (sound) {
                 SlotView.prototype.playReplayerSound(sound);
               }
             };
-            const oldOnBotMove = Object.getPrototypeOf(bot).onBotMove;
-            // @ts-expect-error Not typed yet
-            bot.__proto__.onBotMove = function () {
-              const val = oldOnBotMove.apply(this, args);
+            const botProto: typeof bot = Object.getPrototypeOf(bot);
+
+            const oldOnBotMove = botProto.onBotMove;
+            botProto.onBotMove = function (...args) {
+              const returnValue = oldOnBotMove.apply(this, args);
               SlotView.prototype.playReplayerSound("harddrop");
-              return val;
+              return returnValue;
             };
-            // @ts-expect-error Not typed yet
-            const oldOnBotGameOver = bot.__proto__.onGameOver;
-            // @ts-expect-error Not typed yet
-            bot.__proto__.onGameOver = function () {
-              const val = oldOnBotGameOver.apply(this, args);
+            const oldOnBotGameOver = botProto.onGameOver;
+            botProto.onGameOver = function (...args) {
+              const returnValue = oldOnBotGameOver.apply(this, args);
               // when you restart the game, all the bots get gameovered
-              // @ts-expect-error Not typed yet
               if (!bot.p.p.gameEnded) SlotView.prototype.playReplayerSound("died");
-              return val;
+              return returnValue;
             };
           }
         });
       }
 
-      return val;
+      return returnValue;
     };
   }
 

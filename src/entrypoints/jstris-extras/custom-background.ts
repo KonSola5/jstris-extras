@@ -2,17 +2,15 @@ import { Config } from "../jstris-extras.js";
 
 const changeBG = (link: string): void => {
   console.log("Changing BG to " + link);
-  const app = document.getElementById("BG_only") as HTMLDivElement | null;
-  if (app) {
-    app.style.backgroundImage = `url(${link})`;
-    app.style.backgroundSize = "cover";
-  }
+  document.body.style.backgroundImage = `url(${link})`;
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundAttachment = "fixed";
 };
 
-export const initLayout = (): void => {
+export const initCustomBackground = (): void => {
   changeBG(Config.get("backgroundURL"));
   Config.onChange("backgroundURL", (value: string) => {
     changeBG(value);
   });
-  console.log("Layout loaded.");
+  console.log("Custom backgrond loaded.");
 };

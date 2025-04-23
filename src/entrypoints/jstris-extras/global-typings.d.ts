@@ -4,10 +4,20 @@ import { BlockSetsEX } from "./blockSetExtensions.ts";
 
 declare type ConnectionsMatrix = FixedArray<Jstris.MatrixRow, 21>;
 
+class ActionTextBox {
+  actionTextDiv: HTMLDivElement;
+  lineClearDiv: HTMLDivElement;
+  comboDiv: HTMLDivElement;
+  b2bDiv: HTMLDivElement;
+  constructor(): void;
+  get(): HTMLDivElement;
+}
+
 declare global {
   interface Window {
     copyReplayText: (number: number) => void;
     loadCustomSkin: (url: string, ghost?: boolean) => void;
+    Map: typeof globalThis.Map;
   }
 
   interface WebGLView {
@@ -73,6 +83,9 @@ declare global {
     connections?: ConnectionsMatrix;
     blockSetsEX?: BlockSetsEX;
     garbageConnections: Jstris.MatrixRow;
+    hasActionText?: boolean;
+    actionTextBox?: ActionTextBox;
+    b2bChain?: number;
 
     injected_placeBlock(y: number, i: number, x: number, j: number): void;
     injected_beforePlaceBlockInDeadline(y: number, i: number, x: number, j: number): void;
@@ -83,6 +96,8 @@ declare global {
 
     injected_initConnectedGarbage(garbageLine: Jstris.MatrixRow): void;
     injected_bumpUpConnections(trueHeight: number, amountOfLines: number): void;
+
+    injected_displayActionText(lineClear: number): void;
   }
 
   interface Game extends GameCore {
