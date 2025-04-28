@@ -1,7 +1,7 @@
-import { Config } from "../jstris-extras.js";
-import { Modes } from "./util.js";
-import { getBlockSetsEX } from "./blockSetExtensions.js";
-import { ConnectionsMatrix } from "./global-typings.js";
+import { Config } from "jstris-extras";
+import { Modes } from "$/utils/util.js";
+import { getBlockSetsEX } from "$/utils/blockSetExtensions.js";
+import { ConnectionsMatrix } from "$/types/global-typings";
 
 type GrowToSize<T, N extends number, A extends T[]> = A["length"] extends N ? A : GrowToSize<T, N, [...A, T]>;
 

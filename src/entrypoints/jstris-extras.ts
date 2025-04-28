@@ -1,35 +1,35 @@
 /// <reference types="../../jstris-typings/index.d.ts" />
-/// <reference types="./jstris-extras/global-typings.ts" />
+/// <reference types="./je-modules/types/global-typings.d.ts" />
 
 //import { initActionText } from "./actiontext.js";
-import { initFX } from "./jstris-extras/jstris-fx.js";
-import { initChat } from "./jstris-extras/chat.js";
-import { ConfigManager, IConfig } from "./jstris-extras/config.js";
+import { initFX } from "$/extra-visuals/jstris-fx.js";
+import { initChat } from "$/chat-extras/chat.js";
+import { ConfigManager, IConfig } from "$/meta/config.js";
 
 // import css from "./css/style.css";
 // import customGameCSS from "./css/custom-game-style.css";
 //import { initModal } from "./settingsModal.js";
-import { initCustomBackground } from "./jstris-extras/custom-background.js";
+import { initCustomBackground } from "$/extra-visuals/custom-background.js";
 //import { initStats } from "./stats.js";
-import { initReplayerSFX } from "./jstris-extras/replayer-sfx.js";
-import { initKeyboardDisplay } from "./jstris-extras/keyboardDisplay.js";
+import { initReplayerSFX } from "$/replayer-improvements/replayer-sfx.js";
+import { initKeyboardDisplay } from "$/extra-visuals/keyboardDisplay.js";
 //import { initCustomSkin } from "./skin.js";
-import { initCustomSFX } from "./jstris-extras/sfxLoader.js";
+import { initCustomSFX } from "$/custom-music/sfxLoader.js";
 //import { initConnectedSkins } from './connectedSkins';
-import { initReplayManager } from "./jstris-extras/replayManager.js";
-import { initPracticeUndo } from "./jstris-extras/practiceUndo.js";
+import { initReplayManager } from "$/replayer-improvements/replayManager.js"
+import { initPracticeUndo } from "$/practice-tweaks/practiceUndo.js";
 //import { initPracticeSurvivalMode } from "./practiceSurvivalMode.js";
-import { fixTeamsMode } from "./jstris-extras/teamsMode.js";
-import { initPracticeFumen, initReplayerSnapshot } from "./jstris-extras/practiceFumen.js";
+import { fixTeamsMode } from "$/team-improvements/teamsMode.js";
+import { initPracticeFumen, initReplayerSnapshot } from "$/practice-tweaks/practiceFumen.js"
 //import { authNotification, playSound, notify, setPlusSfx } from "./util.js";
-import { initAutomaticReplayCodes } from "./jstris-extras/automatic_replay_codes.js";
-import { initSkins } from "./jstris-extras/skin_new.js";
-import { initTamper } from "./jstris-extras/tamper.js";
-import { initSidebar } from "./jstris-extras/settingsSidebar.js";
-import { initLayoutChanges } from "./jstris-extras/layoutChanges.js";
-import { initCustomStats } from "./jstris-extras/stats_new.js";
-import { getLogDiv, notify } from "./jstris-extras/util.js";
-import { initActionText } from "./jstris-extras/action-text.js";
+import { initAutomaticReplayCodes } from "$/chat-extras/automatic_replay_codes.js";
+import { initSkins } from "$/extra-visuals/skin_new.js";
+import { initTamper } from "$/meta/tamper.js";
+import { initSidebar } from "$/meta/settingsSidebar.js";
+import { initLayoutChanges } from "$/meta/layoutChanges.js";
+import { initCustomStats } from "$/extra-visuals/stats_new.js";
+import { getLogDiv, notify } from "$/utils/util.js";
+import { initActionText } from "$/extra-visuals/action-text.js";
 
 export let Config: ConfigManager;
 

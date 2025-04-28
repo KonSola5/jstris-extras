@@ -1,4 +1,4 @@
-import { Config } from "../jstris-extras.js";
+import { Config } from "jstris-extras";
 
 // Really hacky way to tell TypeScipt that _idHash exists on CreateJS static object.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

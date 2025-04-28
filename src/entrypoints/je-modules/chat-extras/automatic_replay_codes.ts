@@ -1,4 +1,4 @@
-import { Config } from "../jstris-extras.js";
+import { Config } from "jstris-extras";
 
 export const initAutomaticReplayCodes = () => {
   window.copyReplayText = function (number: number) {

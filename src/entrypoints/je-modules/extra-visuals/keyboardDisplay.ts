@@ -1,11 +1,16 @@
-import { KeyAction } from "./global-typings.js";
-import { Config } from "../jstris-extras.js";
-import { createSVG, clamp, Actions } from "./util.js";
+
+import { Config } from "jstris-extras";
+import { createSVG, clamp, Actions } from "$/utils/util.js";
 
 interface SVGDefinition {
   name: string;
   viewBox: string;
   paths: object[];
+}
+
+interface KeyAction {
+  action: number;
+  timestamp: number;
 }
 
 let set2ings: Jstris.Controls;

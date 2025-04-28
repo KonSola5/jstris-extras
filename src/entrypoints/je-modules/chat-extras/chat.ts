@@ -1,5 +1,4 @@
-import { Config } from "../jstris-extras.js";
-import { getLogDiv } from "./util.js";
+import { Config } from "jstris-extras";
 let chatListenerPresent: boolean = false;
 
 export const initChat = () => {
@@ -33,24 +32,25 @@ export const initChat = () => {
     if (chatListenerPresent) return;
     chatListenerPresent = true;
     document.addEventListener("keydown", (event: KeyboardEvent) => {
-      const key: string = event.code;
-      if (key == Config.get("toggleChatKey")) {
-        if (game && game.focusState !== 1) {
-          // game already focused, unfocus
-          game.setFocusState(1);
-          setTimeout(function (): void {
-            game.Live.chatInput.focus();
-          }, 0); // setTimeout to prevent the key from being typed
-
-          // if keys are same, should close chat in this case
-        } else if (Config.get("closeChatKey") == Config.get("toggleChatKey")) {
+      switch (event.code) {
+        case Config.get("toggleChatKey"): {
+          if (game?.focusState !== 1) {
+            // game already focused, unfocus
+            game.setFocusState(1);
+            setTimeout(() => game.Live.chatInput.focus(), 0); // setTimeout to prevent the key from being typed
+            // if keys are same, should close chat in this case
+          } else if (Config.get("closeChatKey") == Config.get("toggleChatKey")) {
+            (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
+            (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
+          }
+          break;
+        }
+        case Config.get("closeChatKey"): {
+          // focus game
           (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
           (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
+          break;
         }
-      } else if (key == Config.get("closeChatKey")) {
-        // focus game
-        (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
-        (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
       }
     });
   }
@@ -96,11 +96,11 @@ export const initChat = () => {
     },
   ];
   const oldShowInChat = Live.prototype.showInChat;
-  Live.prototype.showInChat = function (...args) {
-    let zandria: string | HTMLDivElement | undefined = args[1];
+  Live.prototype.showInChat = function (boldText: string, textOrDiv?: string | HTMLDivElement, CSSclasses?: object) {
+    let tempTextOrDiv: string | HTMLDivElement | undefined = textOrDiv;
 
-    if (typeof zandria == "string") {
-      zandria = zandria.replace(/:(.*?):/g, function (match: string): string {
+    if (typeof tempTextOrDiv == "string") {
+      tempTextOrDiv = tempTextOrDiv.replace(/:(.*?):/g, function (match: string): string {
         let cEmote: Jstris.Emote | undefined = undefined;
         for (const emote of CUSTOM_EMOTES) {
           if (emote.n == match.split(":")[1]) {
@@ -114,33 +114,33 @@ export const initChat = () => {
         return match;
       });
     }
-    args[1] = zandria;
-    const val = oldShowInChat.apply(this, args);
+    textOrDiv = tempTextOrDiv;
+    const returnValue = oldShowInChat.apply(this, [boldText, textOrDiv, CSSclasses]);
     // Add Timestamps
     const chatTimestampSpan: HTMLSpanElement = document.createElement("span");
     chatTimestampSpan.className = "chat-timestamp";
     chatTimestampSpan.textContent = "[" + new Date().toTimeString().slice(0, 8) + "] ";
-    const c: HTMLCollectionOf<Element> = document.getElementsByClassName("chl");
-    c[c.length - 1].prepend(chatTimestampSpan);
+    const chatLines: HTMLCollectionOf<Element> = document.getElementsByClassName("chl");
+    chatLines[chatLines.length - 1].prepend(chatTimestampSpan);
 
-    return val;
+    return returnValue;
   };
   ChatAutocomplete.prototype.loadEmotesIndex = function () {
     if (!this.moreEmotesAdded) {
-      const request = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       const emotesURL = "/code/emotes?";
-      request.timeout = 8000;
-      request.open("GET", emotesURL, true);
+      xhr.timeout = 8000;
+      xhr.open("GET", emotesURL, true);
       try {
-        request.send();
+        xhr.send();
       } catch (error) {
         console.error("There was an error whilst loading emotes:\n" + error);
       }
-      request.ontimeout = function () {};
-      request.onerror = request.onabort = function () {};
-      request.onload = () => {
-        if (request.status === 200) {
-          let emoteList: Jstris.EmoteList = JSON.parse(request.responseText);
+      xhr.ontimeout = function () {};
+      xhr.onerror = xhr.onabort = function () {};
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          let emoteList: Jstris.EmoteList = JSON.parse(xhr.responseText);
           for (const emote of CUSTOM_EMOTES) {
             emoteList.unshift(emote);
           }
@@ -196,25 +196,23 @@ export const initChat = () => {
       const hints: string[] = typeof this.hints == "function" ? this.hints() : this.hints;
       this.hintsElem.textContent = "";
       const matchedHints: string[] = [];
-      const tishie: string[] = [];
+      const hintList: string[] = [];
       hints.forEach((hint: string) => {
-        const catenia: string = hint.toLowerCase();
-        if (catenia.startsWith(prefixlessWord)) matchedHints.push(hint);
+        const lowerCasedHint: string = hint.toLowerCase();
+        if (lowerCasedHint.startsWith(prefixlessWord)) matchedHints.push(hint);
         else {
-          if (prefixlessWordTemp.length >= 2 && catenia.includes(prefixlessWordTemp)) {
-            tishie.push(hint);
+          if (prefixlessWordTemp.length >= 2 && lowerCasedHint.includes(prefixlessWordTemp)) {
+            hintList.push(hint);
           }
         }
       });
       matchedHints.sort();
       if (matchedHints.length < this.maxPerHint) {
-        tishie.sort();
-        for (const ajitesh of tishie) {
-          if (
-            -1 === matchedHints.indexOf(ajitesh) &&
-            (matchedHints.push(ajitesh), matchedHints.length >= this.maxPerHint)
-          ) {
-            break;
+        hintList.sort();
+        for (const hint of hintList) {
+          if (matchedHints.indexOf(hint) === -1) {
+            matchedHints.push(hint);
+            if (matchedHints.length >= this.maxPerHint) break;
           }
         }
       }
@@ -247,16 +245,17 @@ export const initChat = () => {
         hintDiv.addEventListener("click", () => {
           const inputValue: string = this.inp.value;
           const pos: number = parseInt(hintDiv.dataset.pos!);
-          const xila: string = inputValue.substring(0, pos);
-          let neng: number = xila.indexOf(" ");
-          let marshelia;
-          for (marshelia = neng + 1; -1 !== neng; ) {
-            if (-1 !== (neng = xila.indexOf(" ", neng + 1))) marshelia = neng + 1;
+          const substring: string = inputValue.substring(0, pos);
+          let spacePos: number = substring.indexOf(" ");
+          let currentPos: number;
+          for (currentPos = spacePos + 1; spacePos !== -1; ) {
+            spacePos = substring.indexOf(" ", spacePos + 1);
+            if (-1 !== spacePos) currentPos = spacePos + 1;
           }
-          if (!this.prefixInSearch) ++marshelia;
-          this.inp.value = inputValue.substring(0, marshelia) + hintDiv.dataset.str! + " " + inputValue.substring(pos);
+          if (!this.prefixInSearch) ++currentPos;
+          this.inp.value = inputValue.substring(0, currentPos) + hintDiv.dataset.str! + " " + inputValue.substring(pos);
           this.inp.focus();
-          this.setCaretPosition(pos + hintDiv.dataset.str!.length + 1 - (pos - marshelia));
+          this.setCaretPosition(pos + hintDiv.dataset.str!.length + 1 - (pos - currentPos));
           hideElem(this.hintsElem);
           if (this.wipePrevious) this.inp.value = hintDiv.dataset.str!;
           if (this.onWiped) this.onWiped(hintDiv.dataset.str!);

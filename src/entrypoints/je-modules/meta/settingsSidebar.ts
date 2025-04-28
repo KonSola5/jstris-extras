@@ -1,5 +1,5 @@
-import { Config } from "../jstris-extras.js";
-import { IConfig } from "./config.js";
+import { Config } from "jstris-extras";
+import { IConfig } from "$/meta/config.js";
 
 export function initSidebar() {
   function openSubmenu(submenuElement: HTMLElement) {

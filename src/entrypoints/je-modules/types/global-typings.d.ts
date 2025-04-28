@@ -1,6 +1,6 @@
 import { EncodePages, Field } from "tetris-fumen";
-import { SaveState } from "./practiceUndo.js";
-import { BlockSetsEX } from "./blockSetExtensions.ts";
+import { SaveState } from "../practice-tweaks/practiceUndo.js";
+import { BlockSetsEX } from "../utils/blockSetExtensions.js";
 
 declare type ConnectionsMatrix = FixedArray<Jstris.MatrixRow, 21>;
 
