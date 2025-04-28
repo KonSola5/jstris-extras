@@ -2,8 +2,9 @@ import { encoder, decoder, Field, EncodePage, Pages } from "tetris-fumen";
 // import { SaveState } from "./practiceUndo.js";
 import { PieceType, RotationType } from "tetris-fumen/lib/defines.js";
 import { SaveState } from "./practiceUndo.js";
-import { getLogDiv, Modes } from "$/utils/util.js";
 import { SnapshotPlus } from "$/types/global-typings.js";
+import { Modes } from "$/utils/enums.js";
+import { getLogDiv } from "$/utils/HTML-utils.js";
 
 /** Creates a deep clone of an object. */
 function clone<T>(x: T): T {

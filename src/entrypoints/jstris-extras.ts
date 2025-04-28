@@ -28,8 +28,9 @@ import { initTamper } from "$/meta/tamper.js";
 import { initSidebar } from "$/meta/settingsSidebar.js";
 import { initLayoutChanges } from "$/meta/layoutChanges.js";
 import { initCustomStats } from "$/extra-visuals/stats_new.js";
-import { getLogDiv, notify } from "$/utils/util.js";
+import { notify } from "$/utils/util.js";
 import { initActionText } from "$/extra-visuals/action-text.js";
+import { getLogDiv } from "$/utils/HTML-utils";
 
 export let Config: ConfigManager;
 

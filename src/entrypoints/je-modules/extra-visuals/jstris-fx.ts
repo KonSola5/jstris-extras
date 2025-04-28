@@ -1,6 +1,7 @@
-import { lerp, shake } from "$/utils/util.js";
+import { lerp } from "$/utils/extra-math.js";
 import { isReplayerReversing } from "$/replayer-improvements/replayManager.js";
 import { Config } from "jstris-extras";
+import { shake } from "$/utils/shake";
 
 interface GFXDefinition {
   opacity: number;

@@ -1,4 +1,4 @@
-import { ElementBuilder } from "$/utils/util";
+import { ElementBuilder } from "$/utils/element-builder";
 
 // prettier-ignore
 const lineClearKeyframes = {

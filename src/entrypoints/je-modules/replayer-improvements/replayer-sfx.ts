@@ -1,6 +1,6 @@
 import { Config } from "jstris-extras";
 import { CustomSFXDefinition, loadCustomSFX } from "$/custom-music/sfxLoader.js";
-import { Modes } from "$/utils/util.js";
+import { Modes } from "$/utils/enums.js";
 
 function shouldRenderEffectsOnView(view: SlotView) {
   return view.holdCanvas && view.holdCanvas.width >= 70;

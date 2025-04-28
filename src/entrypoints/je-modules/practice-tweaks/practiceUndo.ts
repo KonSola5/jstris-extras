@@ -1,6 +1,7 @@
 import { ConnectionsMatrix } from "../types/global-typings.js";
 import { Config } from "../../jstris-extras.js";
-import { Modes, range } from "../utils/util.js";
+import { Modes } from "$/utils/enums.js";
+import { range } from "$/utils/extra-math.js";
 
 function clone<T extends object | null>(object: T): T {
   return JSON.parse(JSON.stringify(object));

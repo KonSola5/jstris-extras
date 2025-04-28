@@ -1,6 +1,8 @@
 
+import { Actions } from "$/utils/enums";
+import { clamp } from "$/utils/extra-math";
+import { createSVG } from "$/utils/HTML-utils";
 import { Config } from "jstris-extras";
-import { createSVG, clamp, Actions } from "$/utils/util.js";
 
 interface SVGDefinition {
   name: string;
