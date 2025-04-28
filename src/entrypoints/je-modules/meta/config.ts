@@ -148,24 +148,8 @@ export class ConfigManager {
   #settings!: ConfigMap<IConfig>;
   #listeners!: ListenerMap<IConfig>;
   constructor(storedSettings: Partial<IConfig>) {
-    let Map: typeof window.Map | null = null;
-    // First check if Map hasn't been overriden
-    if (window.Map.toString() == "function Map() { [native code] }") Map = window.Map;
-    else {
-      // If it is, grab a fresh copy of native Map from the iframe
-      const frame = document.createElement("iframe");
-      frame.setAttribute("sandbox", "allow-same-origin");
-      frame.classList.add("hidden");
-      document.body.appendChild(frame);
-      if (frame.contentWindow?.Map) Map = frame.contentWindow.Map;
-      frame.remove();
-    }
-    if (Map) {
-      this.#settings = new Map(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
-      this.#listeners = new Map();
-    } else {
-      throw new Error("Failed to get native Map.");
-    }
+    this.#settings = new NativeMap(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
+    this.#listeners = new NativeMap();
 
     for (const pair of Object.entries(storedSettings)) {
       const setting: keyof IConfig = pair[0] as keyof IConfig;

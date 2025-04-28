@@ -16,11 +16,11 @@ import { initKeyboardDisplay } from "$/extra-visuals/keyboardDisplay.js";
 //import { initCustomSkin } from "./skin.js";
 import { initCustomSFX } from "$/custom-music/sfxLoader.js";
 //import { initConnectedSkins } from './connectedSkins';
-import { initReplayManager } from "$/replayer-improvements/replayManager.js"
+import { initReplayManager } from "$/replayer-improvements/replayManager.js";
 import { initPracticeUndo } from "$/practice-tweaks/practiceUndo.js";
 //import { initPracticeSurvivalMode } from "./practiceSurvivalMode.js";
 import { fixTeamsMode } from "$/team-improvements/teamsMode.js";
-import { initPracticeFumen, initReplayerSnapshot } from "$/practice-tweaks/practiceFumen.js"
+import { initPracticeFumen, initReplayerSnapshot } from "$/practice-tweaks/practiceFumen.js";
 //import { authNotification, playSound, notify, setPlusSfx } from "./util.js";
 import { initAutomaticReplayCodes } from "$/chat-extras/automatic_replay_codes.js";
 import { initSkins } from "$/extra-visuals/skin_new.js";
@@ -31,12 +31,15 @@ import { initCustomStats } from "$/extra-visuals/stats_new.js";
 import { notify } from "$/utils/util.js";
 import { initActionText } from "$/extra-visuals/action-text.js";
 import { getLogDiv } from "$/utils/HTML-utils";
+import { getNativeMap } from "$/meta/nativeMap";
 
 export let Config: ConfigManager;
 
 export default defineUnlistedScript(async () => {
   try {
     const startTime = performance.now();
+
+    getNativeMap();
 
     // Wait to get stored config from extension
     const settings: Partial<IConfig> = await new Promise<Partial<IConfig>>(

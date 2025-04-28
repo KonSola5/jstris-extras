@@ -13,11 +13,17 @@ class ActionTextBox {
   get(): HTMLDivElement;
 }
 
+
 declare global {
+
+  // eslint-disable-next-line no-var
+  var NativeMap: typeof globalThis.Map;
+
   interface Window {
     copyReplayText: (number: number) => void;
     loadCustomSkin: (url: string, ghost?: boolean) => void;
     Map: typeof globalThis.Map;
+    NativeMap: typeof globalThis.Map;
   }
 
   interface WebGLView {
