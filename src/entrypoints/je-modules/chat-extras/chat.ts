@@ -231,7 +231,7 @@ export const initChat = () => {
             }
           }
           if (cEmote) {
-            hintEmoteImage.src = cEmote.u!;
+            hintEmoteImage.src = cEmote.u ?? "";
           } else {
             hintEmoteImage.src = CDN_URL("/" + this.hintsImg[matchedHint]);
           }
@@ -245,8 +245,9 @@ export const initChat = () => {
         hintDiv.dataset.pos = caretPosition.toString();
         hintDiv.dataset.str = matchedHint;
         hintDiv.addEventListener("click", () => {
+          if (!hintDiv.dataset.pos || !hintDiv.dataset.str) return;
           const inputValue: string = this.inp.value;
-          const pos: number = parseInt(hintDiv.dataset.pos!);
+          const pos: number = parseInt(hintDiv.dataset.pos);
           const substring: string = inputValue.substring(0, pos);
           let spacePos: number = substring.indexOf(" ");
           let currentPos: number;
@@ -255,12 +256,12 @@ export const initChat = () => {
             if (-1 !== spacePos) currentPos = spacePos + 1;
           }
           if (!this.prefixInSearch) ++currentPos;
-          this.inp.value = inputValue.substring(0, currentPos) + hintDiv.dataset.str! + " " + inputValue.substring(pos);
+          this.inp.value = inputValue.substring(0, currentPos) + hintDiv.dataset.str + " " + inputValue.substring(pos);
           this.inp.focus();
-          this.setCaretPosition(pos + hintDiv.dataset.str!.length + 1 - (pos - currentPos));
+          this.setCaretPosition(pos + hintDiv.dataset.str.length + 1 - (pos - currentPos));
           hideElem(this.hintsElem);
-          if (this.wipePrevious) this.inp.value = hintDiv.dataset.str!;
-          if (this.onWiped) this.onWiped(hintDiv.dataset.str!);
+          if (this.wipePrevious) this.inp.value = hintDiv.dataset.str;
+          if (this.onWiped) this.onWiped(hintDiv.dataset.str);
         });
         this.hintsElem.appendChild(hintDiv);
         if (++cinque >= this.maxPerHint) {

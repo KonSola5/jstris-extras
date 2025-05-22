@@ -145,8 +145,8 @@ interface ConfigMap<Props extends { [key in keyof Props]: Props[key] }> extends 
  * Manages Jstris Extras configs.
  */
 export class ConfigManager {
-  #settings!: ConfigMap<IConfig>;
-  #listeners!: ListenerMap<IConfig>;
+  #settings: ConfigMap<IConfig>;
+  #listeners: ListenerMap<IConfig>;
   constructor(storedSettings: Partial<IConfig>) {
     this.#settings = new NativeMap(Object.entries(structuredClone(defaultConfig))) as unknown as ConfigMap<IConfig>;
     this.#listeners = new NativeMap();

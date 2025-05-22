@@ -69,6 +69,13 @@ export const initSkins = () => {
   }
   window.loadCustomSkin = loadCustomSkin;
 
+  function hasKey<TObject extends Record<string | number | symbol, unknown>>(
+    object: TObject,
+    key: number | string | symbol
+  ): key is keyof TObject {
+    return key in object;
+  }
+
   function getConnection(connection: number): [x: number, y: number] {
     const tileLookup = {
       0: [3, 3],
@@ -118,19 +125,22 @@ export const initSkins = () => {
       251: [3, 6],
       254: [5, 6],
       255: [1, 1],
-    } satisfies Record<number, [number, number]>;
+    } as const satisfies Record<number, [number, number]>;
 
     // Return the unused tile if it doesn't exist in the lookup table above.
     // It should not appear, if it appears, it's a bug.
-    return tileLookup[connection as keyof typeof tileLookup] ?? [4, 5];
+    if (hasKey(tileLookup, connection)) {
+      return tileLookup[connection];
+    } else return [4, 5];
   }
 
   function connectMap(game: Game, x: number, y: number): void {
+    if (!game.connections) return;
     // Shallow copies, so mutating arrays inside of the arrays will mutate the original arrays
     const tempMatrix: number[][] = [game.deadline].concat(game.matrix);
 
     const blockColor: number = tempMatrix[y][x];
-    if (blockColor === 0) game.connections![y][x] = 0;
+    if (blockColor === 0) game.connections[y][x] = 0;
     // Bitmask
     let cardinalsFound: number = 0;
     // prettier-ignore
@@ -164,7 +174,7 @@ export const initSkins = () => {
     if ((cardinalsFound & (SOUTH + WEST)) == SOUTH + WEST) {
       if (tempMatrix[y + 1]?.[x - 1] === blockColor) connectionValue += 32;
     }
-    game.connections![y][x] = connectionValue;
+    game.connections[y][x] = connectionValue;
   }
 
   // WebGL connected skin init

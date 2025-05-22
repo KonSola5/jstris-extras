@@ -75,7 +75,7 @@ export function initFX(): void {
     SlotView.prototype.onResized = function (...args) {
       oldOnResized.apply(this, args);
 
-      if (this.g && this.g.GFXCanvas && this.g instanceof Replayer) {
+      if (this.g?.GFXCanvas && this.g instanceof Replayer) {
         this.g.GFXCanvas.width = this.canvas.width;
         this.g.GFXCanvas.height = this.canvas.height;
         this.g.GFXCanvas.style.top = this.canvas.style.top;
@@ -88,7 +88,7 @@ export function initFX(): void {
   // -- injection below --
   const oldInitReplay = Replayer.prototype.initReplay;
   Replayer.prototype.initReplay = function (...args) {
-    const val = oldInitReplay.apply(this, args);
+    const returnValue = oldInitReplay.apply(this, args);
 
     // SlotViews have replayers attached to them, don't want to double up on the canvases
     //if (SlotView.prototype.isPrototypeOf(this.v))
@@ -100,11 +100,9 @@ export function initFX(): void {
       // do not do gfx if the board is too small
       const live: Live = this.v.slot.gs.p.Live;
       if (!shouldRenderEffectsOnView(this.v) && live?.roomConfig?.m != 2) {
-        return val;
+        return returnValue;
       }
-      const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName(
-        "gfxLayer"
-      )
+      const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName("gfxLayer");
       for (const canvas of foundGFXCanvases) {
         if (canvas.parentNode) {
           canvas.parentNode.removeChild(canvas);
@@ -130,7 +128,7 @@ export function initFX(): void {
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     };
     this.v.canvas.parentNode!.appendChild(this.GFXCanvas!);
-    return val;
+    return returnValue;
   };
 
   const oldCheckLineClears = GameCore.prototype.checkLineClears;
@@ -144,17 +142,18 @@ export function initFX(): void {
           blockSize: this.block_size,
           amountParted: 0,
           process: function (ctx: CanvasRenderingContext2D): boolean {
+            if (this.amountParted === undefined || this.delta === undefined) return false;
             if (this.opacity <= 0) return false;
 
             const x1 = 1;
-            const x2: number = this.blockSize * 5 + this.amountParted!;
+            const x2: number = this.blockSize * 5 + this.amountParted;
             const y: number = 1 + this.row * this.blockSize;
 
             // Create gradient
             const leftGradient: CanvasGradient = ctx.createLinearGradient(
               0,
               0,
-              this.blockSize * 5 - this.amountParted!,
+              this.blockSize * 5 - this.amountParted,
               0
             );
             leftGradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
@@ -162,23 +161,23 @@ export function initFX(): void {
             // Fill with gradient
             ctx.fillStyle = leftGradient;
 
-            ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
+            ctx.fillRect(x1, y, this.blockSize * 5 - this.amountParted, this.blockSize);
 
             // Create gradient
             const rightGradient: CanvasGradient = ctx.createLinearGradient(
               0,
               0,
-              this.blockSize * 5 - this.amountParted!,
+              this.blockSize * 5 - this.amountParted,
               0
             );
             rightGradient.addColorStop(0, `rgba(255,170,0,0)`);
             rightGradient.addColorStop(1, `rgba(255,255,255,${this.opacity})`);
             // Fill with gradient
             ctx.fillStyle = rightGradient;
-            ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted!, this.blockSize);
+            ctx.fillRect(x2, y, this.blockSize * 5 - this.amountParted, this.blockSize);
 
-            this.amountParted = lerp(this.amountParted!, this.blockSize * 5, 0.1);
-            this.opacity -= this.delta!;
+            this.amountParted = lerp(this.amountParted, this.blockSize * 5, 0.1);
+            this.opacity -= this.delta;
             return true;
           },
         });
@@ -189,11 +188,12 @@ export function initFX(): void {
       const attack: number = this.gamedata.attack - oldAttack;
       if (Config.get("lineClearShakeEnabled")) {
         const element = assert(this.GFXCanvas?.parentNode?.parentNode, HTMLElement);
-        if (element) shake(
-          element,
-          Math.min(1 + attack * 5, 50) * Config.get("lineClearShakeStrength"),
-          Config.get("lineClearShakeLength") * (1000 / 60)
-        );
+        if (element)
+          shake(
+            element,
+            Math.min(1 + attack * 5, 50) * Config.get("lineClearShakeStrength"),
+            Config.get("lineClearShakeLength") * (1000 / 60)
+          );
       }
       if (this.GFXQueue.length) requestAnimationFrame(this.GFXLoop);
     };
@@ -244,16 +244,17 @@ export function initFX(): void {
         blockSize: this.block_size,
         block: piece,
         process: function (ctx: CanvasRenderingContext2D): boolean {
+          if (this.delta === undefined || this.opacity === undefined || this.block === undefined || this.col === undefined) return false;
           if (this.opacity <= 0) return false;
 
           ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
-          this.opacity -= this.delta!;
+          this.opacity -= this.delta;
 
-          for (let i: number = 0; i < this.block!.length; i++) {
-            for (let j: number = 0; j < this.block![i].length; j++) {
-              if (!this.block![i][j]) continue;
+          for (let i: number = 0; i < this.block.length; i++) {
+            for (let j: number = 0; j < this.block[i].length; j++) {
+              if (!this.block[i][j]) continue;
 
-              const x: number = 1 + (this.col! + j) * this.blockSize;
+              const x: number = 1 + (this.col + j) * this.blockSize;
               const y: number = 1 + (this.row + i) * this.blockSize;
 
               ctx.fillRect(x, y, this.blockSize, this.blockSize);
@@ -291,6 +292,15 @@ export function initFX(): void {
         if (this.opacity <= 0) return false;
 
         const { trailLeftBorder, trailRightBorder, trailBottom } = this;
+        if (
+          trailLeftBorder === undefined ||
+          trailRightBorder === undefined ||
+          trailBottom === undefined ||
+          this.trailTop === undefined ||
+          this.col === undefined
+        ) {
+          return false;
+        }
 
         const row: number = this.row + trailBottom!;
 
@@ -301,16 +311,16 @@ export function initFX(): void {
         // Fill with gradient
         ctx.fillStyle = gradient;
         ctx.fillRect(
-          (this.col! + trailLeftBorder!) * this.blockSize,
-          this.trailTop!,
-          (trailRightBorder! - trailLeftBorder! + 1) * this.blockSize,
-          row * this.blockSize - this.trailTop!
+          (this.col + trailLeftBorder) * this.blockSize,
+          this.trailTop,
+          (trailRightBorder - trailLeftBorder + 1) * this.blockSize,
+          row * this.blockSize - this.trailTop
         );
 
-        const middle: number = (trailLeftBorder! + trailRightBorder!) / 2;
+        const middle: number = (trailLeftBorder + trailRightBorder) / 2;
 
-        this.trailLeftBorder = lerp(trailLeftBorder!, middle, 0.1);
-        this.trailRightBorder = lerp(trailRightBorder!, middle, 0.1);
+        this.trailLeftBorder = lerp(trailLeftBorder, middle, 0.1);
+        this.trailRightBorder = lerp(trailRightBorder, middle, 0.1);
 
         this.opacity -= 0.0125;
 
