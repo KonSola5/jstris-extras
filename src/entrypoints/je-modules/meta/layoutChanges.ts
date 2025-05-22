@@ -1,15 +1,17 @@
+import { assert } from "$/utils/HTML-utils";
+
 interface IconSelection {
   [number: string]: string;
 }
 
 export function initLayoutChanges() {
-  const mains = document.querySelectorAll("#main") as NodeListOf<HTMLDivElement>;
+  const mains: NodeListOf<HTMLDivElement> = document.querySelectorAll("#main");
   mains.forEach((main: HTMLDivElement) => {
     // There can be 1 or 2 divs with "main" IDs, gotta love that
     const mstage: HTMLDivElement = document.createElement("div");
     mstage.id = "mstage";
     const holdOutOfDiv: Element | null = main.querySelector("#main > .holdCanvas");
-    const stage = main.querySelector("#stage") as HTMLDivElement;
+    const stage = assert(main.querySelector("#stage"), HTMLDivElement);
     if (holdOutOfDiv) {
       const lstage: HTMLDivElement = document.createElement("div");
       lstage.classList.add("lstage");
@@ -33,15 +35,15 @@ export function initLayoutChanges() {
   if (mains.length == 2) {
     const twoBoards: HTMLDivElement = document.createElement("div");
     twoBoards.classList.add("two-boards");
-    (document.getElementById("replayerGameFrame") as HTMLDivElement).prepend(twoBoards);
+    assert(document.getElementById("replayerGameFrame"), HTMLDivElement).prepend(twoBoards);
     twoBoards.append(...mains);
   }
 
-  const emoteSelector = document.querySelector(".chatInputC .emSel") as SVGElement;
+  const emoteSelector = document.querySelector(".chatInputC .emSel");
   if (emoteSelector) emoteSelector.classList.add("hidden");
 
-  const speedChart = document.querySelector("#speedChart") as HTMLCanvasElement;
-  if (speedChart) (speedChart.parentElement as HTMLDivElement).classList.add("stack");
+  const speedChart = document.querySelector("#speedChart");
+  if (speedChart) assert(speedChart.parentElement, HTMLDivElement).classList.add("stack");
 
   function getSVGSymbol(svgSrc: string, symbolToUse: string, CSSClasses: string): SVGSVGElement {
     const svg: SVGSVGElement = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -156,7 +158,7 @@ export function initLayoutChanges() {
         this.stats.init();
         this.stats.statsDiv.style.left = `${offsetLeft}px`;
         this.slotDiv.append(this.stats.statsDiv);
-        const totalWidth: number = 1.1 * (this.stats.statsDiv.childNodes[0] as HTMLDivElement).clientWidth;
+        const totalWidth: number = 1.1 * assert(this.stats.statsDiv.childNodes[0], HTMLDivElement).clientWidth;
         const shouldDisplayWinCounter: boolean =
           2 * totalWidth < 0.85 * this.gs.matrixWidth || totalWidth > 0.6 * this.gs.matrixWidth;
         if (shouldDisplayWinCounter) this.stats.winCounter.style.removeProperty("display");

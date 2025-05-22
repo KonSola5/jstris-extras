@@ -4,7 +4,7 @@ import { PieceType, RotationType } from "tetris-fumen/lib/defines.js";
 import { SaveState } from "./practiceUndo.js";
 import { SnapshotPlus } from "$/types/global-typings.js";
 import { Modes } from "$/utils/enums.js";
-import { getLogDiv } from "$/utils/HTML-utils.js";
+import { assert, getLogDiv } from "$/utils/HTML-utils.js";
 
 /** Creates a deep clone of an object. */
 function clone<T>(x: T): T {
@@ -260,7 +260,7 @@ export const initPracticeFumen = () => {
   };
 };
 export const initReplayerSnapshot = () => {
-  const repControls = document.getElementById("repControls") as HTMLDivElement;
+  const repControls = assert(document.getElementById("repControls"), HTMLDivElement);
   const skipButton: HTMLButtonElement = document.createElement("button");
   skipButton.className = "replay-btn";
   skipButton.textContent = "snapshot";
@@ -294,7 +294,7 @@ export const initReplayerSnapshot = () => {
         );
       };
       fumenButton.onclick = () => {
-        const rep: string = (document.getElementById("rep0") as HTMLTextAreaElement).value;
+        const rep: string = assert(document.getElementById("rep0"), HTMLTextAreaElement).value;
         fumenButton.disabled = true;
         fumenButton.textContent = "loading";
         fetch(`https://fumen.tstman.net/jstris`, {

@@ -1,12 +1,13 @@
 import { Actions } from "$/utils/enums";
 import { range } from "$/utils/extra-math";
+import { assert } from "$/utils/HTML-utils";
 
 export let isReplayerReversing = false;
 
 export const initReplayManager = () => {
   let skipping: boolean = false;
 
-  const repControls = document.getElementById("repControls") as HTMLDivElement;
+  const repControls = assert(document.getElementById("repControls"), HTMLDivElement);
   const skipButton: HTMLButtonElement = document.createElement("button");
   skipButton.textContent = "skip";
   skipButton.onclick = function () {
@@ -76,8 +77,8 @@ export const initReplayManager = () => {
   const oldLoadReplay = ReplayController.prototype.loadReplay;
   ReplayController.prototype.loadReplay = function (...args) {
     const returnValue = oldLoadReplay.apply(this, args);
-    (document.getElementById("next") as HTMLButtonElement).onclick = this.nextFrame.bind(this);
-    (document.getElementById("prev") as HTMLButtonElement).onclick = this.prevFrame.bind(this);
+    assert(document.getElementById("next"), HTMLButtonElement).onclick = this.nextFrame.bind(this);
+    assert(document.getElementById("prev"), HTMLButtonElement).onclick = this.prevFrame.bind(this);
     return returnValue;
   };
 };

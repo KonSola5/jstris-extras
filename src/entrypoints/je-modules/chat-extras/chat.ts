@@ -1,3 +1,4 @@
+import { assert } from "$/utils/HTML-utils";
 import { Config } from "jstris-extras";
 let chatListenerPresent: boolean = false;
 
@@ -32,6 +33,7 @@ export const initChat = () => {
     if (chatListenerPresent) return;
     chatListenerPresent = true;
     document.addEventListener("keydown", (event: KeyboardEvent) => {
+      const gfxLayer = assert(document.getElementsByClassName("layer mainLayer gfxLayer")[0], HTMLElement);
       switch (event.code) {
         case Config.get("toggleChatKey"): {
           if (game?.focusState !== 1) {
@@ -40,15 +42,15 @@ export const initChat = () => {
             setTimeout(() => game.Live.chatInput.focus(), 0); // setTimeout to prevent the key from being typed
             // if keys are same, should close chat in this case
           } else if (Config.get("closeChatKey") == Config.get("toggleChatKey")) {
-            (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
-            (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
+            gfxLayer.click();
+            gfxLayer.focus();
           }
           break;
         }
         case Config.get("closeChatKey"): {
           // focus game
-          (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).click();
-          (document.getElementsByClassName("layer mainLayer gfxLayer")[0] as HTMLElement).focus();
+          gfxLayer.click();
+          gfxLayer.focus();
           break;
         }
       }

@@ -1,3 +1,5 @@
+import { assert } from "$/utils/HTML-utils";
+
 export const initPracticeSurvivalMode = () => {
   // 60 apm cycle from rivi's usermode
   const baseCycle = [
@@ -110,7 +112,7 @@ export const initPracticeSurvivalMode = () => {
     };
   }
 
-  const stage = document.getElementById("stage") as HTMLDivElement;
+  const stage = assert(document.getElementById("stage"), HTMLDivElement);
   const settingsDiv = document.createElement("DIV");
   settingsDiv.id = "customPracticeSettings";
 

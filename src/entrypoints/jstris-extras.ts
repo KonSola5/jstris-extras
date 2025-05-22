@@ -30,10 +30,12 @@ import { initLayoutChanges } from "$/meta/layoutChanges.js";
 import { initCustomStats } from "$/extra-visuals/stats_new.js";
 import { notify } from "$/utils/util.js";
 import { initActionText } from "$/extra-visuals/action-text.js";
-import { getLogDiv } from "$/utils/HTML-utils";
+import { assert, getLogDiv } from "$/utils/HTML-utils";
 import { getNativeMap } from "$/meta/nativeMap";
 
 export let Config: ConfigManager;
+
+let showInChat: typeof Live.prototype.showInChat;
 
 export default defineUnlistedScript(async () => {
   try {
@@ -62,6 +64,13 @@ export default defineUnlistedScript(async () => {
 
     Config = new ConfigManager(settings);
 
+    showInChat = Live.prototype.showInChat.bind({
+      chatBox: assert(document.getElementById("ch1"), HTMLDivElement),
+      clearOldChatIfNeeded() {},
+      Friends: { friendsOpened: false },
+      scrollOnMessage() {},
+    });
+
     initLayoutChanges();
 
     // const customGameStylesheet = document.createElement("style");
@@ -81,7 +90,7 @@ export default defineUnlistedScript(async () => {
     // authNotification();
     initTamper();
 
-    if (typeof ReplayController == "function") {
+    if (typeof ReplayController == "function" && location.href.includes("replay")) {
       initReplayManager();
       initReplayerSnapshot();
     }
@@ -125,11 +134,6 @@ export default defineUnlistedScript(async () => {
     console.log(`Everything initialized in ${Math.round(performance.now() - startTime) / 1000} s.`);
   } catch (error) {
     if (error instanceof Error) {
-      const chatDiv: HTMLDivElement | null = document.querySelector("#chatContent");
-      if (chatDiv) {
-        const chatMessage = document.createElement("div");
-        chatMessage.classList.add("chl", "srv");
-
         const details = document.createElement("details");
         const summary = document.createElement("summary");
         const text = document.createElement("span");
@@ -139,9 +143,8 @@ export default defineUnlistedScript(async () => {
 
         details.append(summary, text);
 
-        chatMessage.append(getLogDiv("error", "Startup failed!", details));
-        chatDiv.append(chatMessage);
-      }
+        showInChat("", getLogDiv("error", "Startup failed!", details));
+
       throw error;
     }
   }

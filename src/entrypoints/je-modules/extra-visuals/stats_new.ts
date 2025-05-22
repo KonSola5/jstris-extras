@@ -1,24 +1,26 @@
 // TODO
 
+import { assert } from "$/utils/HTML-utils";
+
 declare interface Stats {
-CLOCK?: Stat
-SCORE?: Stat
-LINES?: Stat
-ATTACK?: Stat
-RECV?: Stat
-FINESSE?: Stat
-PPS?: Stat
-KPP?: Stat
-APM?: Stat
-BLOCKS?: Stat
-VS?: Stat
-WASTE?: Stat
-HOLD?: Stat
-HOLDPERCENT?: Stat
-PIECES_AND_PPS?: Stat
+  CLOCK?: Stat;
+  SCORE?: Stat;
+  LINES?: Stat;
+  ATTACK?: Stat;
+  RECV?: Stat;
+  FINESSE?: Stat;
+  PPS?: Stat;
+  KPP?: Stat;
+  APM?: Stat;
+  BLOCKS?: Stat;
+  VS?: Stat;
+  WASTE?: Stat;
+  HOLD?: Stat;
+  HOLDPERCENT?: Stat;
+  PIECES_AND_PPS?: Stat;
 }
 class StatsManager2 { // eslint-disable-line
-  stats: Stats = {}
+  stats: Stats = {};
   game: Game;
   jstrisExtras: boolean = true;
   statBoxLeft: HTMLDivElement;
@@ -28,17 +30,17 @@ class StatsManager2 { // eslint-disable-line
 
   constructor(view: Ctx2DView | WebGLView) {
     this.game = view.g;
-    let statBoxLeft: HTMLDivElement = document.querySelector("#main .stat-box-left") as HTMLDivElement;
+    let statBoxLeft: HTMLDivElement = assert(document.querySelector("#main .stat-box-left"), HTMLDivElement);
     if (!statBoxLeft) {
       statBoxLeft = document.createElement("div");
       statBoxLeft.classList.add("stat-box-left");
-      (document.querySelector("#main .lstage") as HTMLDivElement).append(statBoxLeft);
+      assert(document.querySelector("#main .lstage"), HTMLDivElement).append(statBoxLeft);
     }
-    let statBoxRight: HTMLDivElement = document.querySelector("#main .stat-box-right") as HTMLDivElement;
+    let statBoxRight: HTMLDivElement = assert(document.querySelector("#main .stat-box-right"), HTMLDivElement);
     if (!statBoxRight) {
       statBoxRight = document.createElement("div");
       statBoxRight.classList.add("stat-box-right");
-      (document.querySelector("#main #rInfoBox") as HTMLDivElement).append(statBoxRight);
+      assert(document.querySelector("#main #rInfoBox"), HTMLDivElement).append(statBoxRight);
     }
     this.statBoxLeft = statBoxLeft;
     this.statBoxRight = statBoxRight;
@@ -57,28 +59,25 @@ class StatsManager2 { // eslint-disable-line
 
   initDefault(): void {
     // Vanilla stats
-    this.stats.CLOCK = new Stat({ name: i18n.roundTime, stats:[{initialValue: 0}] });
-    this.stats.SCORE = new Stat({ name: i18n.score, stats: [{initialValue: 0}] });
-    this.stats.LINES = new Stat({ name: "Lines", stats: [{initialValue: 0}] });
-    this.stats.ATTACK = new Stat({ name: i18n.attack, stats: [{initialValue: 0}] });
-    this.stats.RECV = new Stat({ name: i18n.received, stats: [{initialValue: 0}] });
-    this.stats.FINESSE = new Stat({ name: i18n.finesse, stats: [{initialValue: 0}] });
-    this.stats.PPS = new Stat({ name: i18n.PPS, stats: [{initialValue: 0}] });
-    this.stats.KPP = new Stat({ name: i18n.KPP, stats: [{initialValue: 0}] });
-    this.stats.APM = new Stat({ name: i18n.APM, stats: [{initialValue: 0}] });
-    this.stats.BLOCKS = new Stat({ name: "Pieces", stats: [{initialValue: 0}] });
-    this.stats.VS = new Stat({ name: "VS Score", stats: [{initialValue: 0}] });
-    this.stats.WASTE = new Stat({ name: "Wasted T", stats: [{initialValue: 0}] });
-    this.stats.HOLD = new Stat({ name: "Holds", stats: [{initialValue: 0}] });
+    this.stats.CLOCK = new Stat({ name: i18n.roundTime, stats: [{ initialValue: 0 }] });
+    this.stats.SCORE = new Stat({ name: i18n.score, stats: [{ initialValue: 0 }] });
+    this.stats.LINES = new Stat({ name: "Lines", stats: [{ initialValue: 0 }] });
+    this.stats.ATTACK = new Stat({ name: i18n.attack, stats: [{ initialValue: 0 }] });
+    this.stats.RECV = new Stat({ name: i18n.received, stats: [{ initialValue: 0 }] });
+    this.stats.FINESSE = new Stat({ name: i18n.finesse, stats: [{ initialValue: 0 }] });
+    this.stats.PPS = new Stat({ name: i18n.PPS, stats: [{ initialValue: 0 }] });
+    this.stats.KPP = new Stat({ name: i18n.KPP, stats: [{ initialValue: 0 }] });
+    this.stats.APM = new Stat({ name: i18n.APM, stats: [{ initialValue: 0 }] });
+    this.stats.BLOCKS = new Stat({ name: "Pieces", stats: [{ initialValue: 0 }] });
+    this.stats.VS = new Stat({ name: "VS Score", stats: [{ initialValue: 0 }] });
+    this.stats.WASTE = new Stat({ name: "Wasted T", stats: [{ initialValue: 0 }] });
+    this.stats.HOLD = new Stat({ name: "Holds", stats: [{ initialValue: 0 }] });
     // Custom stats
-    this.stats.HOLDPERCENT = new Stat({name: "Holds", stats: [
-      {initialValue: 0},
-      {initialValue: 0, unit: "%"}
-    ]})
-    this.stats.PIECES_AND_PPS = new Stat({name: "Pieces", stats: [
-      {initialValue: 0},
-      {initialValue: 0, unit: "/s"}
-    ]})
+    this.stats.HOLDPERCENT = new Stat({ name: "Holds", stats: [{ initialValue: 0 }, { initialValue: 0, unit: "%" }] });
+    this.stats.PIECES_AND_PPS = new Stat({
+      name: "Pieces",
+      stats: [{ initialValue: 0 }, { initialValue: 0, unit: "/s" }],
+    });
   }
 
   applyShownStats(/*shown?: number*/): void {
@@ -136,7 +135,7 @@ class StatsManager2 { // eslint-disable-line
         right: [],
       },
     };
-    const currentMode = this.game.isPmode(false) as keyof typeof defaultStats
+    const currentMode = this.game.isPmode(false) as keyof typeof defaultStats;
     this.statsLeft = defaultStats[currentMode].left;
     this.statsRight = defaultStats[currentMode].right;
     this.statBoxLeft.replaceChildren();
@@ -177,8 +176,8 @@ interface StatDefinition {
 }
 
 interface StatSettings {
-  name: string,
-  stats: StatDefinition[]
+  name: string;
+  stats: StatDefinition[];
 }
 
 class Stat {
@@ -200,15 +199,15 @@ class Stat {
     this.statBox.append(this.statTitle, this.statValueBox);
 
     settings.stats.forEach((stat: StatDefinition, i: number) => {
-      if (i !== 0) this.statValueBox.append("|")
+      if (i !== 0) this.statValueBox.append("|");
       this.statValues.push(document.createElement("span"));
       this.statValues[i].textContent = String(stat.initialValue);
       this.statValueBox.append(this.statValues[i]);
-      if (stat.unit) this.statBox.append(stat.unit)
+      if (stat.unit) this.statBox.append(stat.unit);
 
       this.values.push(stat.initialValue);
-      this.initialValues.push(stat.initialValue)
-    })
+      this.initialValues.push(stat.initialValue);
+    });
   }
 
   set(...values: number[]): void {
@@ -227,7 +226,7 @@ class Stat {
   update(): void {
     this.values.forEach((value: number, i: number) => {
       this.statValues[i].textContent = String(value);
-    })
+    });
   }
 }
 

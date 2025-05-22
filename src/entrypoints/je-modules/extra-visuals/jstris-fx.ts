@@ -2,6 +2,7 @@ import { lerp } from "$/utils/extra-math.js";
 import { isReplayerReversing } from "$/replayer-improvements/replayManager.js";
 import { Config } from "jstris-extras";
 import { shake } from "$/utils/shake";
+import { assert } from "$/utils/HTML-utils";
 
 interface GFXDefinition {
   opacity: number;
@@ -24,7 +25,7 @@ function shouldRenderEffectsOnView(view: View | SlotView): boolean {
 
 // helper function
 function initGFXCanvas(game: Game | Replayer, refCanvas: HTMLCanvasElement): void {
-  game.GFXCanvas = refCanvas.cloneNode(true) as HTMLCanvasElement;
+  game.GFXCanvas = assert(refCanvas.cloneNode(true), HTMLCanvasElement);
   /*
   obj.GFXCanvas = document.createElement("canvas");
   obj.GFXCanvas.className = "layer mainLayer gfxLayer";
@@ -103,7 +104,7 @@ export function initFX(): void {
       }
       const foundGFXCanvases = this.v.slot.slotDiv.getElementsByClassName(
         "gfxLayer"
-      ) as HTMLCollectionOf<HTMLCanvasElement>;
+      )
       for (const canvas of foundGFXCanvases) {
         if (canvas.parentNode) {
           canvas.parentNode.removeChild(canvas);
@@ -187,7 +188,7 @@ export function initFX(): void {
     const shakeBoard = (oldAttack: number) => {
       const attack: number = this.gamedata.attack - oldAttack;
       if (Config.get("lineClearShakeEnabled")) {
-        const element = this.GFXCanvas?.parentNode?.parentNode as HTMLElement;
+        const element = assert(this.GFXCanvas?.parentNode?.parentNode, HTMLElement);
         if (element) shake(
           element,
           Math.min(1 + attack * 5, 50) * Config.get("lineClearShakeStrength"),
