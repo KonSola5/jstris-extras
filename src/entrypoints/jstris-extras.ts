@@ -32,6 +32,7 @@ import { notify } from "$/utils/util.js";
 import { initActionText } from "$/extra-visuals/action-text.js";
 import { assert, getLogDiv } from "$/utils/HTML-utils";
 import { getNativeMap } from "$/meta/nativeMap";
+import { multiline } from "$/utils/multiline";
 
 export let Config: ConfigManager;
 
@@ -81,8 +82,15 @@ export default defineUnlistedScript(async () => {
     initSidebar();
     initCustomBackground();
     if (Config.get("isFirstOpen")) {
-      alert(
-        "Hi! Thank you for installing Jstris Extras! Remember to turn off all other userscripts and refresh the page before trying to play. Enjoy!"
+      showInChat(
+        "",
+        getLogDiv(
+          "info",
+          "Jstris Extras",
+          multiline`Thanks for installing Jstris Extras!
+        Remember to turn off all other userscripts/extensions and refresh the page before trying to play.
+        Enjoy!`
+        )
       );
       Config.set("isFirstOpen", false);
     }
@@ -134,16 +142,16 @@ export default defineUnlistedScript(async () => {
     console.log(`Everything initialized in ${Math.round(performance.now() - startTime) / 1000} s.`);
   } catch (error) {
     if (error instanceof Error) {
-        const details = document.createElement("details");
-        const summary = document.createElement("summary");
-        const text = document.createElement("span");
+      const details = document.createElement("details");
+      const summary = document.createElement("summary");
+      const text = document.createElement("span");
 
-        summary.textContent = `${error.name}: ${error.message}`;
-        text.textContent = error.stack ?? null;
+      summary.textContent = `${error.name}: ${error.message}`;
+      text.textContent = error.stack ?? null;
 
-        details.append(summary, text);
+      details.append(summary, text);
 
-        showInChat("", getLogDiv("error", "Startup failed!", details));
+      showInChat("", getLogDiv("error", "Startup failed!", details));
 
       throw error;
     }

@@ -40,7 +40,7 @@ abstract class NodeBuilder {
   addEventListener(
     type: string,
     listener: EventListenerOrEventListenerObject,
-    options: boolean | AddEventListenerOptions
+    options?: boolean | AddEventListenerOptions
   ) {
     this.element.addEventListener(type, listener, options);
     return this;
@@ -55,6 +55,16 @@ abstract class NodeBuilder {
     parent.appendChild(this.element);
     return this;
   }
+
+  /**
+   * Appedns the child element to this element.
+   * @param child The child element.
+   * @returns The current instance for chaining.
+   */
+    append(child: Element) {
+      this.element.appendChild(child);
+      return this;
+    }
 
   /**
    * Builds the element.

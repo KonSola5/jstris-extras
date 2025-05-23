@@ -35,7 +35,7 @@ export function initTamper() {
     // Matches:
     // `this["matrix"][obfuscatedAdd(y, i)][obfuscatedAdd(x, j)]`
     const placeBlockRegex1 =
-      /this\[[^,[\]]*\]\[_0x\w*\[_0x\w*\(0x\w*\)\]\(_0x\w*,_0x\w*\)\]\[_0x\w*\[_0x\w*\(0x\w*\)\]\(_0x\w*,_0x\w*\)\]/g;
+      /this\[[^,[\]]*\]\[_0x\w*\[[^\]]*]\(_0x\w*,_0x*\w*\)\]\[_0x\w*\[[^\]]*]\(_0x\w*,_0x*\w*\)\]/g;
 
     const regexResults1 = placeBlockRegex1.exec(strippedPlaceBlockString); // This contains the wanted variables.
     if (!regexResults1) throw new TypeError("regexResults1 has no results!");

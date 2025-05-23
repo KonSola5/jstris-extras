@@ -4,6 +4,16 @@
   display: none !important;
 }
 
+.vertical-flex {
+  display: flex;
+  flex-direction: column;
+}
+
+.horizonal-flex {
+  display: flex;
+  flex-direction: row;
+}
+
 .stat-box-left,
 .stat-box-right {
   display: flex;
@@ -1045,7 +1055,7 @@
 }
 
 .action-text .slide-in {
-  animation: 1s linear 0s slide-in
+  animation: 1s linear 0s slide-in;
 }
 
 @keyframes slide-in {
