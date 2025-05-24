@@ -28,5 +28,9 @@ web-ext.config.ts
 # Chrome for testing
 chrome
 
+# Secrets (why wasn't this already in gitignore, dear WXT?)
+.env
+.env.publish
+
 # Jstris' game style
 game-style.css
