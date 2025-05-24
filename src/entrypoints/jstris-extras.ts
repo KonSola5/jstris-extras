@@ -33,10 +33,13 @@ import { initActionText } from "$/extra-visuals/action-text.js";
 import { assert, getLogDiv } from "$/utils/HTML-utils";
 import { getNativeMap } from "$/meta/nativeMap";
 import { multiline } from "$/utils/multiline";
+import { initRawSpinMethods } from "$/utils/rawSpinMethods";
+import { initSpinSFX } from "$/custom-music/spinSFX";
+import { initEnhancedBaseSFX } from "$/custom-music/enhancedBaseSFX";
 
 export let Config: ConfigManager;
 
-let showInChat: typeof Live.prototype.showInChat;
+let showInChat: typeof Live.prototype.showInChat | undefined;
 
 export default defineUnlistedScript(async () => {
   try {
@@ -65,12 +68,15 @@ export default defineUnlistedScript(async () => {
 
     Config = new ConfigManager(settings);
 
-    showInChat = Live.prototype.showInChat.bind({
+    if (typeof Live == "function") {
+      showInChat = Live.prototype.showInChat.bind({
       chatBox: assert(document.getElementById("ch1"), HTMLDivElement),
       clearOldChatIfNeeded() {},
       Friends: { friendsOpened: false },
       scrollOnMessage() {},
     });
+    }
+    
 
     initLayoutChanges();
 
@@ -82,7 +88,7 @@ export default defineUnlistedScript(async () => {
     initSidebar();
     initCustomBackground();
     if (Config.get("isFirstOpen")) {
-      showInChat(
+      showInChat?.(
         "",
         getLogDiv(
           "info",
@@ -104,6 +110,8 @@ export default defineUnlistedScript(async () => {
     }
 
     if (typeof GameCore == "function") {
+      initEnhancedBaseSFX();
+      initRawSpinMethods();
       initSkins();
       // initCustomSkin();
       if (!location.href.includes("export")) {
@@ -118,6 +126,7 @@ export default defineUnlistedScript(async () => {
       // initPracticeSurvivalMode();
     }
     if (typeof Game == "function") {
+      initSpinSFX();
       initPracticeUndo();
       initPracticeFumen();
       // setPlusSfx(Config.get("customPlusSFX_JSON"));
@@ -151,7 +160,7 @@ export default defineUnlistedScript(async () => {
 
       details.append(summary, text);
 
-      showInChat("", getLogDiv("error", "Startup failed!", details));
+      showInChat?.("", getLogDiv("error", "Startup failed!", details));
 
       throw error;
     }

@@ -13,9 +13,7 @@ class ActionTextBox {
   get(): HTMLDivElement;
 }
 
-
 declare global {
-
   // eslint-disable-next-line no-var
   var NativeMap: typeof globalThis.Map;
 
@@ -104,6 +102,10 @@ declare global {
     injected_bumpUpConnections(trueHeight: number, amountOfLines: number): void;
 
     injected_displayActionText(lineClear: number): void;
+
+    rawCheckTSpin(pieceID: number): { full: boolean; mini: boolean };
+    rawCheckAllSpin(pieceID: number): { full: boolean; mini: boolean };
+    rawCheckAllSpinImmobile(): { full: boolean };
   }
 
   interface Game extends GameCore {

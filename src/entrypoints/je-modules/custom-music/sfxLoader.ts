@@ -67,6 +67,8 @@ interface VanillaSFXEvents {
   item?: string;
   /** Sound played when a player collects an April Fools item by clearing the [?] block. */
   pickup?: string;
+
+  prespin?: string;
 }
 
 interface CustomScoringDefinition {
@@ -177,13 +179,107 @@ function loadSound<T extends { url: string }>(name: string, sound: T) {
   }
 }
 
+Game.prototype.loadSounds = function (sfx: BaseSFXset & { prespin: Jstris.SFXDefinition }, prefix) {
+  // TODO: Unhardcode the action types
+  const actionTypes = [
+    "hold",
+    "linefall",
+    "lock",
+    "harddrop",
+    "rotate",
+    "success",
+    "garbage",
+    "b2b",
+    "land",
+    "move",
+    "died",
+    "ready",
+    "go",
+    "golive",
+    "ding",
+    "msg",
+    "fault",
+    "item",
+    "pickup",
+    "prespin",
+  ] as const satisfies string[];
+  if (null === sfx.harddrop) {
+    sfx.harddrop = sfx.lock;
+  }
+  // if (!this.SErotate) {
+  //   const rotateIndex = actionTypes.indexOf("rotate");
+  //   if (rotateIndex !== -1) {
+  //     actionTypes.splice(rotateIndex, 1);
+  //   }
+  // }
+  const loadSound = function (id: string, sfxDefinition: Jstris.SFXDefinition | null | undefined) {
+    if (!id || !sfxDefinition) return;
+    const sfxFromObj = sfx.getSoundUrlFromObj(sfxDefinition);
+    id = prefix + id;
+    if (sfxFromObj) {
+      const registeredSound = createjs.Sound.registerSound(sfxFromObj, id);
+      if (!registeredSound || !(createjs.Sound as unknown as SoundWithIDHash)._idHash[id]) {
+        console.error(
+          `Sound loading error!\n- id = ${id}\n- ${registeredSound === false ? "Sound not registered!" : "No _idHash!"}`
+        );
+        return;
+      }
+      (createjs.Sound as unknown as SoundWithIDHash)._idHash[id].sndObj = sfxDefinition;
+    }
+  };
+  if (sfx.scoring) {
+    sfx.scoring.forEach((scoring, i) => {
+      if (scoring) loadSound(`s${i}`, scoring);
+    });
+  }
+  if (sfx.b2bScoring && Array.isArray(sfx.b2bScoring)) {
+    sfx.b2bScoring.forEach((b2bScoring, i) => {
+      if (b2bScoring) loadSound(`bs${i}`, b2bScoring);
+    });
+  }
+  if (sfx.spawns) {
+    for (const spawnSFX in sfx.spawns) loadSound(`b_${spawnSFX}`, sfx.spawns[spawnSFX as keyof typeof sfx.spawns]);
+  }
+  for (const action of actionTypes) {
+    loadSound(action, sfx[action]);
+  }
+  if (sfx.comboTones && Array.isArray(sfx.comboTones)) {
+    sfx.comboTones.forEach((comboTone, i) => {
+      if (comboTone != null) {
+        createjs.Sound.registerSound(sfx.getSoundUrlFromObj(comboTone), prefix + "c" + i);
+      }
+    });
+    sfx.maxCombo = sfx.comboTones.length - 1;
+  } else if (sfx.comboTones && sfx.comboTones.duration && sfx.comboTones.spacing) {
+    const audioSprites: { id: string; startTime: number; duration: number }[] = [];
+    if (sfx.comboTones.cnt) {
+      for (let i = 0; i < sfx.comboTones.cnt; ++i) {
+        audioSprites.push({
+          id: `${prefix}c${i}`,
+          startTime: i * (sfx.comboTones.duration + sfx.comboTones.spacing),
+          duration: sfx.comboTones.duration,
+        });
+      }
+      sfx.maxCombo = sfx.comboTones.cnt - 1;
+    }
+    const soundObject = [
+      {
+        src: sfx.getSoundUrl("comboTones"),
+        data: { audioSprite: audioSprites },
+      },
+    ];
+    createjs.Sound.registerSounds(soundObject, "");
+  }
+};
+
 function loadDefaultSFX() {
-  console.log("loading default sfx");
+  console.log("Loading default SFX...");
   try {
-    loadSFX(new SFXsets[localStorage["SFXset"]].data(), 0);
-  } catch (e) {
-    // just in case
-    console.log("failed loading default sfx: " + e);
+    loadSFX(new SFXsets[localStorage["SFXset"] ?? 2].data(), 0);
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("Failed loading default SFX: " + error.message);
+    }
   }
   return;
 }
@@ -234,12 +330,6 @@ export const initCustomSFX = () => {
     };
   }
 
-  /*   let onPlay = createjs.Sound.play
-       createjs.Sound.play = function () {
-           console.log(arguments[0])
-           let val = onPlay.apply(this, arguments)
-           return val
-       }*/
   changeSFX();
   Config.onChange("customSFX_JSON", changeSFX);
   Config.onChange("customSFXEnabled", changeSFX);
@@ -277,6 +367,7 @@ export const loadCustomSFX = (sfx: CustomSFXDefinition = {}) => {
     "fault",
     "item",
     "pickup",
+    "prespin",
   ] as const;
   const SCORES: (keyof Required<CustomScoringDefinition>)[] = [
     "SOFT_DROP",
@@ -298,14 +389,15 @@ export const loadCustomSFX = (sfx: CustomSFXDefinition = {}) => {
 
   class CustomSFXset extends BaseSFXset {
     volume: number;
+    prespin?: Jstris.SFXDefinition;
     specialScoring?: SpecialScoring;
     constructor() {
       super();
       this.volume = 1;
     }
 
-    getSoundUrlFromObj = (obj: Jstris.SFXDefinition | null) => {
-      return obj!.url;
+    getSoundUrlFromObj = (obj: Jstris.SFXDefinition) => {
+      return obj.url;
     };
 
     getClearSFX = (scoring: number, scoreToAdd: number, isBackToBack: boolean, currentCombo: number) => {

@@ -41,3 +41,9 @@ export const AuxActions = Object.freeze({
   MATRIX_MOD: 4,
   WIDE_GARBAGE_ADD: 5,
 });
+
+export const AllSpin = Object.freeze({
+  OFF: 0,
+  IMMOBILE: 1,
+  FOUR_POINT: 2,
+});
