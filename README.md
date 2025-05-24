@@ -7,6 +7,10 @@ Beware - may be more break-prone!
 - Better NEXT queue, which centers and distributes equally any polyomino, not just tetrominoes!
 - New configuration UI that allows you to find your desired customization settings more quickly!
 
+In progress:
+- New sound events (like T-spin being detected after a rotation, garbage being received, garbage being added to field)<br>
+Currently implemented the T-spin being detected after a rotation.
+
 TODO:
 - Stats on sides of the board instead of the bottom,
 - Ability to have a stat in the center of the board, just like in TETR.IO,
@@ -20,7 +24,6 @@ TODO:
 - Bag separators
 - Fully customizable Practice mode (basically TETR.IO Zen in Jstris)
 - The ability to distinguish the active piece from the stack,
-- New sound events (like T-spin being detected after a rotation, garbage being received, garbage being added to field)
 - Option to launch Jstris into singleplayer instead of defaulting to Live
 
 Features removed:
