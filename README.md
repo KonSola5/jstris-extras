@@ -8,8 +8,10 @@ Beware - may be more break-prone!
 - New configuration UI that allows you to find your desired customization settings more quickly!
 
 In progress:
-- New sound events (like T-spin being detected after a rotation, garbage being received, garbage being added to field)<br>
-Currently implemented the T-spin being detected after a rotation.
+- New sound events:
+  - ✔ T-spin being detected after a rotation,
+  - ✔ garbage being received,
+  - garbage being added to field
 
 TODO:
 - Stats on sides of the board instead of the bottom,

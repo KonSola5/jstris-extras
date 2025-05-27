@@ -36,6 +36,7 @@ import { multiline } from "$/utils/multiline";
 import { initRawSpinMethods } from "$/utils/rawSpinMethods";
 import { initSpinSFX } from "$/custom-music/spinSFX";
 import { initEnhancedBaseSFX } from "$/custom-music/enhancedBaseSFX";
+import { initGarbageSFX } from "$/custom-music/garbageSFX";
 
 export let Config: ConfigManager;
 
@@ -112,6 +113,7 @@ export default defineUnlistedScript(async () => {
     if (typeof GameCore == "function") {
       initEnhancedBaseSFX();
       initRawSpinMethods();
+      initGarbageSFX();
       initSkins();
       // initCustomSkin();
       if (!location.href.includes("export")) {

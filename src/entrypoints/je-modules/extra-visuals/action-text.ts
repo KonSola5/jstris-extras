@@ -109,7 +109,7 @@ export function initActionText() {
       } else {
         this.actionTextBox.comboDiv.replaceChildren();
       }
-      if (this.isBack2Back) {
+      if (this.isBack2Back && lineClear > 0) {
         this.b2bChain++;
       }
       if (!this.isBack2Back) {
