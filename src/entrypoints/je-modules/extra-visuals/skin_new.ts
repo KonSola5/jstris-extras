@@ -1020,8 +1020,11 @@ export const initSkins = () => {
       } else {
         // things to do with export
         // Jstris uses `View` for both the replayer view and the export view.
-        // There is no way to call both of them by the name "View", so export view gets this cursed cast.
-        (View as unknown as typeof ExportView).prototype.drawBlockOnCanvasConnected = function (
+        // There is no way to call both of them by the name "View",
+        // so export view gets this cursed cast and is aliased.
+        const ExportView = View as unknown as ExportView;
+        
+        ExportView.prototype.drawBlockOnCanvasConnected = function (
           x: number,
           y: number,
           blockID: number,
@@ -1062,7 +1065,7 @@ export const initSkins = () => {
           this.block_size = blockSize;
         };
 
-        (View as unknown as typeof ExportView).prototype.drawBlockConnected = function (x, y, blockID, connection) {
+        ExportView.prototype.drawBlockConnected = function (x, y, blockID, connection) {
           if (blockID && x >= 0 && y >= 0 && x < 10 && y < 20) {
             const scale = this.drawScale * this.BS;
             const [offsetX, offsetY] = getConnection(connection);
@@ -1086,7 +1089,7 @@ export const initSkins = () => {
           }
         };
 
-        (View as unknown as typeof ExportView).prototype.drawGhostBlockConnected = function (
+        ExportView.prototype.drawGhostBlockConnected = function (
           x,
           y,
           blockID,
@@ -1132,7 +1135,7 @@ export const initSkins = () => {
             }
           }
         };
-        (View as unknown as typeof ExportView).prototype.drawGhostAndCurrentConnected = function () {
+        ExportView.prototype.drawGhostAndCurrentConnected = function () {
           if (!this.g.blockSetsEX) {
             this.g.blockSetsEX = getBlockSetsEX();
           }
@@ -1168,8 +1171,8 @@ export const initSkins = () => {
           }
         };
 
-        const oldDrawMainStage = (View as unknown as typeof ExportView).prototype.drawMainStage;
-        (View as unknown as typeof ExportView).prototype.drawMainStage = function () {
+        const oldDrawMainStage = ExportView.prototype.drawMainStage;
+        ExportView.prototype.drawMainStage = function () {
           if (usingConnected) {
             if (!this.g.connections) {
               this.g.connections = Array(21).map(() => Array(10).fill(0)) as ConnectionsMatrix;

@@ -65,7 +65,7 @@ declare global {
     cancelLiveMatrix?: boolean;
   }
 
-  interface ExportView {
+  interface ExportViewInstance {
     drawBlockOnCanvasConnected(
       x: number,
       y: number,

@@ -42,7 +42,9 @@ export const initCustomReplaySFX = () => {
 
   // spectator replayer sfx
 
-  View.prototype.onLinesCleared = function (_attack, _comboAttack, { type, b2b, cmb }) {
+  View.prototype.onLinesCleared = function (_attack, _comboAttack, scoringOptions) {
+    if (!scoringOptions) return;
+    const {type, b2b, cmb} = scoringOptions;
     const suhrit: [number, number, boolean, number] = [type, type, b2b && this.g.isBack2Back, cmb];
     const sounds = this.SFXset!.getClearSFX(...suhrit);
 
